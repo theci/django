@@ -1,0 +1,83 @@
+# api-test.http
+
+@BASE_URL = http://localhost:8000
+
+
+### 네이버
+
+GET https://naver.com
+
+
+### 실패하는 form-urlencoded 요청
+
+POST {{BASE_URL}}/blog/api/new/
+Authorization: Basic baghyeonu baghyeonu
+Content-Type: application/x-www-form-urlencoded
+
+title = 샘플+제목 &
+content =
+
+
+
+
+### 성공하는 form-urlencoded 요청
+
+POST {{BASE_URL}}/blog/api/new/
+Authorization: Basic baghyeonu baghyeonu
+Content-Type: application/x-www-form-urlencoded
+
+title = 샘플+제목 &
+content = 샘플+내용
+
+
+### 실패하는 json 요청
+
+POST {{BASE_URL}}/blog/api/new/
+Authorization: Basic baghyeonu baghyeonu
+Content-Type: application/json
+
+{
+  "title": "샘플 제목",
+  "content": ""
+}
+
+
+### 성공하는 json 요청
+
+POST {{BASE_URL}}/blog/api/new/
+Authorization: Basic baghyeonu baghyeonu
+Content-Type: application/json
+
+{
+  "title": "샘플 제목",
+  "content": "샘플 내용"
+}
+
+
+
+### (수정/PUT) 성공하는 form-urlencoded (모든 필드 지정)
+
+PUT {{BASE_URL}}/blog/api/108/edit/
+#Authorization: Basic baghyeonu baghyeonu
+Authorization: Basic minsugim minsugim
+Content-Type: application/x-www-form-urlencoded
+
+title = 샘플+제목+수정 &
+content = 샘플+내용
+
+
+### (수정/PATCH) 성공하는 form-urlencoded (업데이트할 필드만 지정)
+
+PATCH {{BASE_URL}}/blog/api/109/edit/
+Authorization: Basic baghyeonu baghyeonu
+#Authorization: Basic minsugim minsugim
+Content-Type: application/x-www-form-urlencoded
+
+title = 샘플+제목+수정3
+
+
+### 삭제 요청 #101
+
+DELETE {{BASE_URL}}/blog/api/109/delete/
+Authorization: Basic baghyeonu baghyeonu
+#Authorization: Basic minsugim minsugim

@@ -1,0 +1,39 @@
+{# blog/templates/blog/base.html #}
+
+{% load component_tags django_bootstrap5 static %}
+
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <title>{% block title %}{% endblock %}</title>
+    {% bootstrap_css %}
+    {% component_css_dependencies %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js"></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<main style="width: 400px; margin: 1em;">
+    <h1>유저: {{ request.user }}</h1>
+    {% block content %}{% endblock %}
+</main>
+
+{# Modal이 위치할 요소를 먼저 정의합니다. #}
+<div id="modal-container"></div>
+
+<script>
+document.body.addEventListener('htmx:configRequest', function (event) {
+  const htmxElement = event.detail.elt;
+  const isGetRequest = htmxElement.hasAttribute('hx-get');
+  if ( isGetRequest && htmxElement.hasAttribute('hx-get-with-timestamp') ) {
+    const paramName = htmxElement.getAttribute('hx-get-with-timestamp') || '_';
+    event.detail.parameters[paramName] = new Date().getTime();
+  }
+});
+</script>
+{% bootstrap_javascript %}
+{% component_js_dependencies %}
+<script src="{% static 'core/toast-messages.js' %}"></script>
+{% include "core/_messages_as_event.html" %}
+{% block extra-script %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,41 @@
+{# blog/templates/blog/_tag_form.html : HTML 레이아웃없이 컨텐츠로만 구성 #}
+
+{% load component_tags django_bootstrap5 partials %}
+
+{% include "core/_messages_as_event.html" %}
+
+{% partialdef tag-form %}
+    <form hx-post="{{ request.get_full_path }}"
+          hx-trigger="submit once"
+          hx-swap="outerHTML"
+          autocomplete="off"
+          novalidate>
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {# <input type="submit" class="btn btn-primary"/> #}
+    </form>
+{% endpartialdef %}
+
+{% if request.method == "POST" %}
+    {% partial tag-form %}
+{% else %}
+    {% component "modal-form" id="tag-form" %}
+        {% fill "modal-title" %}
+            {% if not form.instance.pk %}태그 생성{% else %}태그 수정{% endif %}
+        {% endfill %}
+        {% fill "modal-body" %}
+            {% partial tag-form %}
+        {% endfill %}
+    {% endcomponent %}
+    <script>
+      (function() {
+        const modalEl = document.currentScript.previousElementSibling;
+
+        // refresh-tag-list 이벤트를 받으면 모달창을 닫습니다.
+        document.body.addEventListener("refresh-tag-list", function () {
+          htmx.trigger(modalEl, "hide");
+        });
+      })();
+    </script>
+{% endif %}
+

@@ -1,0 +1,70 @@
+{# 장고 템플릿 엔진 주석 문법 : templates/index.html 경로의 파일 #}
+
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Melon List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.16/babel.min.js"></script>
+</head>
+<body>
+
+<div class="container mx-auto">
+    <h1 class="font-bold text-2xl">Melon List</h1>
+
+    <form action="" method="get" autocomplete="off" class="my-4">
+        <input type="text" name="query" placeholder="검색어를 입력해주세요." autofocus
+               value="{{ query }}"
+               class="w-full p-2 border rounded focus:outline-none focus:ring"
+        >
+    </form>
+
+    <table class="min-w-full bg-white border border-gray-300 divide-y divide-gray-300"
+           id="song-list-table">
+        <thead>
+        <tr class="text-center">
+            <th class="py-2 px-4 border-b">곡명</th>
+            <th class="py-2 px-4 border-b">가수</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script type="text/babel">
+        function SongList() {
+          const [songList, setSongList] = React.useState([]);
+
+          React.useEffect(() => {
+              fetch("/api/song-list.json")
+                .then(response => response.json())
+                .then(_songList => {
+                  setSongList(_songList);
+                });
+          }, []);
+
+          return (
+            <>
+              {songList.map(song => {
+                return (
+                  <tr key={song.id}>
+                    <td>{song.곡명}</td>
+                    <td>{song.가수}</td>
+                  </tr>
+                )
+              })}
+            </>
+          )
+        }
+
+        ReactDOM.render(
+          <SongList />,
+          document.querySelector("#song-list-table tbody")
+        )
+    </script>
+</div>
+
+</body>
+</html>

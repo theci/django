@@ -1,0 +1,22 @@
+{# blog/templates/blog/_tag_list.html : HTML 레이아웃없이 컨텐츠로만 구성 #}
+
+
+{% for tag in tag_list %}
+    {% include "blog/_tag_list_item.html" %}
+
+    {% if forloop.last %}
+        {% if page_obj.has_next %}
+            <div class="list-group-item list-group-item-action text-center"
+                 hx-get="{% url 'blog:tag_list' %}?page={{ page_obj.next_page_number }}"
+                 hx-trigger="revealed"
+                 hx-swap="outerHTML transition:true">
+                로딩 중 ...
+            </div>
+        {% else %}
+            <div class="list-group-item list-group-item-action text-center">
+                페이지 끝 입니다.
+            </div>
+        {% endif %}
+    {% endif %}
+
+{% endfor %}
