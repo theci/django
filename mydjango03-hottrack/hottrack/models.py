@@ -36,6 +36,9 @@ class Song(models.Model):
         search_query = quote(f"{self.name}, {self.artist_name}")
         return f"https://www.youtube.com/results?search_query={search_query}"
 
+
+    # 이 메서드는 주어진 딕셔너리 데이터를 사용하여 Song 클래스의 인스턴스를 생성하는 팩토리 메서드입니다. 
+    # cls 매개변수는 Song 클래스 자체를 참조하며, 이를 통해 클래스의 생성자를 호출하여 새 인스턴스를 생성합니다.
     @classmethod
     def from_dict(cls, data: Dict) -> Song:
         return cls(
