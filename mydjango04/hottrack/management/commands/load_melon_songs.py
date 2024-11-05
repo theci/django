@@ -8,7 +8,7 @@ from django.core.management import BaseCommand
 from hottrack.models import Album, Artist, Genre, Song
 
 # melon_chart_url = "https://raw.githubusercontent.com/pyhub-kr/dump-data/main/melon/melon-20230910.json"
-# artist_uid, album_uid 필드가 추가되고, genre를 리스트화
+# artist_uid, album_uid 필드가 추가되고, genre를 리스트화.
 DEFAULT_MELON_CHART_URL = "https://raw.githubusercontent.com/pyhub-kr/dump-data/main/melon/melon-20240114.json"
 
 
