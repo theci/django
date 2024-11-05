@@ -1,17 +1,18 @@
 // 프로젝트/.vscode/settings.json
-
+// 이 파일은 VSCode 편집기 설정을 정의합니다. 프로젝트에 맞는 편집기 동작을 설정할 수 있습니다. 
+// 여기서는 코드 포맷팅, 언어별 설정, 그리고 Emmet과 관련된 설정이 포함되어 있습니다.
 {
-    "editor.tabSize": 4,          // 탭 크기
-    "editor.formatOnSave": true,  // 저장 시에 자동 포맷팅
-    // 각 파일에 대한 언어 지정
-    "files.associations": {
-      "**/*.html": "html",
-      "**/*.js": "javascript",
-      "**/*.css": "css",
-      "**/templates/**/*.html": "django-html",
-      "**/templates/**/*": "django-txt",
-      "**/requirements{/**,*}.{txt,in}": "pip-requirements"
-    },
+  "editor.tabSize": 4,          // 탭 크기 (4칸으로 설정)
+  "editor.formatOnSave": true,  // 저장 시 자동으로 코드 포맷팅
+  // 각 파일에 대한 언어 지정
+  "files.associations": {
+    "**/*.html": "html",        // 모든 HTML 파일을 HTML로 인식
+    "**/*.js": "javascript",    // 모든 JS 파일을 JavaScript로 인식
+    "**/*.css": "css",          // 모든 CSS 파일을 CSS로 인식
+    "**/templates/**/*.html": "django-html", // Django 템플릿 파일은 django-html로 인식
+    "**/templates/**/*": "django-txt",      // Django 템플릿 파일을 django-txt로 인식
+    "**/requirements{/**,*}.{txt,in}": "pip-requirements" // 요구 사항 파일을 pip-requirements로 인식
+  },
     "emmet.includeLanguages": {
       "django-html": "html"             // 장고 템플릿에서도 Emmet 사용 지원
     },
@@ -31,16 +32,16 @@
     // 장고 템플릿에 prettier가 적용되지 않도록 합니다. 💪
     "[django-html]": {
       "editor.tabSize": 2,
-      "editor.defaultFormatter": "Glavin001.unibeautify-vscode"
+      "editor.defaultFormatter": "Glavin001.unibeautify-vscode" // Django HTML 템플릿은 UniBeautify 사용
     },
     "[javascript]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.defaultFormatter": "esbenp.prettier-vscode" // JavaScript는 Prettier 사용
     },
     "[css]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode"
+      "editor.defaultFormatter": "esbenp.prettier-vscode" // CSS는 Prettier 사용
     },
     "[jsonc]": {
       "editor.tabSize": 2,
-      "editor.defaultFormatter": "vscode.json-language-features"
-    },
+      "editor.defaultFormatter": "vscode.json-language-features" // JSON 파일 포맷터
+    }
   }

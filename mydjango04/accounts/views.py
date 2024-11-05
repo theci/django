@@ -38,7 +38,7 @@ from accounts.forms import (
 from accounts.models import Profile, User
 
 
-@login_required
+@login_required # 사용자가 로그인해야만 이 뷰를 접근할 수 있습니다. 로그인이 되어 있지 않으면 로그인 페이지로 리디렉션
 def profile_edit(request):
     try:
         instance = request.user.profile
@@ -50,7 +50,7 @@ def profile_edit(request):
             prefix="profile-user", instance=request.user
         )
         profile_form = ProfileForm(prefix="profile", instance=instance)
-    else:
+    else: # POST 요청이 들어오면, 폼에 사용자가 제출한 데이터를 바탕으로 폼을 다시 초기화. 제출된 데이터가 유효한지 확인한 후, 유효한 경우 저장
         profile_user_form = ProfileUserForm(
             prefix="profile-user",
             data=request.POST,
@@ -98,33 +98,36 @@ def profile_edit(request):
 # profile_edit = ProfileUpdateView.as_view()
 
 
-def check_is_profile_update(wizard_view: "UserProfileWizardView") -> bool:
-    cleaned_data = wizard_view.get_cleaned_data_for_step("user_form")
+def check_is_profile_update(wizard_view: "UserProfileWizardView") -> bool: # 이 함수는 사용자가 프로필을 업데이트할지 여부를 체크하는 기능
+    cleaned_data = wizard_view.get_cleaned_data_for_step("user_form") # "user_form" 단계에서 제출된 데이터가 유효한지 검사한 후, 그 데이터를 가져오는 메서드
     if cleaned_data is None:
         return True
     return cleaned_data.get("is_profile_update", False)
 
-
-class UserProfileWizardView(LoginRequiredMixin, SessionWizardView):
-    form_list = [
+# 사용자가 여러 단계를 거쳐 프로필을 업데이트할 수 있는 폼 위저드(Wizard) 뷰를 구현한 것
+class UserProfileWizardView(LoginRequiredMixin, SessionWizardView): 
+    # LoginRequiredMixin - 사용자가 로그인해야만 뷰에 접근할 수 있게 합니다. 로그인하지 않으면 자동으로 로그인 페이지로 리디렉션
+    # SessionWizardView - 여러 단계를 거쳐 폼을 제출하는 폼 위저드 뷰입니다. 이 뷰는 각 단계를 세션에 저장하고, 사용자가 각 단계를 진행하도록 합니다.
+    form_list = [ # 뷰에서 처리할 폼들을 정의
         ("user_form", UserForm),
         ("profile_form", UserProfileForm),
     ]
     template_name = "accounts/profile_wizard.html"
-    file_storage = default_storage
+    file_storage = default_storage # 파일 업로드에 대한 저장소 설정
 
     condition_dict = {
-        "profile_form": check_is_profile_update,
+        "profile_form": check_is_profile_update, # 사용자가 프로필 업데이트를 했는지를 체크하는 함수
     }
-
-    def get_form_instance(self, step):
-        if step == "profile_form":
+    
+    # 각 폼 단계에 대해 해당하는 모델 인스턴스를 반환
+    def get_form_instance(self, step): 
+        if step == "profile_form": # 사용자의 프로필을 가져옵니다. 프로필이 없다면 get_or_create()로 새로 생성하여 반환
             profile, __ = Profile.objects.get_or_create(user=self.request.user)
             return profile
-        elif step == "user_form":
+        elif step == "user_form": # request.user로 현재 로그인한 사용자의 정보를 반환
             return self.request.user
 
-        return super().get_form_instance(step)
+        return super().get_form_instance(step) # 기본 동작으로 SessionWizardView에서 제공하는 다른 단계에 대한 인스턴스를 가져옵니다.
 
     def done(self, form_list, form_dict, **kwargs):  # noqa
         # print("form_list :", form_list)
@@ -135,17 +138,19 @@ class UserProfileWizardView(LoginRequiredMixin, SessionWizardView):
         # form_list[0].save()
         # form_list[1].save()
 
-        user = form_dict["user_form"].save()
+        user = form_dict["user_form"].save() # user_form에서 데이터를 저장하고, 사용자 정보를 반환
 
         if "profile_form" in form_dict:
             profile = form_dict["profile_form"].save(commit=False)
             profile.user = user
             profile.save()
 
-        messages.success(self.request, "프로필을 저장했습니다.")
-        return redirect("accounts:profile_wizard")
+        messages.success(self.request, "프로필을 저장했습니다.") # 프로필 저장이 성공적으로 완료된 후, 사용자에게 성공 메시지를 전달
+        return redirect("accounts:profile_wizard") # 프로필을 저장한 후, 같은 페이지로 리디렉션
 
 
+# UserProfileWizardView를 뷰로 변환합니다. 
+# URL 설정에서 이 뷰를 사용할 수 있도록 as_view() 메서드를 호출하여 실제 뷰로 변환
 profile_wizard = UserProfileWizardView.as_view()
 
 

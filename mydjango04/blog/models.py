@@ -110,7 +110,8 @@ class Post(LifecycleModelMixin, models.Model):
         # choices 속성을 사용한 필드는 get_필드명_display() 함수를 통해 레이블 조회를 지원합니다.
         return f"{self.title} ({self.get_status_display()})"
 
-    def slugify(self, force=False): # 게시물 제목을 기반으로 유니크한 슬러그를 자동 생성
+    # 게시물 제목을 기반으로 유니크한 슬러그를 자동 생성
+    def slugify(self, force=False): 
         if force or not self.slug:
             self.slug = slugify(self.title, allow_unicode=True)
             self.slug = self.slug[:112]
@@ -257,7 +258,7 @@ class Enrollment(models.Model):
     semester = models.CharField(max_length=10)
 
     class Meta:
-        constraints = [ # student, course, semester의 조합에 대해 유니크 제약을 추가하여, 동일한 학기에 동일한 학생이 같은 강좌를 두 번 수강할 수 없도록 합니다.
+        constraints = [ # student, course, semester의 조합에 대해 유니크 제약을 추가하여, 동일한 학기에 동일한 학생이 같은 강좌를 두 번 수강할 수 없도록 합니다
             models.UniqueConstraint(
                 "student",
                 "course",

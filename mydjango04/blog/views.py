@@ -17,17 +17,19 @@ from blog.models import Post, Review, Memo, MemoGroup, Tag
 from core.decorators import login_required_hx
 
 
-@login_required
-@permission_required("blog.view_post", raise_exception=False)
+@login_required # 이 데코레이터는 사용자가 로그인한 상태에서만 이 뷰를 실행할 수 있도록 합니다
+@permission_required("blog.view_post", raise_exception=False) # 사용자가 특정 권한(blog.view_post)을 가지고 있어야 이 뷰에 접근할 수 있게 합니다
+# raise_exception=False여서 권한이 없는 경우 403 Forbidden 응답을 자동으로 처리하지 않으며, 이를 명시적으로 처리
 def post_detail(request, slug):
-    post = get_object_or_404(Post, slug=slug)
+    post = get_object_or_404(Post, slug=slug) # 주어진 slug에 해당하는 Post 객체를 데이터베이스에서 찾고, 만약 없다면 404 오류를 발생
     return HttpResponse(f"{post.pk}번 글의 {post.slug}")
 
 
 @login_required
-@permission_required("blog.view_premium_post", login_url="blog:premium_user_guide")
+@permission_required("blog.view_premium_post", login_url="blog:premium_user_guide") # 사용자가 blog.view_premium_post 권한을 가지고 있어야만 접근
+# 권한이 없는 경우, blog:premium_user_guide로 지정된 페이지로 리디렉션
 def post_premium_detail(request, slug):
-    return HttpResponse(f"프리미엄 컨텐츠 페이지 : {slug}")
+    return HttpResponse(f"프리미엄 컨텐츠 페이지 : {slug}") # slug를 URL에서 받아서 프리미엄 콘텐츠의 상세 정보를 화면에 출력
 
 
 def premium_user_guide(request):
@@ -35,7 +37,7 @@ def premium_user_guide(request):
 
 
 def post_list(request):
-    query = request.GET.get("query", "").strip()
+    query = request.GET.get("query", "").strip() # GET 요청의 쿼리 매개변수에서 query 값을 가져오고, 양옆의 공백을 제거
 
     post_qs = Post.objects.all()
 
@@ -44,10 +46,10 @@ def post_list(request):
             Q(title__icontains=query) | Q(tag_set__name__in=[query])
         )
 
-    post_qs = post_qs.select_related("author")
-    post_qs = post_qs.prefetch_related("tag_set")
+    post_qs = post_qs.select_related("author") # Post 객체와 관련된 author 정보를 한 번의 쿼리로 미리 가져옵니다
+    post_qs = post_qs.prefetch_related("tag_set") # tag_set에 연결된 태그들을 미리 가져옵니다
 
-    return render(
+    return render( # query와 post_qs(게시물 목록)를 전달하여 결과를 렌더링
         request,
         "blog/post_list.html",
         {

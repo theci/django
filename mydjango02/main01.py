@@ -10,3 +10,10 @@ song_list = response.json()
 
 print(type(song_list), len(song_list), type(song_list[0]))
 pprint(song_list)
+# [{'가수': 'AKMU (악뮤)',
+#   '곡명': 'Love Lee',
+#   '곡일련번호': '36713849',
+#   '순위': '1',
+#   '앨범': 'Love Lee',
+#   '좋아요': 42085,
+#   '커버이미지_주소': 'https://cdnimg.melon.co.kr/...'},

@@ -13,7 +13,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import path
 
-
+# settings.py
 settings.configure(
     ROOT_URLCONF=__name__,
     DEBUG=True,
@@ -33,7 +33,7 @@ settings.configure(
 )
 django.setup()
 
-
+# models.py
 class Song(models.Model):
     id = models.AutoField(primary_key=True)
     가수 = models.CharField(max_length=100)
@@ -48,7 +48,7 @@ class Song(models.Model):
         db_table = "songs"
         app_label = "melon"
 
-
+# views.py
 def index(request):
     # query = request.GET.get("query", "").strip()  # 검색어
     #
@@ -76,7 +76,7 @@ def index(request):
 
     return render(request, "index.html")
 
-
+# views.py
 def song_list_api(request):
     query = request.GET.get("query", "").strip()  # 검색어
 
@@ -119,7 +119,7 @@ def song_list_api(request):
 #     return song_list
 
 
-
+# urls.py
 urlpatterns = [
     path("", index),
     path("api/song-list.json", song_list_api),
