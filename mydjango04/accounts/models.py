@@ -95,7 +95,7 @@ class Profile(models.Model):
         related_name="profile",
         related_query_name="profile",
     )
-    birth_date = DatePickerField(
+    birth_date = DatePickerField( # 날짜 선택기(DatePickerField)를 사용하고 최소/최대 날짜 범위를 설정
         min_value=lambda: datetime.date.today(),
         max_value=lambda: datetime.date.today() + datetime.timedelta(days=7),
         blank=True,

@@ -226,14 +226,14 @@ def profile(request):
 
 
 class SignupView(CreateView):
-    form_class = SignupForm
-    template_name = "accounts/signup_form.html"
-    success_url = settings.LOGIN_REDIRECT_URL
+    form_class = SignupForm # 이 폼은 사용자의 이름, 이메일, 비밀번호 등을 입력받아 새로운 사용자를 생성하는 폼
+    template_name = "accounts/signup_form.html" # 이 템플릿은 사용자가 볼 가입 폼을 렌더링
+    success_url = settings.LOGIN_REDIRECT_URL # 폼이 유효하게 제출되고 새 사용자가 생성된 후 리디렉션될 URL을 설정
 
     def form_valid(self, form) -> HttpResponse:
-        response = super().form_valid(form)
-        created_user = form.instance
-        auth_login(self.request, created_user)
+        response = super().form_valid(form) # form_valid 메서드를 호출하여 폼을 저장하고 응답을 생성
+        created_user = form.instance  # 폼을 통해 생성된 사용자를 가져옵니다
+        auth_login(self.request, created_user) # 사용자가 가입 후 자동으로 로그인되도록 auth_login을 호출
         return response
 
     def get_success_url(self) -> str:
