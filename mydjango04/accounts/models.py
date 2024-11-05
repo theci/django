@@ -9,9 +9,9 @@ from django.dispatch import receiver
 from core.model_fields import DatePickerField
 
 
-def group_add_perm(self, perm_name: str) -> None:
+def group_add_perm(self, perm_name: str) -> None: # 그룹(Group)에 특정 권한(Permission)을 추가하는 메서드
     group = self
-    app_label, codename = perm_name.split(".", 1)
+    app_label, codename = perm_name.split(".", 1) # perm_name을 app_label과 codename으로 분리
     permission = Permission.objects.get(
         content_type__app_label=app_label,
         codename=codename,
@@ -20,7 +20,7 @@ def group_add_perm(self, perm_name: str) -> None:
     group.permissions.add(permission)
 
 
-# Group 클래스에 add_perm 메서드 추가하기
+# Group 클래스에 add_perm 메서드 추가하기, 이를 통해 그룹 객체에서 add_perm() 메서드를 호출할 수 있게 됩니다.
 setattr(Group, "add_perm", group_add_perm)
 
 
@@ -118,6 +118,7 @@ class Profile(models.Model):
     photo = models.ImageField(upload_to="profile/photo", blank=True)
 
 
-@receiver(post_delete, sender=Profile)
+# Profile 객체가 삭제될 때, 해당 프로필에 연결된 사진 파일을 삭제
+@receiver(post_delete, sender=Profile) # post_delete는 Profile 객체가 삭제된 후에 실행
 def post_delete_on_profile(instance: Profile, **kwargs):
     instance.photo.delete(save=False)

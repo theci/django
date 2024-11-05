@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
 
-@csrf_exempt
+@csrf_exempt # post를 테스트하기 위함. 사용x
 def coffee_stamp(request):
     if request.method == "GET":
         response = HttpResponse(

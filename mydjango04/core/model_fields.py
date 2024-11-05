@@ -26,33 +26,34 @@ class BooleanYNField(models.BooleanField):
     }
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault("max_length", 1)
+        kwargs.setdefault("max_length", 1) # 필드의 초기화 과정에서 max_length를 기본값으로 1로 설정
         super().__init__(*args, **kwargs)
 
     def get_internal_type(self):
         return "CharField"
 
-    def to_python(self, value: Union[str, bool]) -> Optional[bool]:
-        if self.null and value in self.empty_values:
+    # 입력값을 Python의 True/False 값으로 변환하는 메서드
+    def to_python(self, value: Union[str, bool]) -> Optional[bool]: # 인자 값을 str이나 bool을 받겠다. 반환 값이 bool 값 이거나 None값이 올 수도 있다는 뜻
+        if self.null and value in self.empty_values: # null=True이거나 값이 비어 있으면 None을 반환
             return None
 
-        if value == self.true_value:
+        if value == self.true_value: # 입력값이 'Y'인 경우 True를 반환하고, 'N'인 경우 False를 반환
             return True
         if value == self.false_value:
             return False
 
-        return super().to_python(value)
+        return super().to_python(value) # 그 외의 값이 들어오면 부모 클래스인 BooleanField의 to_python 메서드를 호출하여 처리
 
     def from_db_value(
-        self, value: Optional[str], expression, connection
-    ) -> Optional[bool]:
-        return self.to_python(value)
+        self, value: Optional[str], expression, connection # 인자 값을 str이나 None을 받겠다
+    ) -> Optional[bool]: # 반환 값을 bool이나 None을 받겠다.
+        return self.to_python(value) # 
 
     def get_prep_value(self, value: Union[str, bool]) -> Optional[str]:
         prep_value: Optional[bool] = super().get_prep_value(value)
-        if prep_value is None:
-            return None
-        return self.true_value if prep_value else self.false_value
+        if prep_value is None: # None인 경우는 그대로 None을 반환하여 데이터베이스에 NULL 값이 저장되도록 합니다.
+            return None 
+        return self.true_value if prep_value else self.false_value # True이면 'Y'를, False이면 'N'을 반환하여 데이터베이스에 저장할 값을 반환
 
 
 class IPv4AddressIntegerField(models.CharField):

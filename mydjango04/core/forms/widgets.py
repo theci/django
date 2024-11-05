@@ -47,8 +47,8 @@ class StarRatingSelect(Select): # 별점 선택 UI를 제공
             "core/star-rating-js/4.3.0/star-rating.min.js",
         ]
 
-
-class PhoneNumberInput(MultiWidget): # 세 개의 TextInput 위젯을 포함하여 전화번호를 입력할 수 있는 UI를 제공
+# 세 개의 TextInput 위젯을 포함하여 전화번호를 입력할 수 있는 UI를 제공
+class PhoneNumberInput(MultiWidget): 
     subwidget_default_attrs = {
         "style": "width: 6ch; margin-right: 1ch;",
         "autocomplete": "off",
@@ -80,13 +80,15 @@ class PhoneNumberInput(MultiWidget): # 세 개의 TextInput 위젯을 포함하�
         ]
         super().__init__(widgets, attrs)
 
-    def build_attrs(self, base_attrs, extra_attrs=None): # maxlength 속성을 삭제. 각 서브 위젯에서 최대 길이를 따로 설정하기 위함
+    # # maxlength 속성을 삭제. 각 서브 위젯에서 최대 길이를 따로 설정하기 위함
+    def build_attrs(self, base_attrs, extra_attrs=None): 
         attrs = super().build_attrs(base_attrs, extra_attrs)
         if "maxlength" in attrs:
             del attrs["maxlength"]
         return attrs
 
-    def decompress(self, value: str) -> Tuple[str, str, str]: # 저장된 전화번호 값을 분해하여 각 부분(국가 코드, 지역 번호, 개인 번호)으로 나누어 반환
+    # 저장된 전화번호 값을 분해하여 각 부분(국가 코드, 지역 번호, 개인 번호)으로 나누어 반환
+    def decompress(self, value: str) -> Tuple[str, str, str]: 
         if value:
             value = re.sub(r"[ -]", "", value)
             return value[:3], value[3:7], value[7:]
@@ -151,25 +153,27 @@ class DatePickerInput(DateInput): # 날짜 선택기를 위한 커스텀 입력 
             "https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.3.4/dist/js/datepicker.min.js",
         ]
 
-
+# 네이버 지도와 관련된 설정을 처리하고, 이를 HTML 템플릿에 렌더링하는 방식
 class NaverMapPointInput(TextInput):
     template_name = "core/forms/widgets/naver_map_point.html"
 
     def __init__(self, zoom=10, scale_control=True, zoom_control=True, attrs=None):
         self.zoom = zoom
-        self.scale_control = scale_control
-        self.zoom_control = zoom_control
+        self.scale_control = scale_control # 지도의 축척을 조절할 수 있는 컨트롤을 표시할지 여부
+        self.zoom_control = zoom_control # 지도에 줌(확대/축소) 버튼을 표시할지 여부
 
-        if attrs is None:
+        # # attrs - HTML 태그의 속성들로, 위젯을 HTML로 렌더링할 때 사용
+        if attrs is None: 
             attrs = {}
 
-        attrs["readonly"] = "readonly"
-        attrs["autocomplete"] = "off"
+        attrs["readonly"] = "readonly" # 입력 필드는 읽기 전용
+        attrs["autocomplete"] = "off" # 자동 완성 기능 끔
 
-        super().__init__(attrs)
+        super().__init__(attrs) # TextInput의 초기화 메서드를 실행하고, 상속받은 기능을 적용
 
-    def get_context(self, name, value, attrs):
-        context = super().get_context(name, value, attrs)
+    # 위젯을 HTML 템플릿에 렌더링하기 위한 데이터를 제공하는 역할 
+    def get_context(self, name, value, attrs): 
+        context = super().get_context(name, value, attrs) # super를 호출하여 기본적인 필드 컨텍스트를 가져옵니다.
         context["naver_map_options"] = {
             "zoom": self.zoom,
             "scaleControl": self.scale_control,
@@ -180,5 +184,5 @@ class NaverMapPointInput(TextInput):
     class Media: # 네이버 지도를 표시하기 위해 필요한 JavaScript 파일을 로드
         js = [
             "https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId="
-            + settings.NAVER_MAP_POINT_WIDGET_CLIENT_ID
+            + settings.NAVER_MAP_POINT_WIDGET_CLIENT_ID # 이 ID는 실제 클라이언트가 지도 API를 사용할 때 필요. 해당 클라이언트 ID를 settings.py에서 가져와서 URL에 포함시킵니다
         ]

@@ -38,9 +38,8 @@ class Order(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        # 가용한 제품에 대한 주문만 생성토록 제한합니다.
         # limit_choices_to={"is_available": True},
-        limit_choices_to=Q(is_available=True),
+        limit_choices_to=Q(is_available=True), # 가용한 제품에 대한 주문만 생성토록 제한합니다.
     )
 
 

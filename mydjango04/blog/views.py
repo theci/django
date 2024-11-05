@@ -129,39 +129,41 @@ demo_form = FormView.as_view(
 
 @login_required
 def memo_form(request, group_pk):
-    MemoFormSet = inlineformset_factory(
+    # MemoGroup 모델과 관련된 Memo 모델에 대한 폼셋을 생성, 
+    # 이 폼셋은 MemoGroup과 연관된 Memo 객체를 관리하며, extra=3으로 초기 3개의 비어있는 폼을 제공
+    MemoFormSet = inlineformset_factory( 
         parent_model=MemoGroup,
         model=Memo,
         form=MemoForm,
         extra=3,
-        can_delete=True,
+        can_delete=True, # 각 메모에 대한 삭제 체크박스를 활성화
     )
 
     memo_group = get_object_or_404(MemoGroup, pk=group_pk)
     queryset = None  # Memo의 모든 레코드에 대한 수정폼
     # queryset = Memo.objects.none()  # 수정폼 끄기
 
-    if request.method == "GET":
+    if request.method == "GET": # GET 요청에서는 MemoFormSet을 초기화하여 렌더링
         formset = MemoFormSet(instance=memo_group, queryset=queryset)
-    else:
+    else: # POST 요청에서는 제출된 데이터를 기반으로 MemoFormSet을 처리
         formset = MemoFormSet(
             data=request.POST,
             files=request.FILES,
             instance=memo_group,
             queryset=queryset,
         )
-        if formset.is_valid():
+        if formset.is_valid(): # 폼셋이 유효하면, 데이터를 저장하고 성공 메시지를 표시
             objs = formset.save()
 
             if objs:
                 messages.success(request, f"메모 {len(objs)}개를 저장했습니다.")
 
-            if formset.deleted_objects:
+            if formset.deleted_objects: # 삭제된 메모 객체들을 추적하여 삭제된 메모 개수를 메시지로 표시
                 messages.success(
                     request, f"메모 {len(formset.deleted_objects)}개를 삭제했습니다."
                 )
 
-            return redirect("blog:memo_form", group_pk)
+            return redirect("blog:memo_form", group_pk) # 저장 후 다시 memo_form 뷰로 리디렉션하여 폼을 갱신
 
     return render(
         request,
@@ -199,15 +201,17 @@ def memo_form(request, group_pk):
 class TagListView(ListView):
     model = Tag
     queryset = Tag.objects.all()
-    paginate_by = 10
+    paginate_by = 10 # 페이지당 10개의 Tag를 표시
 
-    def get_queryset(self):
+    # query 파라미터를 통해 검색어를 받아 Tag 이름에 포함된 태그만 필터링하여 표시
+    def get_queryset(self): 
         qs = super().get_queryset()
         query = self.request.GET.get("query", "")
         if query:
             qs = qs.filter(name__icontains=query)
         return qs
-
+    
+    # HTMX 요청이 있을 경우, 부분 템플릿(_tag_list.html)을 반환하고, 일반 요청일 경우 전체 페이지 템플릿(tag_list.html)을 반환
     def get_template_names(self) -> list[str]:
         if self.request.htmx:
             template_name = "blog/_tag_list.html"
@@ -219,19 +223,20 @@ class TagListView(ListView):
 tag_list = TagListView.as_view()
 
 
+# 이 뷰는 새로운 Tag를 생성하거나 기존 Tag를 수정하는 폼을 처리
 @login_required_hx
 def tag_new(request, pk=None):
-    if pk:
+    if pk: #  # instance는 pk가 주어지면 해당 Tag 객체로 초기화되고, 없으면 None으로 새 태그를 생성
         instance = get_object_or_404(Tag, pk=pk)
     else:
         instance = None
 
-    if request.method == "GET":
+    if request.method == "GET": # 새로운 태그를 생성하거나 기존 태그를 수정하는 폼을 표시
         form = TagForm(instance=instance)
-    else:
+    else: # 제출된 데이터를 기반으로 TagForm을 처리하고, 유효한 경우 Tag를 저장ㄴ
         form = TagForm(data=request.POST, instance=instance)
         if form.is_valid():
-            form.save()
+            form.save() # 태그 저장 후, HTMX를 사용하여 클라이언트 이벤트(refresh-tag-list)를 트리거하여 태그 목록을 갱신
             messages.success(request, "태그를 저장했습니다.")
             response = render(request, "core/_messages_as_event.html")
             response = trigger_client_event(response, "refresh-tag-list")
@@ -245,21 +250,21 @@ def tag_new(request, pk=None):
         },
     )
 
-
+# 주어진 pk로 기존 태그를 수정. 사실상 tag_new 뷰의 별칭
 def tag_edit(request, pk):
     return tag_new(request, pk)
 
-
+# 특정 Tag에 대한 정보를 부분 템플릿(_tag_list_item.html)에 렌더링하여 반환
 def tag_list_item(request, pk):
     tag = get_object_or_404(Tag, pk=pk)
     return render(request, "blog/_tag_list_item.html", {"tag": tag})
 
-
-@require_http_methods(["DELETE"])
+# 주어진 pk에 해당하는 Tag를 삭제합니다. DELETE 요청만 허용
+@require_http_methods(["DELETE"]) 
 def tag_delete(request, pk):
     tag = get_object_or_404(Tag, pk=pk)
     tag.delete()
-    return HttpResponse("")
+    return HttpResponse("") # 태그가 삭제되면 빈 응답(HttpResponse(""))을 반환
 
 
 def test(request):
