@@ -1,0 +1,137 @@
+슬라이드 하단에 안내된 링크를 통해서 이 페이지를 확인하실 수 있습니다
+IPv4AddressIntegerField 클래스 정의를 위해서 새로운 파일, 코어의 밑에
+modelfields.py 파일을 생성을 해주시고요
+이렇게 생성을 했습니다
+IPv4AddressIntegerField는 모델의 캐릭터 필드를 상속을 받습니다
+그 이유는 우리가 코딧에 착성할 때에는 문자열로서 IP를 입력받고요 그리고 맵을 통해서
+값을 입력받을 때에도 문자열로서 값을 입력받기 위함입니다
+문자열 필드는 max_length라는 인자가 필수이거든요
+이렇게 생성자 재정의를 통해서 maxLength 인자의 default 값을 15로
+정해주겠습니다
+문자열로 IP를 입력받으면 최대 15 글자가 되니까요 그리고 데이터베이스에 저장되는 타입을
+다르게 지정하기 위해서 getInternalType이라는 메서드를 재정의하시고요
+반환 값으로 4byte Unsigned 정수 필드로 맵핑하기 위해서
+facitiveIntegerField를 반환합니다 그런데
+PostgreSQL가 오라클에서만 8-byte 정수 필드로 맵핑을 한다고 말씀드렸죠
+그래서 DBType이라는 메서드를 재정의하셔서 인자로 현재 연결 객체가 넘어오고 이 연결
+객체를 통해서 현재 바라보고 있는 데이터베이스가 4-Square SQL이라면
+4-Square SQL에서 지원하는 8-byte 정수 타입인 BigInt를 반환하고
+오라클이라면 Oracle DB에서 지원하는 8-byte 정수 타입인 Number를
+반환하고요 그 이외의 데이터베이스 타입에서는 기본 DB 타입을 활용하도록 하겠습니다
+이어서 toPython 메서드를 재정의 해 줄 텐데요
+이 값은 문자열 형태의 IP나 정수 형태의 IP 값을 받을 수 있도록 하고요 항상 그 값은
+문자열 IP로써 반환하겠습니다
+이 모델 필드가 사용되기에 따라 NULL 허용 필드가 될 수 있기 때문에 옵셔널을 지정해서
+NULL 반환도 가능함을 타입으로 지정해 주겠습니다
+이 부조건에서, NULL 옵션이 켜져 있고, 그리고 입력받은 값이
+self.emptyValues에 속한다면 None을 반환하도록 했습니다
+EmptyValues의 값은 이렇게 컨트롤이나 맥에서 커맨드 키를 누른 상황에서
+클릭하시면요 Validators의 EmptyValues를 리스트로 변환한 값이죠
+이 값도 들어가 보면 인자의 값이 non이거나 빈 문자열이거나 빈 리스트, 빈 튜플, 빈
+사전일 경우에 non을 반환하도록 했습니다
+그리고 이 Value 값이 문자열인데 그 문자열에 대해 모든 문자들이 숫자로만 구성이 되어
+있다면 이 문자열을 정수 타입으로 변환을 해서 처리를 할 것이고요 이렇게 정수로 변환을
+해줘야지만이 IP Address에 IPv4Address 클래스를 통해서 IP 변환을 수행을
+하실 수 있습니다
+toPython 메서드에서는 문자열 IP를 항상 반환하도록 할 것이거든요
+그래서 이 IPv4 Address를 문자열로 캐스팅을 해서 반환을 하면 문자열 IP를
+반환을 하는데 이 과정에서 발생할 수 있는 예외는 AddressValueError와
+NetmaskValueError가 되겠습니다
+두 예외 중에 하나가 발생하면 validation error 예외를 발생하고요 에러
+메세지로 IPv4 값이 아닙니다라는 이런 에러 메세지를 보여줄 수 있습니다 그러면
+toPython 메서드의 1차적인 구현이 끝났고요
+두 번째로 fromDbValue라는 메서드를 구현을 해 주겠습니다
+이 메서드는 데이터베이스로부터 정수 IP 값을 조회하고 문자열 IP 값으로 변환할 때 자동
+호출이 되거든요
+정수 IP 값을 받아서 문자열 IP를 반환을 해 줄 것이고요 이때
+값이 null일 수도 있습니다
+그래서 optional을 붙여 주시고요
+두 번째 인자로 expressions, 세 번째 인자로 connection이 들어올 수
+있습니다 호출이 되면 self.toPythonMethod를 호출해서 값 변환을 시도하면
+되겠고요. 이어서 getPreferredValue는 입력된 값을 데이터베이스에
+저장 혹은 코디할 형태로 변환하는 것이니까 이 값이 문자열 형태가 될 수 있겠고요.
+반환 값은 항상 int가 되어야 할 것입니다.
+dbn은 정수로 저장할 것이니까요.
+해당 모델 필드가 null 허용 필드가 될 수도 있으니까 optional을 붙여줬고요
+우리가 코디셋에서 문자열 외에 정수 형태로도 값을 입력 받을 수 있도록 좀 유연함을 지원을
+해 보겠습니다
+그래서 union을 써서 문자열 IP 혹은 정수 IP로 값을 입력을 받을 수 있다고
+써주고요 super의 getPreferred 부모의 value를 호출해서
+preparedValue 값을 받습니다
+부모에 GetPreferredValue를 호출해주면 내부에서 ToPython 호출이
+이루어집니다 그래서 항상 이 값은 ToPython의 반환 값인 옵셔널 문자열이 될 수 있는
+거죠 타입으로 옵셔널 문자열이라고 써주겠고요 이 값이 non이라면 non을 반환하면 될
+것이고요 non이 아니라면 문자열이겠죠
+IPv4Address에 이 값을 그대로 지정해주면 IPv4AddressInstance가
+되고요 정수형으로 변환해 주시면 정수 형태의 IP 값이 됩니다
+IPv4AddressIntegerField에 기본 구현이 되었고요 에러 메세지 부분을
+XR을 해서 적용을 해 주겠습니다
+defaultErrorMessages라는 사전이 있고요 invalid라는 키로 접근하면 이
+문자열이고 invalidNullable이라는 키로 접근하면 이 문자열을 반환하겠죠
+toPython 메서드에서 raiseValidationError 코드를 복사해서 여기에
+붙여주시면 validationError 예외를 발생시킬 때 현재 모델 필드가 null
+호용하는 필드라면 invalid nullable이라는 문자열로서 에러 메세지를 조회하고
+null 호용이 아니라면 invalid라는 key로서 에러 메세지를 조회합니다
+그럼 에러 메세지에서 이렇게 %ValueS라고 해서 Value라는 Key로서 에러 메세지에
+대한 Placeholder를 지정했잖아요
+그럼 이 Value라는 Key에 대해서 이렇게 params라는 인자로 이 에러 메세지에서
+정의한 값을 지정을 해 줄 수 있습니다
+이렇게 ValidationError 메세지를 정의하시면 모델 필드를 사용하기에 따라 에러
+메세지를 변경하실 수도 있고 국제화 번역에도 대응이 쉬워집니다
+이제 IPv4AddressIntegerField를 사용하는 모델 클래스를 정의해 보겠습니다
+블로그 앱 밑에 ModelSpy 최하단에서요 AccessLog라는 이름의 모델 클래스를
+정의하고 IPGeneric이라는 모델 필드는 장고 기본에서 지원해주는 Generic IP
+Address Field 타입으로 정의하겠고요 이 필드는 IPv4와 IPv6 둘 다를
+지원을 해줍니다
+여기에서는 IPv4만 사용하도록 하기 위해서 Protocol Ninja로 IPv4를
+지정하겠고요
+IPIntModelField는 우리가 방금 정의한
+IPv4AddressIntegerField 타입을 사용해 보겠습니다
+현재 장고 프로젝트 세팅스의 Databases 설정에서는 Default Database로
+PostgreSQL을 바라보고 있습니다
+블로그 앱에 대해서 새로운 마이그레이션 파일 생성을 위해서 Python manage.py
+makemigrations Blog 명령을 내려주시면, 이렇게 블로그 앱에 0006
+마이그레이션 파일이 생성이 되고요 SQL Migrate 블로그에 0006 명령을 주시면
+PostgreSQL 데이터베이스에 대해서 IP Generic 필드는 INET 타입으로 컬럼이
+생성이 되고요 IP Integer 필드는 BIGINT 타입으로, 즉 8바이트 정수 타입으로
+테이블이 생성될 것임을 확인하실 수 있습니다
+Migrate 블로그 명령으로 데이터베이스 테이블을 생성을 해주겠습니다
+그리고 장고 셸 구동을 해 주시고요
+IP List를 정의하고 해당 IP List에 Access Log List를 정의하고요
+bulk_create 호출을 통해서 한 번에 Access Log를 생성을 해 주겠습니다
+그런데 Integrity Error가 발생했고 IP Integer Field에 NULL
+값이 들어갔다고 합니다
+위로 스크롤 올려보시면 bulk create 호출 시에 데이터베이스 코디가 있는데 IP
+Generic에는 IP 값이 들어 있고요 IP Int에는 NULL, NULL, NULL,
+NULL이 들어 있네요
+우리가 정의한 이 모델 필드에 오류가 있는데, ToPython 함수에서 문자열로 변환하고
+리턴 값이 없었네요.
+장고 셀을 빠져나갔다가 다시 실행을 하고요.
+IP List 다시 정의해 주고, Access Log List 다시 정의해 주고,
+Burger Crate도 다시 호출해 주겠습니다.
+IP Int에 이렇게 정수 값으로 값이 변환이 되어 저장이 됨을 확인하실 수 있어요.
+AccessLog 모델에서 IPGenericField에 대한 오름차 순으로 정렬을 해서요
+IPGenericListField 값만 뽑아서 IPGeneric에 대한 정렬이 어떤 순서로
+이루어지는지 확인을 해보면 IPGenericField는 PostgreSQL에서는 INET
+타입으로서 수치적 순서대로 정렬이 됨을 확인하실 수 있습니다
+이번에는 IPINT 필드에 대해서 오름차순 정렬을 해보면요
+그리고 IPINT 필드 값만 뽑아서 출력을 해보면 IPINT 필드는 정수 필드이기에 이렇게
+수치적 순서대로 정렬이 되었음을 확인하실 수 있고요 이 쿼리를 그대로 복사를 해서 탭을
+열고요 현재 바라보고 있는 데이터베이스를 클릭하시고 우클릭하시고 New에 코디 콘솔을 여신
+다음에 해당 쿼리를 붙여넣고 실행을 누르시면 이렇게 숫자로 데이터베이스에 조회가 이루어짐을
+확인하실 수 있구요 데이터베이스에서는 숫자지만 IPv4AddressIntegerField를
+사용하시면 모델단에서는 이렇게 문자열로 이번에는 192.168.0.1
+IP와 192.168.0.9 사이의 IP를 IP Generic Field를 통해서 범위
+조회를 해보려 합니다
+코디셋을 생성해 주시고 IP Generic 값만 뽑아서 범위 조회 결과를 확인해 보시면
+수행된 코드에서는 웨얼절에 btn을 통해서 INET 타입으로 192.168.0.1과 192.168.0.9
+사이에 IP generic을 조회를 했고요 IP generic 값만 뽑아서 보면
+192.168.0.1과 0.2만 잘 조회되고 0.10은 이 범위 조회에서 빠진 것을
+확인하실 수 있습니다
+잘 조회가 된 거죠
+우리가 만든 IPINT 필드에 대해서도 동일한 코디셋을 작성해 보시면 그리고 IPINT
+값만 뽑아서 보시면 이렇게 192.168.0.1과 192.168.0.2가 잘 조회됐죠
+.10은 잘 누락되었음을 확인하실 수 있고 수행된 Query는 위와 좀 다르죠
+아래에서는 데이터베이스에는 정수로 저장되어 있기 때문에 이 값이 정수로 변환이 되어서
+그리고 이 값도 정수로 변환이 되어서 IPIntField에 대해서 조회 Query가
+동작했음을 확인하실 수 있습니다

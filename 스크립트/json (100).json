@@ -1,0 +1,71 @@
+유효성 검사는 인자를 1개 받는 함수입니다.
+최대 100글자를 확인하는 유효성 검사 함수는 이렇게 만들 수 있고요.
+클래스의 인스턴스도 언더반더바 콜 메서드를 구현하여 호출할 수 있는 인스턴스를 만들 수
+있습니다. 호출 문법으로 인스턴스를 호출하면 내부적으로 콜 메서드가 호출되어 처리됩니다.
+그런데 200글자, 300글자, 400글자 등 글자 수만 달리한 유효성 검사가 필요할
+텐데요. 매번 이렇게 글자 수마다 유효성 검사 함수를 만들 수도 없는 노릇입니다.
+클래스는 생성자를 받을 수 있고요.
+생성자를 통해 서로 다른 값을 받은 인스턴스를 이렇게 여럿 만들 수 있습니다.
+생성자로 최대 길이 수를 인자로 받아 콜 메서드에서 활용한다면, 이렇게 100, 200,
+300, 400을 생성자로 받은 모델 인스턴스는 앞서 구현한 유효성 검사 함수와 동일한
+동작을 하는 호출 가능한 객체가 됩니다.
+이제 원하는 길이의 유효성 검사 함수를 인스턴스 생성만으로 원하는 만큼 찍어낼 수
+있습니다. 폰필드에 Validators 속성으로 유효성 검사 함수를 추가할 수 있듯이,
+모델 필드에도 Validators 속성으로 유효성 검사 함수를 추가할 수 있습니다.
+모델 필드는 마이그레이션에서 히스토리 관리를 위해 직렬화가 필요합니다.
+이때 클래스로 구현된 유효성 검사 함수의 경우, 클래스에 Deconstructable
+장식자를 적용해야만 직렬화가 지원되고, 마이그레이션을 수행할 수 있습니다.
+바이오 필드에 100글자 제한이 필요하다면 직접 최대 길이를 체크하는 유효성 검사 함수를
+만드실 필요 없고요.
+Clean Underbar 바이오 메서드에서 최대 길이를 확인하실 필요도 없습니다.
+단지 Validators 속성에 MaxLengthValidator 클래스의 인스턴스를
+지정하실 때 최대 허용 길이만 지정하시면 됩니다.
+그리고 CharacterField, FormField에서는 MaxLength 키워드 인자를
+지원하고 있고요.
+MaxLength 인자를 지정하면 내부적으로 MaxLength Validator가 자동
+적용됩니다. 여러 유효성 검사를 위한 로직을 클래스로 기본 구현하고 인스턴스를 생성하여
+특정 상황에 맞는 유효성 검사 함수를 제공하고 있습니다.
+문법상으로는 인스턴스지만 함수처럼 호출하기에 함수라고 지칭하겠습니다.
+지정 정규표현식의 일치 여부를 검사하는 regx-validator 클래스를 만들고 이
+클래스를 상속받은 url-validator 클래스는 값이 url 형식인지 검사하는 클래스를
+구현하고요. 정수 패턴을 생성자로 넘겨 정수 형식 여부를 검사하는
+validate-integer 함수를 만들어냅니다.
+그리고 slug 패턴 여부를 검사하는 validate-slug 함수, Unicode
+Slug 패턴 여부를 검사하는 Validate Unicode Slug 함수, 코마 구분자
+정수 리스트 패턴 여부를 검사하는 Validate, Separated Integer
+List 함수를 제공합니다.
+이미의 정규 표현식 패턴으로 유효성 검사 함수를 생성하고 싶다면, 직접 Regex
+Validator 클래스의 인스턴스를 생성하시면서 생성자로 정규 표현식 패턴만 지정하시면
+됩니다. URL 밸리데이터는 URL 필드, 폼 필드와 URL 필드, 모델 필드에 기본
+적용되어 있으며, 이메일 밸리데이터는 이메일 필드, 폼 필드와 이메일 필드, 모델 필드에
+기본 적용되어 있습니다.
+IPv4, v6에 대한 포맷을 검사해주는 유효성 검사 함수도 제공해줍니다.
+최소값과 최대값을 확인하는 minValueValidator,
+maxValueValidator도 제공되고요.
+IntegerField, FormField와 IntegerField,
+ModelField에서는 minValue 인자를 지정하면 minValueValidator가
+자동 적용되고, maxValue 인자를 적용하면 maxValueValidator가 자동
+적용됩니다. Step Value Validator는 지정 값의 배수인지 여부를 확인합니다.
+생성자로 5를 지정하면 값이 5의 배수인지를 검사하고, 5의 배수 이외의 값에 대해서는
+오류를 냅니다.
+Integer Field, FormField에 Step Size 인자를 지정하면 자동
+적용됩니다.
+문자일의 최소 길이, 최대 길이를 확인하는 MinLengthValidator,
+MaxLengthValidator도 제공되고요.
+CharacterField, FormField에 MinLength 인자를 지정하면
+MinLength Validator가 자동 적용되고, MaxLength 인자를 지정하면
+MaxLength Validator가 자동 적용됩니다.
+DecimalValidator는 데시멀 값에 대해서 입력이 지정 자릿수 범위인지 검사합니다.
+데시멀 필드 폼필드와 DecimalField ModelField에 기본 적용되어 있습니다.
+FileExtensionValidator는 지정 파일 객체의 파일명이 허용하는 확장자를 가지고 있는지
+검사합니다.
+파일명만을 검사하기에 확장자만으로 확장자의 포맷임을 확정할 수는 없지만 가장 가볍고 빠르게
+파일 포맷을 확인할 수 있는 방법입니다
+무겁지만 그 파일의 포맷임을 확실히 확인하는 방법은 그 파일을 직접 열어보는 것입니다
+ImageField, ModelField에서는 파일 확장자 검사를 먼저 하고 Pillow,
+ImageLibrary를 통해 이미지 파일을 직접 열어보고 이미지 파일임을 검사합니다
+Floybit Null Characters Validator는 Null 문자 포함 여부를
+검사하며 Character Field, Form Field에 기본 적용되어 있습니다.
+Null 문자는 보안 공격에 활용될 수 있으며, Null 문자가 포함된 문자열은 여러
+시스템 라이브러리나 데이터베이스, 파이 시스템에서 문제를 일으킬 수 있기 때문에 보안을
+위해 문자를 입력해서 반드시 확인되어야 할 부분입니다.

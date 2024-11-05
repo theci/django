@@ -1,0 +1,183 @@
+안녕하세요 이번 시간에는 이전에 구현한 api들을 모델 뷰셋 클래스를 활용하여 하나의
+클래스로 통합하는 방법에 대해서 살펴보겠습니다
+이 챕터의 목적은 Generic API 뷰와 모델 뷰셋의 동작 방식을 이해하는 것입니다
+그러나 모델 뷰셋을 사용하는 것이 항상 더 나은 코드를 의미하는 것은 아닙니다
+이는 단순히 구현 방식의 차이일 뿐이고요 여러 기능을 하나의 클래스에 집중시키면 해당
+클래스의 책임이 과도해져 유지보수가 어려워질 수 있습니다 다양한 기능이 뒤섞여 복잡도가
+크게 증가한다고 판단되는 경우에는 각 API 구현을 분리하는 것이 좋습니다
+장고 프레임워크에는 각종 Generic API View 클래스들이 구현되어 있습니다.
+이중 List API View 클래스는 GET 요청을 받으면 List 메서드를 호출하여
+요청을 처리하도록 맵핑되어 있습니다.
+List 메서드는 ListModelMixin 클래스에 구현되어 있습니다.
+Create API View 클래스는 Post 요청을 받으면 Create 메서드를 호출하여
+요청을 처리하도록 맵핑되어 있습니다.
+create 메서드는 CreateModelMixin 클래스에 구현되어 있습니다.
+listApiView 클래스와 CreateApiView 클래스를 통해 view 함수를
+생성하고요.
+asView 호출 시에 지정되는 QuerySet 속성, serialize 클래스 속성,
+permissionClasses 속성은 동일하게 지정해 주겠습니다.
+URL 패턴도 생성해서 등록해줍니다.
+이 두 개의 URL 패턴은 서로 다른 URL에 맵핑되어 있기에 요청 URL만으로 호출될 뷰
+함수를 구별해서 처리할 수 있습니다.
+List API View 클래스와 CreateAPIView 클래스를 합쳐서 List
+Create API View 클래스가 만들어졌습니다.
+상속받은 부모 클래스를 보시면 List API View 클래스의 기능과 갠
+요청이 들어오면 리스트 메서드를 호출하여 요청을 처리하구요 포스트 요청이 들어오면 크레이트
+메서드를 호주하여 요청을 처리도록 맵핑되어 있습니다
+ListCreateApiView 클래스의 asView 호출을 통해 생성된 View 함수는
+Get 요청을 받으면 List 메서드를 호출하여 요청을 처리하고, Post 요청을 받으면
+Create 메서드를 호출하여 요청을 처리하잖아요.
+요청 URL 뿐만 아니라 요청 메서드를 통해 호출될 메서드를 구별할 수 있습니다.
+그래서 이렇게 하나의 URL로 맵핑을 하실 수 있습니다.
+Django REST 프레임워크에서는 모든 믹스인 클래스를 상속받은 모델 뷰셋 클래스를
+제공해 줍니다.
+List 메서드, Create 메서드, Retrieve 메서드, Update 메서드,
+Partial Update 메서드, Delete 메서드들이 모두 구현되어 있는데요.
+이 메서드들은 구현되어 되어 있을 뿐 요청 메서드와의 맵핑은 없습니다.
+즉, Get 메서드, Post 메서드 등이 없어요.
+이 맵핑들은 모델 뷰셋 클래스 코드에는 없고요.
+asView 메서드 호출 시에 actions 인자로 사전 타입으로 맵핑을 전달받습니다.
+이렇게 actions 인자를 지정하면 get 요청에서는 list 메서드를 호출하여 요청을
+처리하고, post 요청에서는 create 메서드를 호출하여 요청을 처리합니다.
+이렇게 생성된 PostList 함수는 ListCreateApiView 클래스를 통해 생성된
+PostList 함수와 동일한 동작을 합니다.
+RetrieveApiView 클래스는 get 요청을 받으면 retrieve 메서드를
+호출하여 요청을 처리하고요.
+UpdateApiView 클래스는 put 요청을 받으면 update 메서드를 PATCH 요청을
+받으면 PartialUpdate 메서드를 호출하여 요청을 처리합니다.
+DestroyApiView 클래스는 Delete 요청을 받으면 Destroy 메서드를
+호출하여 요청을 처리합니다.
+각각의 뷰 함수를 생성하여 요청 URL만으로 호출될 뷰 함수를 구별하여 처리할 수
+있습니다. 이 세 개의 API 뷰는 모두 레코드를 데이터베이스에서 조회하는 API들이고요
+요청 메서드들이 겹치지 않습니다
+이 세 개의 API 뷰를 합쳐서 RetrieveUpdateDestroyAPIView API 뷰 클래스가
+만들어졌습니다 이 클래스를 통해서 PostDetailView 함수를 만들고요 이 뷰
+함수에서는 요청 메서드만으로 호출될 메서드를 구별할 수 있기에 이렇게 하나의 URL로
+맵핑하실 수 있습니다
+목록 주의 생성 API에서 사용했던 ModelViewSet 코드와 비교해서 action
+맵핑 사정값만 달리해서 앞서 RetrieveUpdateDestroyAPIView 클래스를
+통해 생성된 PostDetailView 함수와 동일한 동작을 합니다
+이전 영상에서 구현했던 API 구현을 ModelViewSet 클래스를 통해서 재구현해
+보겠습니다 뷰셋 클래스는 이름에서도 보여지듯이 set은 집합이라는 의미잖아요.
+여러 뷰를 지원하는 클래스입니다.
+asView 호출 시에 지정한 actions 인자 기반으로 다양한 뷰 함수가 만들어질 수
+있습니다. 모델 뷰셋 클래스를 상속받은 PostModelViewSet 클래스를 정의하고요.
+API에서 사용될 코드셋 속성, serialize 클래스 속성, permission
+classes 속성을 지정합니다.
+여러 API에서 같은 설정을 사용하는 것인데요.
+각 API마다 다른 설정을 지정하는 방법은 다음 슬라이드에서 다루겠습니다.
+생성 API 처리 시에 유효성 검사 후에 작성자 필드를 지정하기 위해
+performCreate 메서드를 재정의합니다.
+PostCreate API 뷰 구현에 코드를 그대로 가져왔습니다.
+이렇게 생성된 두 개의 뷰 함수, Post Underbar List와 Post
+Underbar Detail을 이렇게 직접 URL 패턴에 등록하실 수도 있겠고요.
+Django REST Framework에서는 라우터 기능을 통해서 해당 뷰셋에서 지원하는 모든
+액션들을 자동 등록할 수 있습니다.
+라우터 인스턴스 생성 후에 뷰셋 클래스를 등록만 하면 앞서 수동으로 actions 지정했던
+작업들을 라우터 내부에서 처리해줍니다.
+그럼 router.urls 이름의 리스트로 urlpatterns 리스트를 제공받으실 수
+있습니다. API 뷰를 통해 구현한 모든 API들을 제거하고 ModelViewSet을 통해
+동일한 기능을 하는 API를 만들어 보겠습니다
+ModelViewSet 클래스를 상속받은 PostModelViewSet 클래스를 정의하고요
+코디셋, 시리얼라이저 클래스, 퍼미션 클래스 설정을 지정합니다 모든 API에 동일한
+쿼리셋, 시리얼라이저 클래스, 퍼미션 클래시즈 설정이 사용되는데요 API별로 다른 쿼리셋,
+시리얼라이저 클래스를 설정하는 것은 뒤에서 다루겠습니다
+뷰셋의 as_view 메서드에서는 API 뷰와는 다르게 actions 인자를 추가로
+지원합니다 뷰셋을 통해 postList 함수를 생성하고 get 요청을 받으면 list
+메서드를 호출하여 요청을 처리도록 하고요 post 요청을 받으면 create 메서드를
+호출하여 요청을 처리도록 합니다
+뷰셋을 통해 postDetail 함수를 생성하고요.
+get 요청을 받으면 retrieve 메서드를, put 요청은 update, patch
+요청은 partial_update, delete 요청을 받으면 destroy 메서드를
+호출하여 요청을 처리하도록 합니다.
+블로그의 urlspy 파일에서 API에 대한 urlpatterns 리스트도 변경해
+줘야겠죠. 맵핑되는 뷰 함수만 변경해 주시면 되고요.
+URL 패턴의 이름은 그대로 사용하실 수 있습니다.
+API를 처리하는 주체가 뷰셋으로 변경되었을 뿐인 거죠.
+파이테스트를 통해 전체 테스트를 수행해 보시면 3개 테스트가 실패하네요.
+그 중 생성 요청에 대한 오류를 보시면 Integrate 에러가 발생했고요.
+Author 필드를 지정하지 않았다고 합니다.
+PostCreateApiView 클래스에서 구현했던 performCreate 메서드 구현을
+뷰셋에서는 빼먹었었네요.
+PostModelViewSet 클래스에도 동일하게 performCreate 메서드를
+구현해줍니다. 그럼 생성 요청에 대한 테스트는 통과합니다.
+목록 조회 API와 특정 포스팅 조회 API 테스트가 실패하는데요
+Result Key Error가 발생하고 있습니다
+Post List API View와 Post Detail List API View
+클래스에서는 JSON Response Wrapper Mixin 클래스를 상속받아 JSON
+응답을 랩핑해 줬었는데요
+현재 뷰셋 구현에서는 JSON Response Wrapper Mixing 클래스를 상속받지
+않았기에 JSON 응답 랩핑이 없습니다
+테스트 코드에서 result 키 참조 부분을 제거해 주시고요
+다시 테스트를 수행해 보시면 모든 테스트가 통과됩니다.
+라우터를 통해서 뷰셋 등록만으로 뷰셋의 모든 액션들을 한 번에
+urlpatterns 리스트에 등록해 보겠습니다 일일이 뷰 함수를 생성했던 코드를
+제거하고요 API에 대한 urlpatterns 리스트 코드도 제거합니다
+default router instance를 생성하시고 포스트 모델 뷰셋 클래스를 라우터에
+등록하고요 프리픽스 주소로 포스트를 지정합니다
+그럼 router.urs 속성을 통해 라우터에 등록된 모든 URL 패턴들의 리스트를
+참조하실 수 있습니다
+python manage.py show urls 명령을 내려보시면 이렇게 포스트 모델
+뷰셋에 각종 API들이 등록되었음을 확인하실 수 있고요 요청 주소는 블로그의 API에
+포스트로 바뀌었고요 URL 패턴 이름이 post-_-list가 아니라
+post-list로 바뀌었습니다
+API 테스트 코드에서 URL 리버스에 지정했던 뷰 이름을 모두 변경해 줍니다
+다시 파이테스트 테스트를 수행해 보시면 뷰셋을 통해 구현된 API에 대한 모든 테스트가
+통과됨을 확인하실 수 있습니다
+이전 영상에서 구현했던 API들은 모두 서로 다른 쿼리셋 설정과 시리얼라이저 클래스
+설정이었잖아요
+포스트 모델뷰셋 내에서도 액션별로 서로 다른 설정을 가지도록 구현해 보겠습니다
+모델 뷰셋 클래스도 API 뷰 클래스를 상속받았습니다.
+그래서 API 뷰 클래스처럼 getQueryset 메서드를 통해 현재 API 요청에 사용할
+코디셋을 생성하거든요.
+action 멤버 변수에는 현재 요청을 처리하는 메서드명이 저장되어 있습니다.
+getCodicet 메서드를 재정의하여 현 요청의 액션명에 맞춰 코디셋을 생성하고
+반환하고요.
+getSerializerrClass 메서드도 재정의하여 현 요청의 액션명에 맞게
+Serialize 클래스를 반환합니다.
+PostList API 뷰 클래스에서는 PostListSerializer를 통해서 API
+응답을 생성했었습니다.
+이 시리얼라이저에서는 id 필드, title 필드, author 필드 응답만 있을 뿐,
+컨텐트 필드 응답이 없죠.
+게시물 목록 조의 api 테스트에서 api 응답에서는 컨텐트 필드가 없어야 함을
+추가하겠습니다.
+파이테스트 테스트를 돌려보시면, 현재는 목록 초의 api 응답에서 컨텐트 필드가 있으므로
+테스트가 실패합니다.
+PostModelViewSet 클래스에서 getQueryset 메서드와
+getSerializer 클래스 메서드를 재정의합니다.
+뷰셋 클래스 하나에서 List 요청과 Retrieve 요청을 모두 처리하기에 요청
+메서드만으로는 List 요청인지 Retrieve 요청인지를 구별할 수가 없고요 셀프점 액션
+속성으로 각 요청을 구별할 수 있습니다
+일단 List 요청에서는 PostListSerializer 클래스를 반환합니다
+이제 목록초의 API 테스트가 통과됩니다
+다른 액션들에 대해서도 맞춰서 Serializer 클래스를 반환해 주고요 getCodeset 메서드
+코드는 복사해서 적용해 주겠습니다
+각 액션에 매칭될 때에는 codeset 인스턴스 변수로서 각 codeset을 할당하면요 부모의 겟 codeset
+메서드에서는 self.codeset 코드에서 인스턴스 변수 코디셋이 있다면 사용하고 없다면
+클래스 변수 codeset을 찾아 사용할 것입니다
+모델 뷰셋에서 액션별로 다른 코디셋과 시리얼라이저 클래스를 지정하는 코드를 믹스인 클래스를
+통해 리팩토링 해 보겠습니다.
+이처럼 액션 베이스드 뷰셋 믹싱 클래스를 구현했습니다.
+codeset_맵 속성으로 각 메서드별로 사용될 코디셋을 지정하고요.
+serializer_class_맵 속성으로 각 메서드별로 사용될 시리얼라이저 클래스를 지정합니다.
+그러면 액션 베이스드 뷰셋 믹스인 클래스에 구현된 getCodeset 메서드와
+getSerializerClass 메서드를 통해 요청 액션에 맞춰 코디셋과 시리얼라이저
+클래스를 찾아서 반환합니다
+API 뷰 구현에서는 self.codeset_code로 클래스의 코디셋 설정을 참조하는데요
+파이썬 문법에서는 self.codeset_code는 인스턴스 변수 코디셋을 먼저 사용하고
+인스턴스 변수가 없으면 클래스 변수 코디셋을 찾습니다
+codeset 언더바 맵에서 현재 액션에 codeset이 있다면 인스턴스 변수 codeset으로 할당하시면
+부모의 getCodicet 메서드의 self.codicet 참조에서는 방금 할당한 인스턴스
+변수 코디셋이 사용되어지고요 코디셋 언더바 맵에서 현재 액션에 코디셋이 없다면 인스턴스
+변수 codeset 할당이 없죠
+그럼 부모의 getCodicet 내에 self.codicet 참조에서는 class 변수
+코디셋이 사용되어집니다
+캐치 리얼라이저 클래스 메서드 구현도 동일한 방식으로 동작합니다
+그럼 이렇게 설정에 가까운 코드로 뷰의 동작을 간단하고 직관적으로 구성하실 수 있습니다
+코어 폴더 밑에 mixins.py 경로에 액션 베이스드 뷰셋 믹싱 클래스 코드를 복사합니다
+포스트 모델 뷰셋 클래스에서 상속 받도록 하고요 코디셋 맵 클래스 변수에 각 액션별로
+코디셋을 지정해 주고요 시리얼라이저 클래스 맵 클래스 변수에 각 액션별로 시리얼라이저
+클래스를 지정해 줍니다
+이제 getCodiceMethod와 getSerializerClassMethod는 필요
+없으니 제거합니다
+API 테스트를 돌려보시면 모든 테스트가 통과합니다

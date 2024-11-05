@@ -1,0 +1,135 @@
+하나의 API가 호출되고 API에 대한 권한이 확인될 때 여러 권한이 확인되고 각 권한에
+HasPermission 메서드와 HasObjectPermission 메서드가 호출이 되어
+API 호출 허용 여부를 결정받게 됩니다.
+이때 어떤 권한 클래스의 어떤 메서드에서 어떤 판정을 받았는지를 알려면 디버거를 물려서 한
+줄씩 코드를 실행해 가며 매번 확인하는 방법 외에는 알 수 있는 방법이 없습니다.
+그래서 PermissionDebugMixin 클래스를 만들어 봤습니다.
+권한 수행 내역을 확인하고 싶은 API 뷰 클래스의 상속만 받으면 이처럼 어떤 권한 정책의
+어떤 메서드의 허용 여부를 로그를 통해 한눈에 파악하실 수 있습니다.
+녹색 글씨의 퍼밋은 허용된 상황이고요.
+빨간색 글씨의 Denied은 거부된 상황입니다.
+APIView 클래스에서는 API가 호출되어 권한을 체크할 때
+CheckUnderbarPermissions 메서드와
+CheckUnderbarObjectPermissions 메서드를 호출하여 체크합니다.
+PermissionDebugMixin 구현에서는 APIView 클래스의 각 메서드 코드를
+그대로 복사해서 프린트 코드만 추가했고요.
+글자 색을 녹색과 빨간색으로 출력하기 위해 Colorama 라이브러리를 사용했습니다.
+그런데 PermissionDebugMixin 클래스에 구현되는 디버깅 목적으로만 사용하고
+싶고요 실 서비스에서는 이 동작을 끄고 싶습니다
+그래서 settings에 디버그 플래그가 참일 때에만 메서드가 등록되도록 했습니다
+그러면 디버그 플래그가 거짓일 때에는 PermissionDebugMixing 클래스는
+메서드 하나 없는 빈 클래스가 되고요.
+API 호출 시에는 APIView 클래스의 원래 CheckPermissions 메서드와
+CheckObjectPermissions 메서드가 호출되게 됩니다.
+수정 권한이 없는 유저로 수정 요청을 해보면 런 서버 터미널의 로그에 단순히 403 상태
+코드만 찍히고 어떤 권한 정책을 통해 요청이 거부되었는지 알 수가 없습니다
+코어 폴더 밑에 mixins.py 경로에 permission-debug-mixin 클래스를
+복사합니다 출력되는 글자 색을 지정하기 위해 Colorama 라이브러리를 사용했습니다
+Colorama 라이브러리를 최신 버전으로 설치해 주세요 누락된 임포트 적용해 주시고요
+세팅스의 디버그 플래그가 참일 때에만 3개의 메서드가 정의되고, 거짓일 때에는 정의하지
+않겠습니다. 포스트 모델의 모든 API 뷰에 PermissionDebugMixing
+클래스를 상속 받도록 합니다.
+다시 수정 권한이 없는 유저로 수정 요청을 해보시면 isAuthors or
+read-only 권한 정책의 hasPermission 메서드에서는 허용되었지만
+hasObjectPermission 메서드에서는 권한이 없어 요청이 거부되었음을 확인하실
+수 있습니다.
+API 뷰 클래스에는 사용할 권한 클래스를 지정할 뿐인데요 이때 API 뷰에서만 특정
+API 뷰 클래스 하나에서만 한번 사용되는 권한이더라도 베이스 퍼미션 클래스를 상속받아
+구현해야만 합니다
+make-drf-permission-class-factory 함수를 만들어 봤습니다.
+이 함수를 활용하시면 base-permission-class를 직접 상속받지 않아도 함수
+호출만으로 권한 클래스를 동적으로 생성하실 수 있습니다.
+그러면 이렇게 API 뷰 클래스 구현에 바로 권한 클래스를 생성해서 지정하실 수 있는
+거죠. make-drf-permission-class 함수의 첫 번째 인자로 권한 클래스의
+이름을 문자열로 지정합니다.
+권한 클래스의 이름을 지정해 줘야만 permission-debug-mixin을 통해 의미
+있는 이름으로 권한 클래스 이름이 출력될 것입니다.
+두 번째 인자로 조회 요청 허용 여부입니다.
+참으로 지정하시면 조회 요청일 경우 다른 확인 과정 없이 즉시 허용 처리됩니다.
+세 번째 인자로 hasPermission 메서드에서 호출될 함수를 lambda 함수로
+지정합니다. 네 번째 인자로 hasObjectPermission 메서드에서 호출될 함수를
+lambda 함수로 지정합니다.
+이 두 개의 권한 클래스는 같은 동작을 합니다.
+이 중 어떤 방식이 가독성이 좋으신가요?
+첫 번째 방식에서는 여러 API 뷰에 걸쳐 여러 번 사용되는 권한 클래스는 별도 클래스로
+구현하시는 방법이 코드 중복을 줄이고 재사용성을 높일 수 있습니다.
+두 번째 방식으로서 make_drf.permission_class 함수를 활용하시면 API
+뷰 구현 코드와 가깝게 권한 클래스를 생성하고 지정할 수 있기에 가독성과 유지보수성이
+향상됩니다. 게다가 앞서 구현한 IsAuthorOrLeadOnly 권한 클래스에서는
+Author 필드명이 하드코딩 되어 있었지만 이 방식에서는 권한을 체크할 함수를 인자로
+전달하기 때문에 유연하게 권한 정책을 구현하실 수 있습니다.
+Core 폴더 밑에 formations.py 경로에 MakeDRFFormation 클래스
+코드를 복사합니다.
+타입 함수를 통해 동적으로 지정 이름의 클래스를 생성하고요.
+부모 클래스 지정하고 클래스의 메서드로 등록해 줍니다.
+HasPermission 메서드에서는 PermitSafe 메서드 인자가 참이면 조회 요청일
+때 참을 반환하고요.
+HasPermissionTestFunction 인자가 지정되었다면 호출하여 권한 처리를
+위임합니다. 그리고 HasPermissionTestFunctionName 인자가
+지정되었다면 API 뷰 인스턴스에서 지정 이름의 메서드를 찾아 호출하여 권한 처리를
+위임합니다. 해지 오브젝트 퍼미션 메서드도 같은 방식으로 동작합니다.
+PostUpdateApiView 클래스의 기존 퍼미션 클래스를 설정을 제거하고
+MakeDRF 퍼미션 클래스 함수를 통해 IsAuthorOrLeadOnly 권한 클래스와
+동일한 동작의 권한 클래스를 생성해서 지정해 보겠습니다.
+클래스 인자로 생성될 권한 클래스의 이름을 지정하고요.
+PermitSafeMessage 인자로 참을 지정하여 조회 요청은 비인증 요청이라도
+허용하도록 하고요.
+HasPermissionTestFunction 인자로 람다 함수를 지정하여 인증 요청만을
+허용하도록 합니다.
+PermitSafeMessage 인자를 참으로 지정했기에 생성, 수정, 삭제 요청일 경우에
+이 람다 함수가 호출되어 호출 권한을 결정할 것입니다.
+해지 오브젝트 퍼미션 테스트 함수 인자로 람다 함수를 지정하여 작성자 요청일 경우에 요청을
+허용하도록 합니다.
+수정, 삭제 요청일 경우에 이
+람다 함수가 호출되어 호출 권한을 결정할 것입니다.
+작성자가 아닌 유저로 수정 요청을 해보시면, 이제어서 OR 리드 원이 권한 정책을 사용할
+때와 마찬가지로 403 응답과 함께 요청이 거부되고요.
+작성자 유저로 수정 요청을 해보시면 200 응답과 함께 요청이 처리됩니다.
+make-drf-permission-class 함수를 API 뷰 클래스 내에서 호출하는
+것뿐만 아니라 미리 커스텀 권한 클래스를 생성하실 목적으로 이렇게 사용하실 수도 있습니다.
+앞선 make-drf-permission-class 함수를 사용하시면 권한을 체크하는 함수를
+람다 함수로 지정해야 하는데요.
+람다 함수 문법에서는 표현식만 가능할 뿐 여러 줄의 코드를 쓸 순 없습니다.
+그래서 test-function-permission-mixing 클래스를 구현해 봤습니다.
+make-drf-permission-class 함수에서
+has-permission-test-function-name 인자와
+has-object-permission-test-function-name 인자를 지정하면
+이 권한 클래스가 적용된 API 뷰에서 지정 이름의 메서드를 호출하여 권한을 확인도록
+구현되어 있습니다.
+이 함수를 통해 생성된 권한 클래스의 인스턴스를 권한 인스턴스 목록에 자동으로 추가해
+줍니다. 그럼 이처럼 apiview 클래스에서 이 믹싱 클래스를 상속만 받으면
+hasPermission 메서드와 hasObjectPermission 메서드를
+apiview에서 직접 구현하여 권한 확인을 하실 수 있습니다.
+권한 클래스의 이름은 test_function_permission_classname
+속성으로 지정합니다.
+각 API View 클래스의 이름으로 지정해 주세요.
+코드 가독성이 더 좋아졌습니다.
+Core 폴더 밑에 mixins.py 경로에
+test-function-permission-mixin 클래스를 복사합니다.
+makedrf.permission.class 함수 호출 코드를 제거하고요.
+test_function_permission_mixin를 상속받아 동일한
+동작의 권한 클래스를 구현해 보겠습니다.
+test_function_permission_classname 속성으로 권한 클래스 이름을
+지정해 주시고요.
+test_function_permission_mixin를 상속받았으니
+hasPermission 메서드와 hasObjectPermission 메서드를 재정의할 수
+있습니다. 각 메서드에 isAuth or needOnly 권한 클래스의 로직을 그대로
+가져와서 적용해 주시면 동일하게 잘 동작합니다.
+Django 기본 앱인 Auth 앱에서는 permission 모델을 통해 권한 정책을
+지원해 줍니다.
+Django REST 프레임워크에서는 Django 모델 permissions 클래스를 통해
+이를 활용하실 수 있습니다.
+펌즈 맵 속성으로 각 요청 메서드별로 확인해야 하는 퍼미션 목록들이 지정되어 있는데요.
+조회 API에서는 빈 리스트이기에 권한 확인 없이 항상 참을 반환하게 됩니다.
+왜냐하면 hasPerm 메서드에서는 내부 구현에서 built-in 함수 all을 사용하여
+지정 인자의 모든 권한을 가지고 있는지 확인하는데요.
+all 함수는 빈 리스트를 인자로 받으면 거짓이 아닌 참을 반환하기 때문입니다.
+생성 API에서는 관련 모델의 add 권한을 확인하고요.
+수정 API에서는 관련 모델의 change 권한을 확인하고요.
+삭제 API에서는 관련 모델의 delete 권한을 확인합니다.
+Django 모델 permissions 클래스를 상속받아 permissions 맵 속성을 재정의해서
+각 요청 메서드별 권한 목록을 변경하실 수도 있습니다.
+Authenticated Users Only 속성이 기본 참으로 지정되어 있는데요.
+즉, 디폴트 동작으로 비인증 요청인 경우에는 권한 확인 없이 거부토록 구현되어 있습니다.
+Django Model Permissions 또는 Anonymous Read Only
+클래스를 활용하시면 조회 API에 한해서는 비인증 요청도 허용합니다.

@@ -1,0 +1,87 @@
+안녕하세요. 이번 시간에는 React 프로젝트에서 사용할 수 있는 UI 프레임워크를
+간략히 소개하겠습니다.
+첫 번째로, Bootstrap 5 라이브러리의 React 래퍼인 Create
+Bootstrap 라이브러리입니다.
+Bootstrap 5 CSS 프레임워크를 React 컴포넌트로 즉시 사용할 수 있다는 점이
+강점입니다.
+주의하실 점은 React Bootstrap 라이브러리는 Bootstrap 5 라이브러리의
+JavaScript를 재구현했는데요.
+디폴트 자바스크립트 동작을 확장한 Bootstrap5 테마를 사용하신다면 호환성 이슈가 있을
+수 있다고 합니다.
+Bootstrap5 CSS는 React 컴포넌트 내에서 이렇게 임포트하셔도 되고요.
+React 밖에서 Bootstrap5 CSS를 임포트하셔도 됩니다.
+로딩되는 웹페이지 어디에서든 Bootstrap5 CSS만 임포트하시면 됩니다.
+Create React의 프로젝트는 HTML 진입점이 public 폴더에
+index.html이니깐요.
+그 HTML 파일에서 임포트하실 수도 있겠습니다.
+Bootstrap 5 CSS 프레임워크는 수많은 무료, 유료 테마가 강점이죠.
+React 컴포넌트에서도 CSS 변경만으로 손쉽게 다양한 테마를 누드실 수 있습니다.
+React 애플리케이션에서 사용할 Bootstrap 5 라이브러리와 React
+BootStep 라이브러리를 설치합니다.
+App4 컴포넌트에서 React-Bootstrap 라이브러리의 Button 컴포넌트를 사용해
+보겠습니다. 커스텀 구현한 Button 컴포넌트는 제거합니다.
+렌더링된 페이지를 보시면 Button에 스타일이 없죠.
+Button 요소의 클래스명에 Bootstrap 5의 CSS 클래스명인 btn,
+btn-primary는 제대로 지정되어 있습니다.
+아직 Bootstrap 5 CSS를 로딩하지 않았습니다.
+app4.javascript 코드 상단에 방금 설치한 Bootstrap 5 라이브러리의 css
+경로를 지정해서 Bootstrap 5에 css를 로딩하실 수도 있겠고요 혹은
+index.javascript 파일에서 Bootstrap 5 css를 로딩하실 수도 있겠고요
+혹은 React 웹페이지 시작점인 public 폴더의 index.html 파일에서 직접
+css 태그를 통해 bootstrap5 css를 로딩하실 수도 있습니다.
+여기에서는 html 파일이니까 CDN 버전의 bootstrap5 css도 사용하실 수
+있습니다.
+app.js 코드 상단에 적용하는 것으로 남겨두겠습니다.
+ANT 디자인은 알리바바 그룹에서 개발한 고품질의 UI 프레임워크입니다.
+UI 완성도는 높지만, ANT 디자인에서 지원하는 커스터마이징 외에는 커스터마이징이 거의
+불가능합니다.
+그래서 내부 시스템용 UI에 적합합니다.
+마지막으로 Daisy UI입니다.
+Tailwind CSS 기반의 컨셉 라이벌이고요.
+다양한 테마를 지원합니다.
+리액트 애플리케이션에서 Tailwind CSS를 사용하신다면 좋은 선택지입니다.
+새로운 리액트 프로젝트를 생성해서 Daisy UI를 적용해 보겠습니다.
+Daisy UI 라이벌이는 Tailwind CSS 기반이니까 Tailwind CSS를 먼저
+설치하고 설정하겠습니다.
+Create React App React 프로젝트에서 Tailwind CSS를 어떻게
+지원할 수 있는지에 대한 Tailwind CSS 공식 문서입니다.
+이를 참고해서 Create React App 프로젝트에 Tailwind CSS를
+적용하겠습니다.
+myreact03, daisyui 이름으로 새로운 Create React App 프로젝트를
+생성합니다.
+프로젝트 생성 후에 프로젝트 폴더로 이동하고요 개발용 라이브러리로서 Tailwind
+CSS를 설치합니다
+npx tailwindcss init 명령으로 현재 디렉토리에 Tailwind CSS
+설정 파일을 생성하겠고요 방금 생성한 myreact03-daisyuiproject를
+파이참으로 열어주겠습니다
+tailwind.config.js 파일의 content 항목으로
+tailwind css의 css 클래스명들을 사용할 소스 파일 경로를 지정해 줘야 하는데요
+이렇게 소스 폴더의 모든 javascript, 모든 js, jsx, ts, tsx 확장자
+파일들을 모니터링 하도록 합니다
+혹시 다른 확장자의 파일에서 Tailwind CSS를 사용한다거나 src 폴더가 아닌 다른
+경로에서 Tailwind CSS를 사용한다면 해당 경로도 content 항목에 추가해 주셔야만
+합니다 Create React 앱에서는 소스 폴더에 index.css 경로에 웹 페이지의
+기본 스타일이 적용되어 있는데요 이들 모두 삭제하고요 Tailwind CSS의 기본
+스타일을 적용해 줍니다
+크리에이트 리액트 앱 개발 서버를 수행해 주시면 리액트 기본 웹페이지가 뜨고요 앱
+컴포넌트의 모든 CSS와 코드는 제거하고요 이렇게 Tailwind CSS에서 지원하는
+클래스명만 적용한 element를 추가합니다
+그럼 이렇게 지정한 스타일대로 렌더링됨을 확인하실 수 있습니다
+React 컴포넌트 지원을 위해 react-daisyui 라이브러리를 이어서 설치하고
+설정합니다.
+React DaisyUI 공식 저장소입니다.
+인스톨 챕터에 보시면 React-DAISYUI 라이브러리를 설치하기에 앞서 반드시
+Tailwind CSS와 DaisyUI 라이브러리를 설치하라고 합니다.
+Tailwind CSS는 앞서 설치했고요.
+DaisyUI 라이브러리 문서로 이동합니다.
+개발용 라이브러리로서 DaisyUI를 설치하고요.
+tailwind.config.javascript 파일에 플러그인스 항목에 require
+daisyui를 추가해 달라고 합니다.
+안내받은 대로 진행합니다.
+이어서 React DaisyUI 라이브러리를 설치하고요.
+tailwind.config.javascript 파일의 Content 항목에 DaisyUI
+UI 라이브러리와 React DaisyUI 라이브러리의 코드 경로를 추가해줍니다.
+그럼 설치 끝입니다.
+이제 React Daisy UI 라이브러리의 컴포넌트를 활용하실 수 있습니다.
+앱 컴포넌트에서 버튼 컴포넌트를 렌더링 해봤고요.
+Color 속성 값으로 Primary, Secondary 등을 지원합니다.

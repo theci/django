@@ -1,0 +1,111 @@
+이번에는 Auth 앱의 로그인 뷰 클래스를 활용하여 앞서 구현한 로그인 함수 뷰를 보다
+간결하고 확장성 있게 구현해 보겠습니다.
+로그인 함수는 주석 처리하시고요.
+Auth 앱에 로그인 뷰 클래스를 상속받은 로그인 뷰 클래스를 새롭게 정의합니다.
+기본 옵션으로 로그인 뷰를 생성하겠고요.
+로그인 페이지를 방문하시면 이렇게 로그인 뷰 클래스에 디폴트 템플릿이 없다는 오류가
+발생합니다. 템플릿 네임 인자로 account의 login_form.html 경로로 변경해
+주겠습니다. 그리고 loginform.html 템플릿은 Django Form 인스턴스를
+활용하는 전형적인 템플릿으로 구현해 줍니다.
+웹페이지 새로고침하시구요,
+아이디 암호를 입력하시고 폼 전송을 하시면 정상적으로 로그인 처리가 되고, 세팅스에 로그인
+redirect url에 설정된 주소인 Accounts의 프로필 주소로 이동을 했습니다.
+Auth 앱의 로그인 뷰에서는 redirect authenticated user 설정이
+있구요, 디폴트로 거짓입니다.
+참으로 설정하시면 이미 인증된 유저는 로그인 페이지를 방문 시에 로그인 시도를 허용하지
+않고 페이지 이동을 시킵니다.
+참으로 지정하시고 로그인 페이지에 방문하시면 로그인 시도 없이 즉시 페이지 이동함을
+확인하실 수 있습니다.
+AuthApp의 LoginView 클래스는 RedirectURLMixin 클래스를
+상속받았고요.
+RedirectURLMixing 클래스의 getSuccessURL 메서드 구현에서는 성공
+URL 주소를 반환하는데요.
+getRedirectURL 메서드를 먼저 호출하여 이동할 주소를 먼저 확인하고 그 반환
+값이 거짓이면, 즉 빈 문자열이거나 논을 반환한다면 getDefaultRedirectURL
+메서드를 호출해서 default 이동 주소를 반환합니다.
+getRedirectURL 메서드에서는 post 데이터에서 next 이름의 값을 찾고
+없으면 get 데이터에서 next 이름의 값을 찾는데 둘 다 없으면 redirectTo
+값은 None이 되고요 반항 값은 빈 문자열이 됩니다
+그럼 getDefaultRedirectURL 메서드를 호출할 텐데요
+RedirectURLMixing 클래스의 get-default-redirect-url
+메서드 기본 구현에서는 NextPage 속성이 있다면 그 값을 반환하고 없다면 미설정
+오류가 발생합니다.
+LoginView 클래스에서는 getDefaultRedirectURL 메서드를 재정의해서
+NextPage 속성이 있다면 활용하고 없다면 Settings에
+LoginRedirectURL 값을 반환하도록 구현되어 있습니다.
+그럼 LoginView 클래스 기반 뷰에서는 인증 후에 이동할 주소 1순위로
+PostData의 Next 값이고요.
+2순위도 GetData의 Next 값이고요.
+3순위도 Next Page 속성, 4순위도 Settings의 LoginRedirect
+유하될 설정이 되겠습니다.
+로그인 리더렉트 URL 설정은 이렇게 프로젝트의 세팅스에서 변경하실 수 있고요.
+로그인 뷰 클래스에서 로그인 리다이렉트 URL 설정에 대한 URL 리버스 지원이 없으니
+이렇게 리버스 레이지를 통해 URL 리버스를 적용해 보실 수 있습니다.
+로그인 뷰 클래스에서 Next 인자의 활용 예를 살펴보겠습니다.
+일단, 손쉬운 실습을 위해 로그인 뷰에서 redirect authenticated user
+설정을 거짓으로 두어 로그인 상태에서도 로그인 페이지에 접근할 수 있도록 해줍니다.
+로그인 HTML 폼 내에 next 이름의 인자를 추가하여 로그인 후에 이동할 주소를
+지정하실 수도 있고요.
+이렇게 로그인 주소 뒤의 query 파라메터로 next 이름의 인자를 지정하실 수
+있습니다. 이는 Django 뷰에서 getData로 접근을 할 수 있죠.
+next 인자로 Accounts의 프로필 Edit 주소를 지정하여 로그인 페이지를 열고요.
+로그인을 하면 next에 지정한 주소로 자동 이동을 합니다.
+이 동작은 우리가 실습을 하면서도 많이 겪어봤었는데요.
+로그인 required 장식자나 로그인 required mixing 클래스가 적용된 뷰에
+접근할 때 로그인이 되어 있지 않은 상황이라면 로그인 페이지로 이동하면서 next 이름의
+인자가 자동 지정되었습니다.
+현재 프로필 업데이트 뷰에 로그인 required mixing 클래스가 적용되어 있고요.
+로그아웃 하시고 로그아웃 상황에서 Accounts의 프로필의 Edit 주소로 접근해 보시면
+이렇게 로그인 페이지로 이동하면서 방금 요청의 주소가 Next 인자로 자동 지정이 되어
+있음을 확인하실 수 있습니다.
+이제 로그인을 하면 원래 방문하려던 페이지도 자동 이동을 하게 됩니다.
+로그인 뷰의 기본 폼 클래스로 AuthenticationForm가 지정되어 있습니다
+폼 클래스 구현을 보시면 폼 클래스를 상속받았고요 유저 폼 필드와 패스워드 폼 필드가
+추가되어 있습니다
+패스워드 폼 필드에는 패스워드 인풋 위젯을 적용하여 인풋 요소에 Type Hidden을
+적용했고요 그리고 추가 속성으로 AutoComplete Current 패스워드를 지정하여
+자동 완성이 되지 않도록 구성되어 있네요
+에러 메시지는 두 가지 에러 메시지가 등록되어 있습니다.
+invalid 로그인, 즉 로그인에 실패했을 때와 inactive, 즉 inactive
+플래그가 거시스로서 비활성화된 유저가 로그인을 시도했을 때의 에러 메시지입니다.
+에러 메시지가 영어이지만 각 문자열이 언더바 함수로 랩핑이 되어 있죠.
+이는 소스코드 상단에 보시면 getTextRange라는 국제화 번역함수의 별칭으로써 각
+문자열들은 OAuth 앱 내에서 이미 여러 나라의 언어로 번역이 되어 있고요 각 유저의
+언어 설정에 맞춰서 번역된 문자열로 제공됩니다
+Form 클래스 생성자로 request 요청 객체를 받고요.
+이는 클립 메서드에서 Authenticate 함수를 통해 인증을 수행할 때 인자로
+사용됩니다.
+Authenticate 함수에서는 인증에 성공하면 관련 유저 인스턴스를 반환하고 없으면
+논을 반환하죠.
+Authenticate 함수의 반환 값을 user_cache 멤버 변수로 저장해 두고요.
+인증에 실패하면 getInvalidLoginError 메서드를 호출하는데
+invalidLoginError 메시지로 validation 예외를 발생시키고 인증에
+성공하면 confirmLoginAllowed 메서드를 호출하여 ejective 플래그가
+참인지 검사합니다.
+거짓이면 inactive error 메시지로 validation error를 발생시킵니다.
+로그인뷰에서는 유효성 검사에 통과하면 formValid 메서드를 호출하여 폼 처리에 대한
+마무리를 할 텐데요.
+구현을 보시면 auth.login 함수를 호출하여 인증 세션을 생성합니다.
+auth__login 함수는 auth 앱의 로그인 함수이고요.
+AuthenticationForm 클래스의 getUser 메서드에서는 clean 메서드에서
+생성한 유저 인스턴스를 반환해 줍니다.
+그리고 get_success_url 메서드를 통해 이동할 주소를 획득하여 페이지 이동 답을
+합니다.
+Django에서는 Request 객체의 유저 속성으로 현재 로그인 유저 인스턴스를 참조할
+수 있는데요.
+Request 객체의 유저 속성은 언제 할당이 되고 언제 조회가 되는 것일까요?
+Request 객체의 Session 속성은 Session Middleware를 통해서
+할당되고요.
+Request 객체의 유저 속성은 Authentication Middleware를 통해서
+할당됩니다.
+인증에는 Session 지원이 필수이기에 Request 객체의 Session 속성이 없다면
+이렇게 설정 오류 예외가 발생합니다.
+그러니 반드시 Session Middleware를 Authentication
+Middleware보다 앞에 배치해야만 합니다.
+Request 객체의 User 속성은 getUser 함수의 반환 값으로 할당되고요.
+조회된 유저 인스턴스는 언더바 캐시드 언더바 유저 이름으로 리퀘스트 객체에 캐싱되기에
+getUser 함수나 request.user 속성을 여러 번 참조하더라도 유저 조회는
+요청당 단 1회만 발생합니다.
+그리고 getUser 함수 호출을 SimpleLazyObject 클래스로 랩핑했기에
+request.user 속성을 생성하는 시점에 유저 조회를 즉시 수행하지 않고요
+request.user 속성을 참조하는 시점에 게으르게 유저 조회가 수행됩니다
