@@ -222,13 +222,15 @@ class TagListView(ListView):
         return [template_name]
 
 
+# TagListView라는 클래스 기반 뷰를 실제 HTTP 요청을 처리할 수 있는 뷰 함수로 변환하여 tag_list에 할당 
+# 이 뷰 함수는 urls.py에 등록되어, 웹 서버가 해당 URL로 들어오는 요청을 처리하는 데 사용됩니다.
 tag_list = TagListView.as_view()
 
 
 # 이 뷰는 새로운 Tag를 생성하거나 기존 Tag를 수정하는 폼을 처리
 @login_required_hx
 def tag_new(request, pk=None):
-    if pk: #  # instance는 pk가 주어지면 해당 Tag 객체로 초기화되고, 없으면 None으로 새 태그를 생성
+    if pk:  # instance는 pk가 주어지면 해당 Tag 객체로 초기화되고, 없으면 None으로 새 태그를 생성
         instance = get_object_or_404(Tag, pk=pk)
     else:
         instance = None

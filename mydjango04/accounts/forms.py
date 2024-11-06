@@ -133,14 +133,13 @@ class PasswordChangeForm(forms.Form):
 
 
 class PasswordResetForm(forms.Form):
-    # 이메일 포맷에 대한 유효성 검사만 수행할 뿐, 이메일의 존재 유무를 확인하지는 않습니다.
-    email = forms.EmailField()
+    email = forms.EmailField() # forms.EmailField는 Django의 기본 제공 필드로, 이메일 형식이 올바른지 검사
 
     # auth앱의 PasswordResetForm에서는 save 메서드에서 이메일 발송에 필요한
     # 다양한 인자를 전달받습니다.
     def save(self, request: HttpRequest) -> None:
-        email = self.cleaned_data.get("email")
-        for uidb64, token in self.make_uidb64_and_token(email):
+        email = self.cleaned_data.get("email") # 폼이 제출되고 유효성 검사를 통과한 후의 이메일
+        for uidb64, token in self.make_uidb64_and_token(email): # 이메일에 해당하는 사용자 정보를 기반으로 uidb64와 token을 생성하여 반환
             scheme = "https" if request.is_secure() else "http"
             host = request.get_host()
             # 새로운 암호를 입력받아, 암호를 변경하는 뷰
@@ -152,7 +151,8 @@ class PasswordResetForm(forms.Form):
                 f"{email} 이메일로 {reset_url} 주소를 발송합니다."
             )  # TODO: 이메일 발송
 
-    def make_uidb64_and_token(self, email: str) -> Iterator[tuple[str, str]]:
+    # 주어진 이메일에 해당하는 사용자를 찾아 uidb64 (Base64로 인코딩된 사용자 ID)와 token을 생성하는 함수
+    def make_uidb64_and_token(self, email: str) -> Iterator[tuple[str, str]]: # Iterator[tuple[str, str]] - 두 개의 문자열을 포함하는 튜플을 순차적으로 반환하는 이터러블 객체
         for user in self.get_users(email):
             print(f"{email}에 매칭되는 유저를 찾았습니다.")
 
@@ -161,7 +161,7 @@ class PasswordResetForm(forms.Form):
 
             yield uidb64, token
 
-    def get_users(self, email: str) -> Iterator[User]:
+    def get_users(self, email: str) -> Iterator[User]: # User 객체를 순차적으로 반환하는 이터러블 객체
         active_users = User.objects.filter(email__iexact=email, is_active=True)
         return (
             user

@@ -34,6 +34,7 @@ class IndexView(ListView):
     def get_queryset(self):
         qs = super().get_queryset()
 
+        # self.kwargs는 URL에서 전달된 동적 매개변수들을 담고 있는 딕셔너리
         release_date = self.kwargs.get("release_date")
         if release_date:
             qs = qs.filter(release_date=release_date)
@@ -87,12 +88,12 @@ class SongDetailView(DetailView):
 
 song_detail = SongDetailView.as_view()
 
-
+# 데이터를 CSV 또는 XLSX 형식으로 파일로 다운로드할 수 있게 해주는 뷰
 def export(request, format: Literal["csv", "xlsx"]):
     song_qs = Song.objects.all()
     df = pd.DataFrame(data=song_qs.values())
 
-    export_file = BytesIO()
+    export_file = BytesIO() # 이 객체를 사용하여 파일 내용을 메모리에서 생성하여 바이트 스트림을 처리하고 이를 HTTP 응답으로 반환
 
     if format == "csv":
         content_type = "text/csv"
