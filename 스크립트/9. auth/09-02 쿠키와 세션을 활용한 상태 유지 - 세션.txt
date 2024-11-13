@@ -81,5 +81,4 @@ Cookie에 Session ID가 없을 경우 Session Store 내에서 새로운 Session 
 Session 변경 없이 2주가 지나면 Session ID를 저장하고 있는 쿠키가 만료됩니다.
 데이터베이스나 파일 백엔드의 Session 데이터는 만료 시간 이후에 자동으로 삭제되진 않습니다.
 Clear Sessions 명령을 통해 서버단에서 주기적으로 삭제해 주셔야 하고요.
-Cache 백엔드의 Session 데이터는 Cache에서 만료 시간 지정에 의한 자동 삭제를 지원해 주므로 Clear Sessions 명령 시에 실제 수행되는 삭제 작업은
-없습니다.
+Cache 백엔드의 Session 데이터는 Cache에서 만료 시간 지정에 의한 자동 삭제를 지원해 주므로 Clear Sessions 명령 시에 실제 수행되는 삭제 작업은 없습니다.
