@@ -1,0 +1,13 @@
+// 프로젝트/.vscode/extensions.json
+//  - 아래 설정을 추가하면 확장 탭에서
+//    추천 확장으로 확인하실 수 있습니다.
+{
+  "recommendations": [
+    "ms-python.python", // Python 언어 지원 및 다양한 기능을 제공하는 공식 Python 확장
+    "ms-python.black-formatter", // Python 코드 포맷팅을 위한 Black 포매터를 제공
+    "batisteo.vscode-django", // Django 템플릿 문법, 뷰, URL 등과 관련된 기능을 지원
+    "Glavin001.unibeautify-vscode", // 다양한 언어의 코드 포맷팅을 지원하는 확장으로, UniBeautify는 VSCode에서 코드 포맷팅을 담당
+    "esbenp.prettier-vscode", // 인기 있는 코드 포맷터인 Prettier를 VSCode에서 사용하도록 설정하는 확장
+    "PKief.material-icon-theme" // VSCode의 아이콘 테마를 Material Design 스타일로 변경하는 확장
+  ]
+}

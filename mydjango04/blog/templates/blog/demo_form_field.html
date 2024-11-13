@@ -1,0 +1,19 @@
+{# blog/demo_form_field.html #}
+
+{% load widget_tweaks %}
+
+<div class="my-2">
+    {# 각 필드의 레이블 태그 #}
+    {{ form_field|add_label_class:"form-label" }}<br/>
+
+    {# 각 필드의 위젯 렌더링은 템플릿에서 수정할 수 없습니다. #}
+    {{ form_field|add_class:"form-control" }}
+    {# 각 폼 필드의 입력 도움말 #}
+    <div class="form-text text-success">{{ form_field.help_text }}</div>
+    <div class="form-text text-danger">
+        {# 각 폼 필드의 에러 내역을 렌더링 #}
+        {% for error in form_field.errors %}
+            {{ error }}<br/>
+        {% endfor %}
+    </div>
+</div>

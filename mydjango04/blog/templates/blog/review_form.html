@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    # 반응형 웹을 위한 뷰포트 설정. 모바일 화면에서도 페이지가 적절하게 표시되도록 도와줍니다.
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"> # Internet Explorer에서 최신 렌더링 엔진을 사용하도록 설정
+    <title>Review Form</title>
+
+    {{ form.media }} # Django 폼을 렌더링할 때 필요한 CSS나 JavaScript 파일을 템플릿에 자동으로 삽입
+</head>
+<body>
+
+    <h2>Review Form</h2>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <table>
+            {{ form.as_table }}
+        </table>
+        <input type="submit" />
+    </form>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+체크리스트를 따라 장고 프로젝트 초기 세팅을 진행해 보겠습니다
+프로젝트를 생성할 디렉토리로 먼저 이동합니다
+우리는 myjanggo04 디렉토리의 부모 디렉토리로 이동하겠고요 사용하시는 파이썬 버전과 운영체제에 맞게 가상 환경을 생성하시고 활성화합니다.
+Django 라이브러리를 먼저 설치하고요.
+본 강의는 4.2 LTS 버전으로 진행되니 4.2 버전을 설치합니다.
+PIP 리스트 명령으로 가상 환경에 설치된 라이브러리 목록을 버전과 함께 이렇게 확인하실 수 있습니다.
+Django 프로젝트를 생성하기 전에 사용할 Django 버전을 꼭 확인하시고요.
+Start Project, Django 명령으로 Django 프로젝트를 현재 경로에 생성합니다.
+파이탐이나 VS 코드로 프로젝트를 열어주시고요.
+사용하실 가상 환경이 올바르게 지정되었는지 확인해 줍니다.
+프로젝트를 Git 저장소로 운영하실 때에는 git add 하시기 전에 필히 .gitignore 파일에 Git 저장소에 추가되어서는 안 될 파일명 패턴, 디렉토리명 패턴을 먼저 등록해 주셔야 할 만합니다.
+현재는 프로젝트 폴더 상단에 .gitignore 파일이 적절히 생성되어 있으니 myproject 폴더에서는 .gitignore 파일을 생성하지 않겠습니다.
+.gitignore 파일은 하위 모든 경로에 적용됩니다.
+Django 서버 구동 환경은 크게 개발 환경, 배포 환경으로 나눌 수 있고요.
+배포 환경도 사용하는 클라우드 벤더나 서버 구성에 따라 다를 수 있고, 그에 따라 사용하는 라이브러리도 다를 수 있습니다.
+requirements.txt 파일은 배포용 목록을 명시할 목적으로 사용하고요.
+requirements.txt 디렉토리 아래에서 dev.txt 파일은 개발용 라이브러리 목록을 production.txt 경로는 배포용 라이브러리 목록을 그리고 common.txt
+경로는 개발용과 배포용 모두에서 사용하는 라이브러리 목록을 명시하겠습니다.
+requirement.txt 파일은 requirements 디렉토리 내에 production.txt 파일을 받아보게 합니다.
+그럼 개발용 셋업 시에는 pip install –r requirements/dv.txt 명령 한 번이면 개발용 라이브러리를 한 번에 설치할 수 있게 됩니다.
+배포 시에는 pip install –r requirements/production.txt 명령이나 pip install requirements.txt 명령 한 번에 배포용 라이브러리를 설치할 수 있겠죠.
+PyCharm에서는 블랙 유틸리티를 직접 지원하죠
+블랙 유틸리티는 파이참 메뉴를 통해 설치하셔도 되고 터미널에서 pip install black 명령으로 설치하셔도 됩니다
+기본 설정으로 코드 리포맷 명령 시에 블랙 유틸리티가 동작토록 설정되어 있고요 소스 파일 저장 시에도 블랙이 자동 수행토록 옵션을 체크해 주겠습니다
+현장고 프로젝트 코드에 블랙 유틸리티로 코드 포맷을 한번 정리합니다
+블랙 명령이 가상 환경 내에 설치되는데요 터미널에서 블랙 유틸리티 명령이 동작하지 않으시는 분은 환경 변수 패스 이슈일 텐데요
+python -m black 명령으로도 동일하게 동작시킬 수 있습니다
+현재 디액토린의 모든 파이썬 파일에 대해서 블랙 유틸리티를 통해 코드 포맷을 정리해 둡니다
+코어 앱을 새롭게 생성하고요 settings의 Installed Apps List에 코어 앱을 등록합니다
+settings의 Installed Apps List에는 Django 기본 앱 목록을 먼저 쓰고, 3rd-party party 라이브러리의 Django 앱 목록을 쓰고, 로컬 Django 앱 목록을 써두면 등록된 앱 목록을 파악하는데 편리합니다.
+코어 앱의 urls.py 파일도 생성하고요.
+프로젝트의 urls.py에도 코어 앱의 urls.py를 포함시킵니다.
+코어/templates/base.html 경로에 최상위 부모 템플릿을 구성하겠습니다.
+기본 HTML로 구성하겠고요.
+부트스텝 적용은 뒤에서 할게요.
+자식 템플릿이 재정의할 수 있는 컨텐트 이름의 블록을 하나 정의했습니다.
+대문 페이지에 사용할 템플릿 root.html 파일을 코어 밑에 템플릿 밑에 root.html 경로에 생성하겠고요
+코어 앱에서 최상위 주소에 대해 root.html 템플릿으로 응답을 하도록 템플릿 뷰를 활용합니다 
+장고 개발 서버를 구동하시고 로컬 로스트 8000 주소로 접속하시면 이렇게 대문 페이지를 확인할 수 있습니다.
+장고 디버그 툴바 라이브러리를 설치하겠습니다.
+공식 문서 웹 페이지도 열어보겠습니다.
+장고 디버그 툴바 라이브러리를 설치하라고 하네요.
+개발용 라이브러리니까 acquirements directory 내에 dev.txt 파일에 라이브러리를 명시하겠습니다.
+최신 버전으로 설치할 텐데, 설치해보니 최신 버전이 4.3.0입니다.
+Settings의 Installed Apps List에 Debug Toolbar By 이름의 앱을 추가하고요.
+디버그 환경에서만 동작하도록 Debug Flag를 확인하여 Installed Apps List에 추가하여 앱을 등록합니다.
+미들웨어 리스트에도 추가해야 하는데요 미들웨어는 명시된 순서대로 동작하니까 디버그 툴바의 미들웨어가 장고 요청 처리에 처음에 그리고 응답 처리에 마지막에 수행될 수 있도록 미들웨어 리스트에 처음에 추가합니다
+URL 패턴도 등록해 줍니다
+세팅스의 디버그 플래그를 확인하신 후에 추가하실 수도 있고요
+디버그 툴바 앱의 등록 여부를 확인하신 후에 이렇게 추가하실 수도 있습니다
+앱의 등록 여부를 확인하는 것이 좀 더 확실하고 명확한 방법입니다
+웹페이지에서 Django 디버그 툴바를 허용할 IP를 settings에 Internal IPS List 설정으로 추가합니다 
+개발 서버 확인하시고 웹페이지 접속해 보시면 Django Session 데이터베이스 테이블을 찾을 수 없다는 오류가 발생합니다
+디버그 툴바에서 Session 조회 중에 발생한 오류이고요
+현재 장고 프로젝트가 바라보는 데이터베이스에 장고 세션 테이블이 없다는 의미입니다.
+현재 엉뚱한 데이터베이스를 바라보고 있을 수도 있겠지만 지금은 데이터베이스 테이블이 없는 상황입니다.
+pythonmanage.py migrate 명령으로 데이터베이스 테이블을 생성해 주시고 새로고침하면 웹페이지에 이렇게 장고 디버그 툴바 아이콘이 보여집니다.
+응답 템플릿에서는 반드시 body 태그가 있어야 장고 디버그 툴바가 화면에 보여지니 주의해 주세요. 
+Django Extensions 라이벌리는 개발과 배포에서 모두 사용하는 라이브러리이므로 Requirements 디렉토리 내에 common.txt 경로에 지정하겠습니다.
+최신 버전은 3.2.3이네요.
+Installed Apps List에는 Django Underbar Extensions 이름으로 추가합니다.
+이제 python-manage.py shell plus 명령을 사용할 수 있는데요.
+셸이 파이썬 기본 쉘로 동작하네요.
+requirements.txt 경로에 ipython을 명시하고 설치한 후에 다시 쉣 플러스 명령을 구동해 보시면 ipython 쉘로 이제 구동됩니다.
+Django Env 라이벌리도 개발과 배포에서 모두 사용하는 라이벌리이므로 requirements 내 common.txt 경로에 지정합니다.
+최신 버전은 0.11.2 버전이네요.
+Django Inviron 라이브러리는 Django 앱이 아니라 단순 라이브러리입니다.
+세팅스 내에 .env 경로를 계산하고 로딩하는 코드를 추가합니다.
+구동 환경에 따라 설정이 바뀔 수 있는 시크릿 키 설정, 디버그 설정, 얼로우드 호스트
+설정, 랭기지 코드 설정, 인터널 IPS 설정들을 환경 변수를 통해 주입받을 수 있도록
+변경해 줍니다.
+Django 템플릿 파티셜 라이브러리도 개발과 배포에서 모두 사용하는 라이브러리입니다.
+최신 버전이 23.4 버전이네요.
+Installed Apps List에 템플릿 언더바 파티셜 이름을 추가합니다.
+HTMX 라이브러리를 CDN 버전으로 쓰셔도 되지만, 보다 안정적인 서비스를 위해서는
+서비스에 사용되는 정적 파일은 직접 서빙하시는 것이 좋습니다.
+HTMX 라이브러리를 다운받아서 장고를 통해 직접 서빙하도록 해볼게요.
+Unpackage의 CDN 페이지에서 htmx.js 파일과 htmx.min.js 파일을
+다운받습니다. 해당 링크의 소스 파일을 여시고 윈도우에서는 Ctrl-S 단축키, 맥에서는
+Cmd-S 단축키를 눌러 저장하셔도 되고요
+현재 1.9.11 버전이고요.
+디렉토리 밑에, 스태틱 디렉토리 밑에 htmx 디렉토리를 만드시고 버전인 1.9.11
+이름의 디렉토리를 만들고 그 안에 htmx.js 파일과 htmx.min.js 파일을
+복사합니다
+파이참에서 htmx.js 파일을 펼치면 htmx.min.js 파일이 트리 구조로 나오는
+것은 파이참에서 파일명만 보고 htmx.js 파일의 minified 버전이
+htmx.min.js인 것으로 판단하여 UI로 이렇게 보여지는 것일 뿐 두 파일은 한
+디렉토리 내에 같은 레벨에 위치해 있습니다.
+최상위 부모 템플릿인 base.html 템플릿에서 htmx.min.js 파일을 로딩하는
+스크립트 태그를 추가합니다.
+페이지 소스보기 하시고 생성된 태그에서 링크를 클릭하여 파일을 열어보시면 페이지 Not
+Found 응답을 받았습니다.
+해당 경로의 파일을 찾을 수 없다고 하는데요.
+현재 장고 개발 서버가 방금 추가한 static 폴더의 존재를 모르고 있어서 그렇습니다.
+장고 개발 서버를 재시작시켜 주시고, 페이지 새로 고침하시면 htmx 파일 서빙을
+정상적으로 받아옵니다.
+htmx 라이브러리 설치는 이 코드만으로 충분한데요.
+라이벌리에 따라 개발 환경에서는 미니파이되지 않은 라이벌리를 로딩해야 할 수도 있습니다.
+개발 환경 여부는 Settings의 Debug 플래그로 판단하고요.
+템플릿 단에서는 소문자 Debug 이름의 플래그를 통해 참조하실 수 있습니다.
+디버그 플래그로 if 분기하여 미니파이드 버전 로딩 여부를 결정합니다.
+htmx 요청에서 자동으로 CSRF 토큰 헤더가 전송될 수 있도록 body 태그에
+xheaders 속성으로 xcsrftoken 헤더를 추가합니다.
+장고 HTMX 라이브러리도 개발과 배포에서 모두 사용하는 라이벌리이죠.
+최신 버전이 1.17.3 버전이고요.
+인스톨드 앱 리스트에 장고 언더바 HTMX 앱 이름을 추가하고요.
+미들웨어에서도 HTMX 미들웨어를 추가합니다.
+htmx를 통한 GET 요청에서 요청 시각의 타임스탬프를 쿼리 파라메타로 자동 추가해주는
+hx.getWithTimeStamp 속성을 구현한 코드가 있습니다.
+말장고 공사 프로젝트에서 블로그에 base.html 템플릿 내에서 구현했었는데요.
+이 코드를 core 밑에, static 밑에, htmx 밑에, ext, extension
+디렉토리 내에 hx.getWithTimeStamp.javascript 파일로 저장하고요.
+최상위 부모 템플릿에서 로딩 터도 갑니다.
+
+
+1. 프로젝트 디렉토리로 이동
+myjanggo04 디렉토리의 부모 디렉토리로 이동.
+2. 가상 환경 생성 및 활성화
+사용 중인 파이썬 버전과 운영체제에 맞게 가상 환경을 생성.
+가상 환경을 활성화.
+3. Django 설치
+pip install django==4.2 (본 강의는 Django 4.2 LTS 버전 사용).
+pip list 명령어로 설치된 라이브러리 목록 확인.
+4. Django 프로젝트 생성
+django-admin startproject myproject . 명령으로 Django 프로젝트 생성.
+생성된 프로젝트를 PyCharm이나 VS Code로 열기.
+가상 환경이 올바르게 설정되었는지 확인.
+5. .gitignore 파일 설정
+.gitignore 파일을 프로젝트의 루트 디렉토리에 생성하여 Git에 추가되지 않아야 할 파일/디렉토리 패턴을 등록.
+Git에 추가하기 전에 .gitignore 설정을 확인.
+6. requirements.txt 설정
+배포 환경용 라이브러리 목록을 requirements/production.txt에 추가.
+개발 환경용 라이브러리 목록을 requirements/dev.txt에 추가.
+공통 라이브러리 목록은 requirements/common.txt에 추가.
+pip install -r requirements/dev.txt 명령으로 개발용 라이브러리 설치.
+pip install -r requirements/production.txt 명령으로 배포용 라이브러리 설치.
+7. 블랙 유틸리티 설치 및 설정
+pip install black 명령으로 블랙 유틸리티 설치.
+PyCharm에서 자동으로 코드 포맷팅을 블랙 유틸리티로 설정.
+python -m black 명령으로 터미널에서 코드 포맷팅 실행.
+8. 코어 앱 생성
+python manage.py startapp core 명령으로 코어 앱 생성.
+settings.py의 INSTALLED_APPS에 core 앱 등록.
+core/urls.py 파일 생성 후 myproject/urls.py에 포함.
+9. 최상위 템플릿 생성
+core/templates/base.html 경로에 최상위 부모 템플릿 작성.
+root.html을 core/templates/root.html 경로에 생성.
+core/views.py에서 root.html 템플릿으로 응답하는 뷰 작성.
+10. Django 서버 구동
+python manage.py runserver 명령으로 Django 개발 서버 실행.
+로컬 http://127.0.0.1:8000/에서 대문 페이지 확인.
+11. Django Debug Toolbar 설치 및 설정
+pip install django-debug-toolbar 명령으로 Debug Toolbar 설치.
+INSTALLED_APPS에 debug_toolbar 앱 추가.
+MIDDLEWARE에 Debug Toolbar 미들웨어 추가.
+urls.py에 Debug Toolbar URL 패턴 추가.
+INTERNAL_IPS에 개발 환경에서만 허용할 IP를 추가.
+python manage.py migrate 명령으로 데이터베이스 테이블 생성.
+12. Django Extensions 설치 및 설정
+pip install django-extensions 명령으로 Django Extensions 설치.
+INSTALLED_APPS에 django_extensions 앱 추가.
+python manage.py shell_plus 명령으로 확장된 쉘 사용.
+13. Django Inviron 설치 및 설정
+pip install django-environ 명령으로 Django Inviron 설치.
+.env 파일을 프로젝트 루트에 생성하고, 환경 변수 로딩 코드 추가.
+시크릿 키, 디버그 설정 등 환경 변수로 관리.
+14. Django Template Partial 설치 및 설정
+pip install django-template-partials 명령으로 Django Template Partial 설치.
+INSTALLED_APPS에 template_partial 앱 추가.
+15. HTMX 설치 및 설정
+HTMX 라이브러리의 최신 버전(예: htmx.min.js)을 정적 파일로 다운로드하여 static/htmx/ 디렉토리에 저장.
+base.html에서 HTMX 라이브러리를 로딩하는 <script> 태그 추가.
+Django 서버를 재시작하여 HTMX 파일 서빙 확인.
+16. HTMX 및 CSRF 설정
+HTMX 요청에 자동으로 CSRF 토큰을 포함시키기 위해 xheaders 속성으로 xcsrftoken 헤더 추가.
+17. Django HTMX 라이브러리 설치 및 설정
+pip install django-htmx 명령으로 Django HTMX 설치.
+INSTALLED_APPS에 django_htmx 앱 추가.
+MIDDLEWARE에 HTMX 미들웨어 추가.
+HTMX 관련 추가 설정 (예: 타임스탬프 자동 추가).
+18. 필수 최종 점검
+프로젝트의 필수적인 디버깅 설정과 개발, 배포 환경을 각각 구분하고 필요한 라이브러리 및 툴들을 설치 및 설정 완료.
+모든 설정이 정상적으로 동작하는지 확인.

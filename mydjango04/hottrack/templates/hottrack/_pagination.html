@@ -1,0 +1,17 @@
+<div class="pagination">
+    <span class="step-links"> # 링크들을 그룹화하여 스타일링을 쉽게 하기 위한 태그
+        {% if page_obj.has_previous %} # page_obj가 이전 페이지를 가지고 있으면 다음 링크를 출력
+            <a href="?page=1">&laquo; 처음으로</a>   # '&laquo;=<<' ?page=1을 사용해 첫 번째 페이지로 이동하는 링크입
+            <a href="?page={{ page_obj.previous_page_number }}">이전페이지</a> # previous_page_number를 사용해 이전 페이지로 이동하는 링크를 제공
+        {% endif %}
+
+        <span class="current">
+            현재 {{ page_obj.number }}페이지 (전체: {{ page_obj.paginator.num_pages }}) # 현재 페이지의 번호와 전체 페이지 수를 표시
+        </span>
+
+        {% if page_obj.has_next %} # page_obj가 다음 페이지를 가지고 있는 경우에 다음 링크를 출력
+            <a href="?page={{ page_obj.next_page_number }}">다음페이지</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">마지막으로</a>
+        {% endif %}
+    </span>
+</div>

@@ -1,0 +1,17 @@
+
+{% include "django/forms/widgets/date.html" %}
+
+{{ date_picker_options|json_script }}
+
+<script>
+  (function() {
+    const optionsDom = document.currentScript.previousElementSibling;
+    const dateDom = optionsDom.previousElementSibling;
+    dateDom.setAttribute("autocomplete", "off");
+    dateDom.setAttribute("readonly", "readonly");
+
+    const options = JSON.parse(optionsDom.textContent);
+    // console.log("options :", options);
+    const datepicker = new Datepicker(dateDom, options);
+  })();
+</script>
