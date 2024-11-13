@@ -1,0 +1,26 @@
+장고 기본 세팅 설정에서 Session Cookie 관련된 주요 설정입니다.
+Session Cookie Name 설정은 Session Cookie의 이름이고요.
+딱히 바꾸실 일은 없습니다.
+Session Cookie Age 설정은 Session Cookie의 만료 시간입니다.
+Session Cookie 생성 시에 이 설정을 참조하고요.
+디폴트 1주입니다..
+Session Cookie Domain 설정은 Session Cookie를 허용할 도메인을
+지정합니다. 앞선 실습에서 다뤘었죠.
+session-cookie-http-only 설정은 session 쿠키 생성 시에
+http-only 옵션을 붙여 자바스크립트를 통한 session 쿠키 값 조회를 원천적으로
+막습니다. 디폴트로 참입니다..
+session-expire-at-browser-close 설정은 디폴트 거짓인데요.
+이를 참으로 설정하시면 session id 쿠키 생성 시에 만료 시간을 설정하지 않습니다.
+만료 시간이 설정되지 않은 쿠키는 브라우저가 종료될 때까지만 유지되고요.
+브라우저 종료 시에 브라우저에서 자동으로 삭제됩니다.
+마지막으로 각 CORS 설정들은 환경 변수를 통해 주입받도록 하겠습니다.
+CORS Allowed Auditions 설정은 List로 변환해 주시고요.
+CORS Allowed Credentials 설정은 Boolean 타입으로 변환해 주세요..
+Session Cookie Domain 설정은 문자열 타입으로 변환합니다.
+Session Cookie Domain 설정은 미지정 시,에는 값을 빈 문자열이 아니라
+반드시 non으로 지정하셔야 합니다..
+그런데 혹시 .env 파일에서 Session Cookie Domain 설정을 하지 않을
+목적으로 이렇게 값을 비워두시면 빈 문자열로 설정되거든요.
+이때에는 non으로 변환되도록 끝에 or non 코드를를 추가해 주겠습니다.
+.env 파일에 환경 변수 지정해 주시고 환경 변수 재 로딩을 위해 Django 개발 서버를
+재 시작합니다.

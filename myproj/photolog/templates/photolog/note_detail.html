@@ -1,0 +1,70 @@
+{% extends "photolog/base.html" %}
+{% load component_tags i18n %}
+
+{% block photolog-content %}
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex flex-row gap-2">
+                {% if note.author.profile.avatar %}
+                    <img src="{{ note.author.profile.avatar.url }}"
+                         class="rounded-circle"
+                         style="width: 40px; height: 40px;"
+                         alt="" />
+                {% endif %}
+                <div class="w-100">
+                    <div class="d-flex flex-column">
+                        <a href="{% url 'photolog:user_page' note.author.username %}"
+                           class="text-white text-decoration-none"
+                        >
+                            {{ note.author.username }}
+                        </a>
+                        {% language "en-us" %}
+                            <span>{{ note.created_at|timesince }} ago</span>
+                        {% endlanguage %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>{{ note.title }}</h4>
+                    <div data-hashtag-linkify="{% url 'photolog:index' %}?tag=">
+                        {{ note.content|linebreaks }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    {% component "carousel" photo_list=note.photo_set.all attr_name="image.url" %}{% endcomponent %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="my-3">
+        <a href="{% url 'photolog:index' %}" class="btn btn-primary">타임라인</a>
+        {% if request.user == note.author %}
+            <a href="{% url 'photolog:note_edit' note.pk %}" class="btn btn-success">수정하기</a>
+        {% endif %}
+    </div>
+
+    <hr />
+
+    <a href="{% url 'photolog:comment_new' note.pk %}"
+       hx-get="{% url 'photolog:comment_new' note.pk %}"
+       hx-with-timestamp
+       hx-target="body"
+       hx-swap="beforeend"  {# body 끝에 추가 #}
+       class="btn btn-primary w-100"
+    >댓글 쓰기</a>
+
+    <div id="comment-list" class="my-3">
+        {% include "photolog/_comment_list.html" with user=request.user comment_list=comment_list only %}
+    </div>
+
+    <a href="#"
+       hx-get="{% url 'photolog:comment_list' note.pk %}"
+       hx-get-with-timestamp
+       hx-trigger="click, refresh-comment-list from:body"
+       hx-target="#comment-list"
+       class="btn btn-primary w-100">댓글 새로고침</a>
+{% endblock %}

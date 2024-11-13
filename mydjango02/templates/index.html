@@ -1,0 +1,79 @@
+{# 장고 템플릿 엔진 주석 문법 : templates/index.html 경로의 파일 #}
+
+<!doctype html>
+<html lang="ko"> # 문서의 기본 언어를 한국어로 설정
+<head>
+    <meta charset="UTF-8"/> # 문자 인코딩을 UTF-8로 설정하여 한글 등이 제대로 표시
+    <title>Melon List</title>
+    # # Tailwind CSS를 CDN을 통해 로드합니다. 이 스타일 라이브러리를 사용하여 빠르게 반응형 디자인을 적용
+    <script src="https://cdn.tailwindcss.com"></script> 
+    # React 라이브러리를 CDN을 통해 로드
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    # React와 DOM을 연결하는 ReactDOM 라이브러리를 로드
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    # Babel을 로드하여 React JSX를 브라우저에서 바로 사용할 수 있도록 변환
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.16/babel.min.js"></script>
+</head>
+<body>
+
+<div class="container mx-auto">
+    <h1 class="font-bold text-2xl">Melon List</h1>
+
+    <form action="" method="get" autocomplete="off" class="my-4"> # URL 쿼리 스트링으로 데이터를 전송
+      # autofocus는 페이지가 로드될 때 자동으로 입력 필드에 포커스가 가도록 합니다
+      # value="{{ query }}"는 서버에서 전달한 query 변수의 값을 입력 필드에 설정
+        <input type="text" name="query" placeholder="검색어를 입력해주세요." autofocus
+               value="{{ query }}"
+               class="w-full p-2 border rounded focus:outline-none focus:ring"
+        >
+    </form>
+
+    # 배경색을 하얀색으로 설정
+    # min-w-full로 테이블이 가능한 한 넓게 표시
+    <table class="min-w-full bg-white border border-gray-300 divide-y divide-gray-300"
+           id="song-list-table">
+        <thead>
+        <tr class="text-center"> 
+            <th class="py-2 px-4 border-b">곡명</th>
+            <th class="py-2 px-4 border-b">가수</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script type="text/babel">
+        function SongList() {
+          const [songList, setSongList] = React.useState([]); // React 상태를 사용하여 songList라는 변수를 선언하고, 빈 배열로 초기화
+          // 이 배열에 API에서 받아온 곡 목록을 저장
+
+          React.useEffect(() => { // 컴포넌트가 처음 렌더링된 후 /api/song-list.json API를 호출하여 데이터를 받아옵니다. 
+              fetch("/api/song-list.json") // fetch 함수는 API에서 JSON 데이터를 가져오고, 이를 상태로 업데이트하여 songList를 변경
+                .then(response => response.json())
+                .then(_songList => {
+                  setSongList(_songList);
+                });
+          }, []);
+
+          return (
+            <>
+              {songList.map(song => { // songList 배열의 각 항목에 대해 테이블의 <tr> 태그를 생성하고, 곡명과 가수 정보를 <td> 태그로 출력
+                return (
+                  <tr key={song.id}>
+                    <td>{song.곡명}</td>
+                    <td>{song.가수}</td>
+                  </tr>
+                )
+              })}
+            </>
+          )
+        }
+
+        ReactDOM.render( // SongList 컴포넌트를 렌더링하여, HTML 문서 내의 #song-list-table tbody 부분에 데이터를 채워넣습니다.
+          <SongList />,
+          document.querySelector("#song-list-table tbody")
+        )
+    </script>
+</div>
+
+</body>
+</html>

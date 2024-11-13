@@ -1,0 +1,98 @@
+{% load component_tags static %}
+
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>장고 프로젝트</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/5.3.3/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'bootstrap-icons/1.11.3/font/bootstrap-icons.min.css' %}"/>
+    {% component_css_dependencies %}
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' data-bs-theme="dark">
+
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                장고 프로젝트
+            </a>
+
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="{% url 'photolog:index' %}" class="nav-link px-2 text-white">타임라인</a></li>
+                <li><a href="{% url 'photolog:following_user_list' %}" class="nav-link px-2 text-white">팔로잉</a></li>
+                <li><a href="{% url 'photolog:discover_user_list' %}" class="nav-link px-2 text-white">찾기</a></li>
+                <li><a href="{% url 'photolog:note_new' %}" class="nav-link px-2 text-white">새 기록</a></li>
+            </ul>
+
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search"
+                  action="{% url 'photolog:index' %}"
+            >
+                <input type="search"
+                       name="query"
+                       value="{{ query }}"
+                       class="form-control form-control-dark text-bg-dark"
+                       placeholder="Search..."
+                       aria-label="Search">
+            </form>
+
+            <div class="text-end">
+                {% if not user.is_authenticated %}
+                    {% url 'accounts:login' as login_url %}
+                    <a href="{{ login_url }}{% if login_url != request.path %}?next={{ request.path }}{% endif %}"
+                       class="btn btn-outline-light me-2">로그인</a>
+                    <a href="{% url 'accounts:signup' %}?next={{ request.path }}"
+                       class="btn btn-warning">회원가입</a>
+                {% else %}
+                    <a href="{% url 'accounts:profile' %}"
+                       class="btn btn-outline-light me-2">프로필</a>
+                    <a hx-post="{% url 'accounts:logout' %}?next={{ request.path }}"
+                       hx-target="body"
+                       hx-push-url="true"
+                       class="btn btn-warning">로그아웃</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="py-5">
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<footer class="text-body-secondary py-5">
+    <div class="container">
+        &copy; 파이썬 사랑방
+    </div>
+</footer>
+
+{% if debug %}
+    <script src="{% static 'htmx/1.9.11/htmx.js' %}"></script>
+{% else %}
+    <script src="{% static 'htmx/1.9.11/htmx.min.js' %}"></script>
+{% endif %}
+<script src="{% static 'bootstrap/5.3.3/js/bootstrap.min.js' %}"></script>
+{% component_js_dependencies %}
+<script src="{% static 'htmx/ext/hx-get-with-timestamp.js' %}"></script>
+<script src="{% static 'observe-node-insertion.js' %}"></script>
+<script src="{% static 'hashtag-linkify.js' %}"></script>
+<script src="{% static "toast-messages.js" %}"></script>
+
+{% include "_messages_as_event.html" %}
+
+<script>
+    document.body.addEventListener("htmx:responseError", event => {
+      console.error("HTMX 요청 에러:", event.detail);
+      const message = event.detail.error;
+      const tag = "error";
+      htmx.trigger(document.body, "toast-message", { message, tag });
+    });
+</script>
+
+</body>
+</html>

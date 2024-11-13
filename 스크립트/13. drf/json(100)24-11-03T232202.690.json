@@ -1,0 +1,22 @@
+안녕하세요. 이번 시간에는 시리얼라이저를 통한 값 변환 및 Django REST
+프레임워크에서의 재사용 직렬화에 대해서 살펴보겠습니다.
+시리얼라이저를 통한 값 변환은 파이썬 기본 데이터 타입으로의 변환일 뿐, 재손 직렬화 등을
+직접 수행하진 않습니다.
+응답 데이터만 파이썬 기본 데이터 타입으로 준비해 줄 뿐입니다.
+장고 REST 프레임워크의 시리얼라이저에서는 인스턴스 인자로 코디셋이나 모델 인스턴스를
+지정받고 나서 시리얼라이저 인스턴스의 데이터 속성에 접근하면 인자의 코디셋이나 모델
+인스턴스를 파이썬 리스트 타입이나 사전 타입으로 변환해 줍니다.
+이때 이 변환은 시리얼라이저의 to_underbar_representation 메서드를
+호출하여 변환을 처리합니다.
+Serializer에서는 모델 인스턴스를 받아 사전 타입으로 변환해 주고요.
+ListSerializer 클래스가 따로 있습니다.
+Serializer 인스턴스 생성 시에 Many 키워드 인자로 참을 지정하시면 해당
+Serializer 데이터 변환 시에 ListSerializer로 랩핑하여 변환된 데이터는
+리스트가 됩니다.
+Django REST 프레임워크에서는 JSON 렌더러를 통해서 JSON 직렬화를 수행합니다.
+Django 기본에서도 Python 기본의 JSON Encoder를 확장한 Django
+JSON Encoder 클래스를 지원하는데요.
+Django REST 프레임워크에서는 Django JSON Encoder보다 훨씬 더 많은
+타입을 지원하는 JSON Encoder를 지원합니다.
+이 JSON Encoder는 JSON 렌더러의 Default Encoder
+클래스 속성으로 지정되어 사용됩니다.

@@ -1,0 +1,14 @@
+<h2>포스팅 삭제</h2>
+
+<form action="" method="post" novalidate>
+    {% csrf_token %}
+    <p>삭제하시겠습니까?</p>
+
+    {% if form %}
+        <table>
+            {{ form.as_table }}
+        </table>
+    {% endif %}
+
+    <input type="submit" value="삭제하겠습니다.">
+</form>

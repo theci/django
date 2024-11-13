@@ -1,0 +1,41 @@
+두 번째 해결책으로 Slug 필드를 유니크 필드로 운영하더라도 먼저 Not Unique,
+유일하지 않은 필드로 먼저 컬럼을 추가하고 기존 레코드의 Slug 값을 유일하도록 값을
+구성한 뒤에 Slug 필드에 유니크 제약사항을 추가하는 방법입니다.
+PostModel의 Slugify 함수에서 Slug 값이 어느 정도의 유일성이 보장되도록
+생성된 UUID 문자열에서 8글자만 추가합니다.
+생성되는 UUID는 총 32글자입니다.
+32글자를 다 쓰셔도 되고, 저는 8글자만 써도 충분한 유일성이 보장될 듯 해서 8글자만
+썼습니다.
+Notion 서비스의 경우, 페이지 제목 뒤에 32 글자 UUID를 추가합니다.
+그리고 Slug 필드에 대한 유니크 제약사항을 추가합니다.
+Model 필드에 unique=True 인자를 붙여 유니크 제약사항을 추가하는 것보다,
+Unique Constraints를 활용하면 다양한 옵션으로 유니크 제약사항을 적용하실 수
+있습니다.
+make-migrations 명령으로 마이그레이션 파일을 추가한 후에 해당 마이그레이션
+파일을 수정합니다
+유니크 제약사항이 적용되기 전에 run-python operation을 통해 슬러그 값이
+유일하도록 각 레코드의 슬러그 값들을 일괄 업데이트합니다
+그럼 migrate 명령이 잘 동작하고요 하지만
+기존 테이블에 유니크 필드를 추가하고 중복 없이 값을 채워 넣는 것은 비용이 많이 드는
+작업임을 기억해 주세요
+slug 값은 유일하기에 PostDetailView에서도 slug 값을 통한 조회가
+가능해집니다 블로그 앱의 Post 모델의 slugify 함수에다가 uid를 뒤에
+추가합니다 그리고 Post 모델의 classMeta 속성으로 여러가지 제약사항을 추가할 수
+있는데 Unique Constraints를 통해서 slug 필드에 대한 제약사항을
+추가하고요 이름도 지정을 해줍니다
+python manage.py make-migrations-blog 명령을 통해서 새로운
+migration 파일을 생성을 해주고요 5번 migration 파일을 열어보시면 이렇게
+포스트 모델에 slug 필드에 대한 유니크 제약 사항이 추가되는 operation 하나만
+있음을 확인하실 수 있습니다
+유니크 제약 사항이 추가되기 전에 run-python-operation을 추가하겠고요
+update_unique_slug_if_empty라는 함수를 추가해 주겠습니다
+필요한 import를 해주시고요
+이 함수를 run-python의 첫 번째 인자, 두 번째 인자는 no-flation을
+지정해 주겠습니다.
+python-main.py show-migrations-blog 명령에서 5번
+마이그레이션이 현재 미적용이고요.
+migrate-blog 명령을 통해서 5번 마이그레이션이 적용이 되었고요.
+유니크 제약사항도 추가가 되었습니다.
+PostDetailView에서는 슬러그만 받도록 구성을 해 볼 수도 있겠습니다.
+이렇게 슬러그만 받도록 구성을 하고, 블로그의 urls.py에서도 이렇게 슬러그만 받도록
+구성을 해봤습니다.
