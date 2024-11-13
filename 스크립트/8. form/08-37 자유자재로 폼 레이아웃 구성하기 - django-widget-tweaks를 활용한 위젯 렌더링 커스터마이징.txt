@@ -14,8 +14,7 @@ Render Field 템플릿 태그를 사용하면 특정 폰빌드의 다양한 속�
 새로운 속성을 추가하실 수도 있고, 기존 속성의 값을 추가하실 수도 있습니다.
 물론 여러 속성을 한 번에 추가하실 수도 있습니다.
 또한 Add Class를 포함한 여러 템플릿 필터들이 제공되며 필터 체인닝을 통한 여러 속성을 한 번에 추가, 수정 또는 삭제하는 것도 가능합니다
-만약 Bootstrap 5와 같은 CSS 프레임워크를 사용한다면 대부분의 경우 Class 속성을 커스터마이징 하는 것만으로도 해당 CSS 프레임워크의 스타일을 충분히 적용하실 수
-있습니다
+만약 Bootstrap 5와 같은 CSS 프레임워크를 사용한다면 대부분의 경우 Class 속성을 커스터마이징 하는 것만으로도 해당 CSS 프레임워크의 스타일을 충분히 적용하실 수 있습니다
 Bootstrap 5 CSS 프레임워크에서는 레이블 요소에는 FormLabel 클래스가, 인풋 요소에는 FormControl 클래스가 있다면 Bootstrap 5 스타일로 보여집니다.
 AddLabelClass 템플릿 필터를 적용하여 지정 클래스가 적용된 레이블을 렌더링했고요.
 AddClass 템플릿 필터를 적용하여 지정 클래스가 적용된 위젯을 렌더링했습니다.
@@ -25,7 +24,6 @@ css만 필요하기에 css 주소만 추가했고요.
 자바스크립트는 뒤에서 자바스크립트 기능이 필요할 때 추가하겠습니다.
 각 태그들의 Bootstrap5에서 지원하는 클래스명들을 지정해서 레이아웃을 잡아주겠고요.
 add-label-class 템플릿 필터와 add-class 템플릿 필터 사용을 위해 widget-twigs 태그 라이브러리를 로드하고요
-add-label-class 템플릿 필터를 통해 form-label 클래스를 추가한 label 태그를 렌더링하고 
-add-class 템플릿 필터를 통해 form-control 클래스를 추가한 widget을 렌더링합니다
+add-label-class 템플릿 필터를 통해 form-label 클래스를 추가한 label 태그를 렌더링하고 add-class 템플릿 필터를 통해 form-control 클래스를 추가한 widget을 렌더링합니다
 help-text와 에러 내역에도 텍스트 스타일을 잡아주고요
 그럼 이제 Bootstrap5 스타일이 적용된 폼 레이아웃을 확인하실 수 있습니다.

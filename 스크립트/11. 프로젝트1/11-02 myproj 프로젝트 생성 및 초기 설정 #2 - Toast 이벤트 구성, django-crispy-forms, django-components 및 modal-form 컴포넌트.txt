@@ -1,61 +1,40 @@
 토스트 메시지를 부트스트랩 5의 토스트 API를 통해서 보여줄 텐데요.
-htmx 응답을 통해서도 토스트 메시지를 지원하고 한 번에 여러 토스트 메시지를 보여줄 수
-있도록 토스트 메시지 이벤트를 받아서 토스트 메시지를 노출하도록 구현했었죠.
-말장고 공사 프로젝트의 toastmessages.javascript 파일을 그대로
-core-aesthetic toastmessages.js 경로로 복사하고 최상위 부모
-템플릿에도 추가합니다.
-Django 메시지를 읽어서 토스트 메시지 이벤트를 발생시키는 코드는
-core-templates-messages-as-event.html 경로에 복사하고요.
-부모 템플릿에서 toast-messages.javascript 파일 다음에 인클루드 시켜서
-페이지 초기 로딩 시에 메시지가 있으면 노출도록 하고요.
-이후 htmx 응답에서도 메시지스 노출이 필요하면 htmx 응답을 생성하는 템플릿에도
-언더바 메세지스 as event.html 템플릿을 인클루드 시켜줍니다.
+htmx 응답을 통해서도 토스트 메시지를 지원하고 한 번에 여러 토스트 메시지를 보여줄 수 있도록 토스트 메시지 이벤트를 받아서 토스트 메시지를 노출하도록 구현했었죠.
+말장고 공사 프로젝트의 toastmessages.javascript 파일을 그대로 core-aesthetic toastmessages.js 경로로 복사하고 최상위 부모 템플릿에도 추가합니다.
+Django 메시지를 읽어서 토스트 메시지 이벤트를 발생시키는 코드는 core-templates-messages-as-event.html 경로에 복사하고요.
+부모 템플릿에서 toast-messages.javascript 파일 다음에 인클루드 시켜서 페이지 초기 로딩 시에 메시지가 있으면 노출도록 하고요.
+이후 htmx 응답에서도 메시지스 노출이 필요하면 htmx 응답을 생성하는 템플릿에도 언더바 메세지스 as event.html 템플릿을 인클루드 시켜줍니다.
 Django Crispy Forms 라이브러리를 최신 버전으로 설치하고요.
-Bootstrap 5 템플릿 팩 설정을 위해 django-crispy-forms-bootstrap5 라이브러리도
-최신 버전으로 설치합니다.
-인스톨드 앱 리스트에 각각의 앱 이름인 crispy-forms와
-crispy-bootstrap5를 추가하고요.
+Bootstrap 5 템플릿 팩 설정을 위해 django-crispy-forms-bootstrap5 라이브러리도 최신 버전으로 설치합니다.
+인스톨드 앱 리스트에 각각의 앱 이름인 crispy-forms와 crispy-bootstrap5를 추가하고요.
 그리고 bootstep5 템플릿 팩을 활성화합니다.
 Django 컴포넌트 라이브러리를 최신 버전으로 설치합니다.
 현재 최신 버전이 0.61 버전이네요.
 Installed Apps List에도 Django 언더바 컴포넌트 앱 이름을 추가합니다.
 그 외 설정은 공식 문서를 따르지 않고 이전 커밋을 참고해서 커스텀 설정하겠습니다.
-컴포넌트에서 Python 파일과 HTML 파일을 정적 서빙 대상에서 제외하도록 Django
-기본의 Static Files 앱을 사용하지 않고요 Django 컴포넌트 앱의 Safer
-Static Files 앱으로 변경합니다
-Django 컴포넌트 라이브러리 기반의 컴포넌트는 Core 폴더 밑에 Source
-Django Conferences 디렉토리에 구현하겠습니다
-이 디렉토리 경로를 Django 템플릿 경로에도 추가하고 Static 정적 파일 경로에도
-추가해줍니다 말장고 공사 프로젝트에서 개발했던 모델
-폼 컴포넌트를 이전 커뮤니티 참고에서 옮겨 보겠습니다.
-src-django-conference-directory 아래에 모델 언더바 폼 디렉토리를
-생성하고, 같은 이름의 파이썬 파일, html 파일, javascript 파일을
-생성합니다.
+컴포넌트에서 Python 파일과 HTML 파일을 정적 서빙 대상에서 제외하도록 Django 기본의 Static Files 앱을 사용하지 않고요 
+Django 컴포넌트 앱의 Safer Static Files 앱으로 변경합니다
+Django 컴포넌트 라이브러리 기반의 컴포넌트는 Core 폴더 밑에 Source Django Conferences 디렉토리에 구현하겠습니다
+이 디렉토리 경로를 Django 템플릿 경로에도 추가하고 Static 정적 파일 경로에도 추가해줍니다 
+말장고 공사 프로젝트에서 개발했던 모델 폼 컴포넌트를 이전 커뮤니티 참고에서 옮겨 보겠습니다.
+src-django-conference-directory 아래에 모델 언더바 폼 디렉토리를 생성하고, 같은 이름의 파이썬 파일, html 파일, javascript 파일을 생성합니다.
 html 코드, javascript 코드, 파이썬 코드를 그대로 복사합니다.
 이미 경로를 다 동일하게 맞춰줬으니 그대로 동작할 것입니다.
 observ.node.insertion.javascript 파일이 아직 없죠?
-이 파일은 컴포넌트 외에도 다른 영역에서 사용될 수 있기에 코어 밑에 static 디렉토리
-아래로 복사해 주겠습니다.
-최상위 부모 템플릿에 component-css-dependencies 템플릿 태그와
-component-js-dependencies 템플릿 태그를 추가해서 등록된 모든
-컴포넌트의 CSS와 JavaScript가 로딩될 수 있도록 합니다.
+이 파일은 컴포넌트 외에도 다른 영역에서 사용될 수 있기에 코어 밑에 static 디렉토리 아래로 복사해 주겠습니다.
+최상위 부모 템플릿에 component-css-dependencies 템플릿 태그와 component-js-dependencies 템플릿 태그를 추가해서 등록된 모든 컴포넌트의 CSS와 JavaScript가 로딩될 수 있도록 합니다.
 대문 페이지에서 modal form 컴포넌트를 사용해 봅시다.
 웹페이지 새로고침하면 모델 창이 동작하지 않네요.
 모델 컨텐츠들이 부투스텝 스타일 없이 보여지고 있습니다.
-현재 웹페이지에는 부투스텝5의 CSS와 JavaScript 라이브러리가 로딩되어 있지 않은
-상황이라서 그렇습니다.
+현재 웹페이지에는 부투스텝5의 CSS와 JavaScript 라이브러리가 로딩되어 있지 않은 상황이라서 그렇습니다.
 Bootstrap 5 라이브러리도 CDN 버전을 사용하지 않고 직접 다운로드해서 서빙하겠습니다.
-getbootstep.com 사이트에서 BootStep 5 최신 버전을 다운받아서 압축을
-푸시고요 코어 밑에 static 디렉토리 아래로 복사해 줍니다
-BootStep 5 라이브러리도 점차 업그레이드 될 테니 버전별로 디렉토리를 따로 만들어
-주겠습니다
+getbootstep.com 사이트에서 BootStep 5 최신 버전을 다운받아서 압축을 푸시고요 코어 밑에 static 디렉토리 아래로 복사해 줍니다
+BootStep 5 라이브러리도 점차 업그레이드 될 테니 버전별로 디렉토리를 따로 만들어주겠습니다
 Bootstrap 디렉토리를 하나 만들고 압축을 푼 폴더는 버전명인 5.3.3으로 변경하고요
 BootStep 폴더로 이동시킵니다
-그럼 디렉토리 구조가 Core 밑에 Static 밑에 Bootstrap 밑에 버전명 폴더
-밑에 CSS 디렉토리와 JavaScript 디렉토리가 있게 됩니다.
+그럼 디렉토리 구조가 Core 밑에 Static 밑에 Bootstrap 밑에 버전명 폴더 밑에 CSS 디렉토리와 JavaScript 디렉토리가 있게 됩니다.
 최상위 부모 템플릿에서 Bootstrap에 CSS와 JavaScript를 로딩합니다.
-대문 페이지를 새로 고침하시면 이렇게 모델 창이 즉시 보여지고 모델 폼 컴포넌트가 잘
-동작함을 확인하실 수 있습니다.
+대문 페이지를 새로 고침하시면 이렇게 모델 창이 즉시 보여지고 모델 폼 컴포넌트가 잘 동작함을 확인하실 수 있습니다.
 
 
 
