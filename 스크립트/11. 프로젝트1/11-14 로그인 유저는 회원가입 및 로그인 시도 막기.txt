@@ -1,54 +1,34 @@
-로그인 뷰에서는 이미 인증된 유저는 로그인 시도를 할 수 없도록 막는 Redirect
-Authenticated User 설정을 지원합니다.
+로그인 뷰에서는 이미 인증된 유저는 로그인 시도를 할 수 없도록 막는 Redirect Authenticated User 설정을 지원합니다.
 디폴트로 거짓이고요.
-참으로 설정하면 로그인이 된 상태에서 로그인 페이지에 방문하면 그 즉시 성공 URL 주소로
-강제 이동됩니다.
+참으로 설정하면 로그인이 된 상태에서 로그인 페이지에 방문하면 그 즉시 성공 URL 주소로 강제 이동됩니다.
 로그인뷰에 Redirect Authenticated User 설정을 참으로 설정하고요.
-로그인 상태에서 아무리 로그인 페이지를 방문하려고 해도 그 즉시의 프로필 주소로 이동함을
-확인하실 수 있습니다.
+로그인 상태에서 아무리 로그인 페이지를 방문하려고 해도 그 즉시의 프로필 주소로 이동함을 확인하실 수 있습니다.
 로그아웃 하기 전에는 로그인을 할 수가 없습니다.
 회원가입에도 이를 적용해 보겠습니다.
 로그인 뷰처럼 회원가입 뷰에서도 디스패치 메서드를 재정의하겠고요.
-회원가입 뷰 요청을 처리하기 전에 유저가 인증된 상태라면 성공 URL 주소로 즉시 이동토록
-하겠습니다. 그런데 현재 페이지 주소와 이동할 페이지 주소가 같으면 무한 페이지 이동이
-발생하거든요.
+회원가입 뷰 요청을 처리하기 전에 유저가 인증된 상태라면 성공 URL 주소로 즉시 이동토록 하겠습니다. 
+그런데 현재 페이지 주소와 이동할 페이지 주소가 같으면 무한 페이지 이동이 발생하거든요.
 이동할 주소가 현재 페이지 주소가 아닐 경우에만 페이지 이동을 하도록 합니다.
 그리고 로그인 유저는 회원가입을 신청할 수 없음을 경고 메시지로 남깁니다.
-로그인 상태에서 회원가입 페이지에 방문해 보면 이동할 주소를 못 찾겠다는 미설정 오류가
-발생합니다.
+로그인 상태에서 회원가입 페이지에 방문해 보면 이동할 주소를 못 찾겠다는 미설정 오류가 발생합니다.
 NextPage 설정을 추가해 보라는 제안도 있네요.
-이는 회원가입 뷰에서 추가로 상속받은 RedirectURLMixin 클래스의
-GetDefaultRedirectURL 메서드에서 발생하는 오류입니다.
+이는 회원가입 뷰에서 추가로 상속받은 RedirectURLMixin 클래스의 GetDefaultRedirectURL 메서드에서 발생하는 오류입니다.
 회원가입 뷰에서는 두 개의 클래스를 상속받았죠.
 RedirectURLMixing 클래스와 CreateView 클래스입니다.
 둘 다 GetSuccessURL 메서드가 있는데요.
 상속 시에 RedirectURLMixing 클래스를 먼저 지정했죠.
-그럼 Python 클래스의 MRO 문법에 따라 RedirectURLMixing 클래스에
-GetSuccessURL 메서드가 먼저 호출됩니다.
-getSuccessURL 함수 내에서 super를 통해 getSuccessURL 메서드를
-호출할 때에만 MRO에 기반해서 createView 클래스의 getSuccessURL
-메서드가 호출될 수 있는데요.
-RedirectURLMixing 클래스의 getSuccessURL 메서드에서는 super
-호출이 없죠.
-그러니 createView 클래스의 getSuccessURL 메서드는 전혀 호출되지
-않습니다.
-RedirectURLMixing 클래스의 GetSuccess URL 메서드에서
-GetRedirectURL 메서드를 먼저 호출하고 값이 없으면
-GetDefaultRedirectURL 메서드를 호출합니다.
-GetRedirectURL 메서드 호출에서는 PostData와 GetData에서 Next
-이름의 인자가 없으니 빈 문자열이 반환되고요.
+그럼 Python 클래스의 MRO 문법에 따라 RedirectURLMixing 클래스에 GetSuccessURL 메서드가 먼저 호출됩니다.
+getSuccessURL 함수 내에서 super를 통해 getSuccessURL 메서드를 호출할 때에만 MRO에 기반해서 createView 클래스의 getSuccessURL 메서드가 호출될 수 있는데요.
+RedirectURLMixing 클래스의 getSuccessURL 메서드에서는 super 호출이 없죠.
+그러니 createView 클래스의 getSuccessURL 메서드는 전혀 호출되지 않습니다.
+RedirectURLMixing 클래스의 GetSuccess URL 메서드에서 GetRedirectURL 메서드를 먼저 호출하고 값이 없으면 GetDefaultRedirectURL 메서드를 호출합니다.
+GetRedirectURL 메서드 호출에서는 PostData와 GetData에서 Next 이름의 인자가 없으니 빈 문자열이 반환되고요.
 이제 문제의 GetDefaultRedirectURL 메서드 호출입니다.
-회원가입 뷰에서는 RedirectURLMixing 클래스만 상속받았을 뿐, next-page
-클래스 변수 설정은 없었습니다.
-그럼, next-page 설정 값이 None이니 no URL to redirect to
-메시지에 미설정 오류가 발생했었던 것입니다.
-그럼 회원가입 뷰에서는 Next 페이지 이름의 설정을 Success URL 설정과 동일한
-값으로 추가하시는 방법도 있고요.
-어차피 Success URL 설정을 사용할 것이니 Get Success URL 메서드를
-호출하지 않고 Success URL 설정을 직접 참조하도록 변경하실 수도 있습니다.
-이제 로그인 상태에서 회원가입 페이지에 방문하시면 프로필 페이지로 강제 이동하여 이렇게
-로그인 유저는 회원가입 할 수 없습니다.
-라는 경고 메세지를 만나시게 됩니다.
+회원가입 뷰에서는 RedirectURLMixing 클래스만 상속받았을 뿐, next-page 클래스 변수 설정은 없었습니다.
+그럼, next-page 설정 값이 None이니 no URL to redirect to 메시지에 미설정 오류가 발생했었던 것입니다.
+그럼 회원가입 뷰에서는 Next 페이지 이름의 설정을 Success URL 설정과 동일한 값으로 추가하시는 방법도 있고요.
+어차피 Success URL 설정을 사용할 것이니 Get Success URL 메서드를 호출하지 않고 Success URL 설정을 직접 참조하도록 변경하실 수도 있습니다.
+이제 로그인 상태에서 회원가입 페이지에 방문하시면 프로필 페이지로 강제 이동하여 이렇게 로그인 유저는 회원가입 할 수 없습니다. 라는 경고 메세지를 만나시게 됩니다.
 
 
 
