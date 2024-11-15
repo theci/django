@@ -1,39 +1,42 @@
 {# blog/templates/blog/base.html #}
 
 {% load component_tags django_bootstrap5 static %}
+# 템플릿에서 외부 태그나 필터를 불러옵니다. component_tags, django_bootstrap5, static을 로드
+
+
 
 <!doctype html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8"/>
-    <title>{% block title %}{% endblock %}</title>
-    {% bootstrap_css %}
-    {% component_css_dependencies %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js"></script>
+    <title>{% block title %}{% endblock %}</title> # 페이지 제목을 템플릿에서 정의할 수 있도록 {% block title %}로 설정합니다. 이 부분은 자식 템플릿에서 오버라이드될 수 있습니다.
+    {% bootstrap_css %} # Django Bootstrap5 라이브러리를 사용하여 쉽게 스타일링을 적용
+    {% component_css_dependencies %} # component 관련 CSS 의존성을 불러옵니다. 이 역시 커스텀 컴포넌트의 스타일을 로드할 때 사용
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js"></script> # htmx 라이브러리를 로드
 </head>
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 <main style="width: 400px; margin: 1em;">
-    <h1>유저: {{ request.user }}</h1>
-    {% block content %}{% endblock %}
+    <h1>유저: {{ request.user }}</h1> # 현재 요청을 보낸 사용자의 정보를 출력합니다. request.user는 Django에서 인증된 사용자 객체를 참조
+    {% block content %}{% endblock %} # 자식 템플릿에서 이 영역을 오버라이드하여 실제 콘텐츠를 표시할 수 있도록 합니다
 </main>
 
 {# Modal이 위치할 요소를 먼저 정의합니다. #}
-<div id="modal-container"></div>
+<div id="modal-container"></div> # 모달 창의 HTML 내용이 동적으로 삽입될 수 있습니다. htmx를 사용하여 AJAX 요청으로 모달 내용을 로드할 수 있습니다.
 
-<script>
+<script> // htmx 요청이 시작될 때마다 실행. htmx 요청에 타임스탬프를 추가하는 역할을 합니다. 타임스탬프를 추가하면 브라우저 캐시 문제를 방지할 수 있습니다
 document.body.addEventListener('htmx:configRequest', function (event) {
   const htmxElement = event.detail.elt;
   const isGetRequest = htmxElement.hasAttribute('hx-get');
   if ( isGetRequest && htmxElement.hasAttribute('hx-get-with-timestamp') ) {
     const paramName = htmxElement.getAttribute('hx-get-with-timestamp') || '_';
-    event.detail.parameters[paramName] = new Date().getTime();
+    event.detail.parameters[paramName] = new Date().getTime(); // hx-get-with-timestamp 속성이 있는 요청에 대해서 현재 시간(new Date().getTime())을 파라미터로 추가
   }
 });
 </script>
 {% bootstrap_javascript %}
 {% component_js_dependencies %}
-<script src="{% static 'core/toast-messages.js' %}"></script>
-{% include "core/_messages_as_event.html" %}
-{% block extra-script %}{% endblock %}
+<script src="{% static 'core/toast-messages.js' %}"></script> # toast-messages.js라는 파일을 로드. 알림 메시지나 팝업을 표시하는 기능
+{% include "core/_messages_as_event.html" %} # 다른 템플릿 파일을 포함하여 메시지 표시 기능을 구현
+{% block extra-script %}{% endblock %} # 자식 템플릿에서 추가적인 스크립트를 삽입할 수 있도록 extra-script 블록을 정의
 </body>
 </html>

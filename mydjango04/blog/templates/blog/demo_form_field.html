@@ -1,18 +1,19 @@
 {# blog/demo_form_field.html #}
 
-{% load widget_tweaks %}
+{% load widget_tweaks %} # Django 템플릿에서 widget_tweaks라는 사용자 정의 태그를 불러옵니다. 이 라이브러리는 Django 폼 필드의 스타일이나 속성을 쉽게 수정할 수 있도록 도와줍니다.
 
-<div class="my-2">
+<div class="my-2"> # 각 폼 필드를 감싸는 <div> 요소로, my-2 클래스를 사용하여 마진을 설정
     {# 각 필드의 레이블 태그 #}
-    {{ form_field|add_label_class:"form-label" }}<br/>
+    {{ form_field|add_label_class:"form-label" }}<br/> # widget_tweaks 라이브러리에서 제공하는 add_label_class 필터를 사용하여 필드의 레이블에 form-label 클래스를 추가. 이 클래스는 Bootstrap에서 레이블을 스타일링하는 데 사용
+
 
     {# 각 필드의 위젯 렌더링은 템플릿에서 수정할 수 없습니다. #}
-    {{ form_field|add_class:"form-control" }}
+    {{ form_field|add_class:"form-control" }} # add_class 필터를 사용하여 폼 필드의 위젯에 form-control 클래스를 추가. 이 클래스는 Bootstrap에서 폼 입력 필드(예: 텍스트박스, 셀렉트 박스 등)에 기본 스타일을 적용
     {# 각 폼 필드의 입력 도움말 #}
-    <div class="form-text text-success">{{ form_field.help_text }}</div>
-    <div class="form-text text-danger">
+    <div class="form-text text-success">{{ form_field.help_text }}</div> # 폼 필드의 입력 도움말을 form-text 클래스와 text-success 클래스를 사용해 출력, form-text는 작은 텍스트를 출력할 때 사용하고, text-success는 성공적인 메시지를 나타내는 녹색 스타일을 적용
+    <div class="form-text text-danger"> # text-danger는 오류 메시지를 빨간색으로 표시하는 클래스입니다. 
         {# 각 폼 필드의 에러 내역을 렌더링 #}
-        {% for error in form_field.errors %}
+        {% for error in form_field.errors %} # form_field.errors는 해당 필드에 관련된 오류 메시지를 루프를 통해 표시
             {{ error }}<br/>
         {% endfor %}
     </div>

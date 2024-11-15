@@ -118,17 +118,17 @@ def export(request, format: Literal["csv", "xlsx"]):
 
 def cover_png(request, pk):
     # 최대값 512, 기본값 256
-    canvas_size = min(512, int(request.GET.get("size", 256)))
+    canvas_size = min(512, int(request.GET.get("size", 256))) # 클라이언트가 요청하는 size 파라미터를 GET 방식으로 받습니다. 만약 파라미터가 없으면 기본값으로 256이 사용됩니다.
 
-    song = get_object_or_404(Song, pk=pk)
+    song = get_object_or_404(Song, pk=pk) # 주어진 pk 값으로 Song 객체를 찾습니다. 만약 해당 Song 객체가 존재하지 않으면, 404 오류가 발생하여 페이지를 찾을 수 없다는 응답을 반환합니다.
 
-    cover_image = make_cover_image(
+    cover_image = make_cover_image( # make_cover_image 함수를 호출하여 실제 앨범 커버 이미지를 생성합니다. make_cover_image는 커버 이미지를 그리거나 다운로드하여 이미지 객체를 생성하는 함수
         song.cover_url, song.artist.name, canvas_size=canvas_size
     )
 
     # param fp : filename (str), pathlib.Path object or file object
     # image.save("image.png")
-    response = HttpResponse(content_type="image/png")
+    response = HttpResponse(content_type="image/png") # 클라이언트에게 이미지를 PNG 형식으로 반환하기 위해 HttpResponse 객체를 생성합니다.
     cover_image.save(response, format="png")
 
     return response

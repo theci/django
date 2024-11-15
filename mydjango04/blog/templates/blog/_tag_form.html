@@ -4,15 +4,15 @@
 
 {% include "core/_messages_as_event.html" %}
 
-// 사용자가 폼을 제출하면 서버로 데이터를 전송하고, 서버에서 반환된 HTML로 폼을 대체하는 구조
+# 사용자가 폼을 제출하면 서버로 데이터를 전송하고, 서버에서 반환된 HTML로 폼을 대체하는 구조
 {% partialdef tag-form %}
-    <form hx-post="{{ request.get_full_path }}"  // 현재 페이지로 POST 요청을 보냅니다.
-          hx-trigger="submit once" // 폼이 제출되면 hx-post 요청이 한 번만 트리거됩니다.
-          hx-swap="outerHTML" // 서버에서 반환된 HTML로 폼을 전체적으로 교체합니다.
+    <form hx-post="{{ request.get_full_path }}"  # 현재 페이지로 POST 요청을 보냅니다.
+          hx-trigger="submit once" # 폼이 제출되면 hx-post 요청이 한 번만 트리거됩니다.
+          hx-swap="outerHTML" # 서버에서 반환된 HTML로 폼을 전체적으로 교체합니다.
           autocomplete="off" 
           novalidate>
-        {% csrf_token %} // Django CSRF 보호를 위한 토큰을 포함합니다.
-        {% bootstrap_form form %} // Django의 폼을 부트스트랩 스타일로 렌더링합니다.
+        {% csrf_token %} # Django CSRF 보호를 위한 토큰을 포함합니다.
+        {% bootstrap_form form %} # Django의 폼을 부트스트랩 스타일로 렌더링합니다.
         {# <input type="submit" class="btn btn-primary"/> #}
     </form>
 {% endpartialdef %}

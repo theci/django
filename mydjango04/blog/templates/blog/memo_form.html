@@ -1,21 +1,23 @@
 <h2>메모 그룹 : {{ memo_group.name }}</h2>
 
-{% if messages %}
+{% if messages %} # Django의 메시지 프레임워크에서 설정된 메시지가 있을 경우 이를 출력. 일반적으로 성공, 경고, 오류 메시지를 표시할 때 사용
     <ul>
-        {% for message in messages %}
-            <li>[{{ message.tags }}] {{ message }}</li>
+        {% for message in messages %} # messages 리스트를 순회하며 각 메시지를 출력
+            <li>[{{ message.tags }}] {{ message }}</li> # {{ message.tags }}: 메시지의 태그 (예: success, error, info 등)를 출력, {{ message }}: 메시지의 실제 내용을 출력
         {% endfor %}
     </ul>
 {% endif %}
 
-{{ formset.media }}
+# formset.media는 해당 formset과 관련된 JavaScript 및 CSS 파일을 자동으로 렌더링
+{{ formset.media }} # Django의 formset은 여러 개의 폼을 한 번에 처리할 수 있도록 도와주는 객체. 
 
-<form action="" method="post" novalidate>
-    {% csrf_token %}
+# 이 폼은 POST 방식으로 데이터를 제출합니다. action=""은 폼이 제출될 URL을 지정하는데, 이 예시에서는 현재 페이지로 데이터를 제출하도록 설정되어 있습니다.
+<form action="" method="post" novalidate> # HTML5의 novalidate 속성은 클라이언트 측에서 기본 폼 유효성 검사를 비활성화합니다. 서버에서 유효성 검사를 처리하고, 사용자가 직접 입력 오류를 수정하도록 할 수 있습니다.
+    {% csrf_token %} # Django의 CSRF 보호 기능을 위한 토큰을 삽입. 이 토큰은 서버가 폼 요청이 실제 사용자가 보낸 것인지 확인하는 데 사용됩니다.
 
-    {{ formset.management_form }}
+    {{ formset.management_form }} # 이 관리 폼은 formset이 몇 개의 폼을 포함하는지, 폼의 순서, 삭제된 폼 등이 무엇인지 서버에 알려주는 정보를 담고 있습니다
 
-    {{ formset.non_form_errors }}
+    {{ formset.non_form_errors }} # formset에 포함된 모든 폼을 검사할 때 공통된 오류가 있을 수 있습니다. 이 오류들은 폼 단위가 아닌 formset 전체에서 발생한 오류이기 때문에, 개별 폼이 아닌 formset.non_form_errors로 출력
 
     {% for form in formset %}
         <table>{{ form.as_table }}</table>
