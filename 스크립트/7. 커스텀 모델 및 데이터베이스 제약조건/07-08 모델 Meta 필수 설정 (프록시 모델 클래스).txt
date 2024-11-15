@@ -72,7 +72,7 @@ SuperUsers도 확인하실 수 있습니다
 근데 SuperUsers에 들어가 보면 Superuser가 아닌 일반 유저도 이렇게 목록에
 보여지고 있죠
 Superuser 모델에 대한 Custom Model Manager를 만들어서요 기본
-코디셋에서 IsSuperuser 플래그를 체크를 하도록 하겠습니다
+쿼리셋에서 IsSuperuser 플래그를 체크를 하도록 하겠습니다
 Superuser 매니저는 모델스의 매니저 클래스를 상속을 받고요 객체 쿼리셋 메서드를
 재정의해서 기본 조회 조건을 변경하겠습니다
 이때 isSuperUser 플래그 참조건을 추가하겠습니다

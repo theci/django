@@ -66,9 +66,9 @@ ArticleDetailView는 이 Class.as_view를 호출해서 뷰 함수를 생성하�
 이외에도 ListView, CreateView, UpdateView, DeleteView 등이 지원이 되고 있겠고요 
 디테일 뷰.mixins.View 호출 시에 모델이라는 이름으로 모델 클래스를 지정해 주면 이렇게 포스트 디테일 뷰가 만들어지고 모델 클래스를 지정해서 아티클 디테일 뷰를 만들어낼 수 있습니다
 ArticleDetailView에서 이렇게 발행된 article에 대해서만 조회되도록 제안을 하려고 합니다 
-그러려면 DetailView에서는 코디셋을 만들 때 getCordiSet()이라는 메서드를 통해서 코디셋을 만들거든요 
-발행한 article에 대해서만 조회되도록 하려면 생성되는 코디셋을 변경하면 될 테니까 getCordiSet()라는 메서드를 재정의하겠고요 
-부모의 GetCordiSet을 호출해서 기본 코디셋을 얻어내고 이 코디셋에 필터 조건을 추가해서 반환을 합니다
+그러려면 DetailView에서는 쿼리셋을 만들 때 getCordiSet()이라는 메서드를 통해서 쿼리셋을 만들거든요 
+발행한 article에 대해서만 조회되도록 하려면 생성되는 쿼리셋을 변경하면 될 테니까 getCordiSet()라는 메서드를 재정의하겠고요 
+부모의 GetCordiSet을 호출해서 기본 쿼리셋을 얻어내고 이 쿼리셋에 필터 조건을 추가해서 반환을 합니다
 PublishedArticleDetailView 클래스 클래스, 이 클래스의 AsView를 통해서 뷰 함수가 만들어지면 이 뷰 함수는 발행한 아티클에 대해서만 조회를 하는 뷰 함수가 됩니다
 클래스 기반 뷰는 DRY 원칙을 따르는 뷰 기술이며 함수 기반 뷰는 레거시가 아닙니다가 아니며 여전히 유효합니다
 클래스 기반 뷰는 클래스 기반 뷰가 정한 관례대로 개발할 경우 최소한의 코드로 설정과 같은 코드를 통해 효과적으로 구현이 가능하고요 

@@ -12,8 +12,8 @@ from .models import Review, Memo, Tag
 
 # 사용자가 "message"와 "rating"을 입력할 수 있도록 하며, StarRatingSelect 위젯을 사용하여 별점 선택을 구현
 class ReviewForm(forms.ModelForm):
-    class Meta:
-        model = Review # 이 폼은 Review 모델과 연결
+    class Meta: # ModelForm을 더 명확하게 구성하고, 폼의 설정들을 하나의 클래스 안에 모아서 관리하는 클래스
+        model = Review # 이 폼은 Review 모델 클래스와 연결
         fields = ["message", "rating"] # 이 폼에서 사용할 모델의 필드
         widgets = { # 폼 필드의 위젯을 커스터마이즈
             "rating": StarRatingSelect(

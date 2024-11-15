@@ -97,8 +97,8 @@ def profile_edit(request):
 #
 # profile_edit = ProfileUpdateView.as_view()
 
-
-def check_is_profile_update(wizard_view: "UserProfileWizardView") -> bool: # 이 함수는 사용자가 프로필을 업데이트할지 여부를 체크하는 기능
+# 이 함수는 사용자가 프로필을 업데이트할지 여부를 체크하는 기능
+def check_is_profile_update(wizard_view: "UserProfileWizardView") -> bool: 
     cleaned_data = wizard_view.get_cleaned_data_for_step("user_form") # "user_form" 단계에서 제출된 데이터가 유효한지 검사한 후, 그 데이터를 가져오는 메서드
     if cleaned_data is None:
         return True

@@ -47,8 +47,8 @@ class StarRatingSelect(Select): # 별점 선택 UI를 제공
             "core/star-rating-js/4.3.0/star-rating.min.js",
         ]
 
-# 세 개의 TextInput 위젯을 포함하여 전화번호를 입력할 수 있는 UI를 제공
-class PhoneNumberInput(MultiWidget): 
+# 세 개의 TextInput 위젯을 포함하여 전화번호를 입력할 수 있는 UI를 제공. ex) 전화번호 형식인 XXX-XXXX-XXXX와 같이 입력을 받는 형태로
+class PhoneNumberInput(MultiWidget):  # PhoneNumberInput 위젯으로 여러 개의 입력 필드를 처리할 수 있게 됩니다
     subwidget_default_attrs = {
         "style": "width: 6ch; margin-right: 1ch;",
         "autocomplete": "off",
@@ -78,9 +78,9 @@ class PhoneNumberInput(MultiWidget):
                 },
             ),
         ]
-        super().__init__(widgets, attrs)
+        super().__init__(widgets, attrs) # widgets 리스트와 attrs(옵션 속성)를 부모 클래스에 전달하면서 초기화
 
-    # # maxlength 속성을 삭제. 각 서브 위젯에서 최대 길이를 따로 설정하기 위함
+    # maxlength 속성을 삭제. 각 서브 위젯에서 최대 길이를 따로 설정하기 위함
     def build_attrs(self, base_attrs, extra_attrs=None): 
         attrs = super().build_attrs(base_attrs, extra_attrs)
         if "maxlength" in attrs:
@@ -89,14 +89,16 @@ class PhoneNumberInput(MultiWidget):
 
     # 저장된 전화번호 값을 분해하여 각 부분(국가 코드, 지역 번호, 개인 번호)으로 나누어 반환
     def decompress(self, value: str) -> Tuple[str, str, str]: 
-        if value:
+        if value: # 값이 있으면
             value = re.sub(r"[ -]", "", value)
             return value[:3], value[3:7], value[7:]
         return "", "", ""
 
+
     def value_from_datadict(self, data, files, name) -> str: # 사용자가 입력한 값을 하나의 문자열로 결합하여 반환
         values = super().value_from_datadict(data, files, name)
         return "".join((value or "") for value in values)
+
 
 # 데이터 클래스 - (__init__, __repr__, __eq__)를 자동으로 생성해 주어, 코드의 간결함을 높입니다.
 @dataclasses.dataclass # 클래스를 데이터 클래스 형태로 정의하는 데코레이터

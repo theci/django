@@ -122,7 +122,7 @@ class Profile(models.Model):
     photo = models.ImageField(upload_to="profile/photo", blank=True)
 
 
-# Profile 객체가 삭제될 때, 해당 프로필에 연결된 사진 파일을 삭제
+# Profile 객체가 삭제될 때, 해당 프로필에 연결된 사진 파일을 삭제하는 메서드
 @receiver(post_delete, sender=Profile) # post_delete는 Profile 객체가 삭제된 후에 실행
 def post_delete_on_profile(instance: Profile, **kwargs):
     instance.photo.delete(save=False) # save=False로 설정하여 파일만 삭제하고 객체 자체는 저장하지 않습니다.

@@ -1,5 +1,5 @@
 {# blog/templates/blog/_tag_list.html : HTML 레이아웃없이 컨텐츠로만 구성 #}
-<!-- htmx를 사용하여 페이지의 일부만 로드하고, 페이지네이션을 구현하는 방식 -->
+# htmx를 사용하여 페이지의 일부만 로드하고, 페이지네이션을 구현하는 방식 -->
 
 {% for tag in tag_list %}
     {% include "blog/_tag_list_item.html" %}
@@ -7,10 +7,10 @@
     {% if forloop.last %}
         {% if page_obj.has_next %}
             <div class="list-group-item list-group-item-action text-center"
-                 hx-get="{% url 'blog:tag_list' %}?page={{ page_obj.next_page_number }}" <!-- 페이지가 로드되면 다음 페이지의 태그 목록을 비동기적으로 요청합니다. -->
-                 hx-trigger="revealed" <!-- 요소가 화면에 보이면 비동기 요청이 트리거됩니다. -->
-                 hx-swap="outerHTML transition:true">  <!-- 페이지 로딩 중 문구가 나오고, 새 페이지로 바뀌면서 전환 효과가 적용됩니다. -->
-                로딩 중 ...          <!-- 페이지가 로딩되었을 때 보여줄 문구입니다. -->
+                 hx-get="{% url 'blog:tag_list' %}?page={{ page_obj.next_page_number }}" # 페이지가 로드되면 다음 페이지의 태그 목록을 비동기적으로 요청합니다. 
+                 hx-trigger="revealed" # 요소가 화면에 보이면 비동기 요청이 트리거됩니다. 
+                 hx-swap="outerHTML transition:true">  # 페이지 로딩 중 문구가 나오고, 새 페이지로 바뀌면서 전환 효과가 적용됩니다. 
+                로딩 중 ...          # 페이지가 로딩되었을 때 보여줄 문구입니다. 
             </div>
         {% else %}
             <div class="list-group-item list-group-item-action text-center">

@@ -11,12 +11,12 @@ GenericForeignKey는 대상 모델을 나타내는 컨텐트 타입 필드와 �
 이는 BlogAppPost 모델의 기본키가 1인 포스팅에 대한 댓글입니다
 ContentTypeId 값이 8이고 ObjectId 값이 1인 댓글은 BlogAppArticle 모델의 기본키가 1인 아티클에 대한 댓글입니다
 GenericForeignKey를 사용하면 댓글을 붙일 모델이 추가되더라도 추가로 댓글 모델을 구현하거나 외래 개필드를 추가할 필요가 없습니다
-Models에 ForeignKey를 사용한 모델에서의 코디셋 코드이고요
-GenericForeignKey를 사용한 모델에서의 코디셋 코드입니다 왼쪽에 Models에 ForeignKey에서의 코디셋 코드와 최대한 같은 코드로 사용할 수 있도록 모델 코드를 서로 맞췄습니다
-하지만 부모 모델 코디셋에서 사용하는 Related Coding Name 설정 부분은 Generic Relation 필드 설계상 동일하게 맞출 수 없었습니다.
+Models에 ForeignKey를 사용한 모델에서의 쿼리셋 코드이고요
+GenericForeignKey를 사용한 모델에서의 쿼리셋 코드입니다 왼쪽에 Models에 ForeignKey에서의 쿼리셋 코드와 최대한 같은 코드로 사용할 수 있도록 모델 코드를 서로 맞췄습니다
+하지만 부모 모델 쿼리셋에서 사용하는 Related Coding Name 설정 부분은 Generic Relation 필드 설계상 동일하게 맞출 수 없었습니다.
 모델스의 Foreign Key에서는 자식 모델 측의 관계를 정의하므로 부모 모델에서 사용하는 Related Name 설정과 Related Coding Name 설정을 지원합니다. 
 하지만 Generic Foreign Key에서는 부모 모델에 Generic Relation 필드를 직접 추가하기 때문에 이 필드가 Related Name 설정과 Related Coding Name 설정을 같이 수행합니다.
-그래서 좌측의 First 모델의 Comment를 활용한 코디셋과, 우측의 First 모델의 Comment Underbar Set을 활용한 코디셋 코드가 다른 것입니다.
+그래서 좌측의 First 모델의 Comment를 활용한 쿼리셋과, 우측의 First 모델의 Comment Underbar Set을 활용한 쿼리셋 코드가 다른 것입니다.
 나머지 코드는 같습니다.
 GenericForeignKey 필드를 가진 Comment 모델은 어떤 모델에 대해서든 데이터베이스 스키마 변경 없이 모델 외래키를 지정할 수 있습니다.
 모델스의 Foreign Key와는 달리 데이터베이스에서의 외래키는 아니고요, 외래키를 흉내 낼 뿐입니다. 
@@ -26,7 +26,7 @@ Generic Foreign Key를 보완해서 쿼디셋 편의성을 높여주는 것입�
 이렇게 GenericForeignKey를 사용하면 하나의 댓글 모델을 게시글, 아티클, 리뷰 모델처럼 다양한 모델과 데이터베이스 외래키를 연결하지 않고도 범용적으로 연결할 수 있다는 장점이 있습니다
 하지만 GenericForeignKey는 일반적인 포링키에 비해 두 가지 단점이 있습니다
 첫 번째로 데이터베이스 레벨에서 외래키 제약 조건을 설정할 수 없어 데이터베이스로부터 데이터 무결성을 보장받을 수 없고요 애플리케이션 레벨에서 추가적인 검증 로직을 구현해야 됩니다 
-둘째로, GenericForeignKey의 데이터베이스 테이블 설계상 Join을 사용할 수 없고, Pre-patch-related의 방식처럼 추가 코디로 조회합니다.
+둘째로, GenericForeignKey의 데이터베이스 테이블 설계상 Join을 사용할 수 없고, Pre-patch-related의 방식처럼 추가 쿼리로 조회합니다.
 모든 결정에는 Trade-off가 있고요.
 범용 댓글 라이벌리처럼 범용성이 중요하다고 판단이 되실 때, GenericForeignKey를 사용해 주세요.
 슬라이드 하단에 모델 코드가 있는 페이지 링크가 있습니다.
@@ -48,7 +48,7 @@ Post1 포스팅의 댓글을 조회해보면 방금 등록된 댓글이 조회�
 Post2 포스팅도 생성하고요 댓글도 여러 개 생성을 해 봅니다
 GenericForeignKey가 적용된 코멘트 모델은 모든 모델에 대해서 댓글을 남길 수 있습니다 
 해당 모델에 GenericRelation 필드가 없더라도 가능합니다
-GenericRelation은 코디셋을 보다 쓰기 쉽도록 도와줄 뿐 서로 관계를 맺을 수 있습니다 
+GenericRelation은 쿼리셋을 보다 쓰기 쉽도록 도와줄 뿐 서로 관계를 맺을 수 있습니다 
 블로그 앱의 Post 모델에 대해서도 이렇게 댓글을 남길 수 있습니다
 인서트될 때, 블로그 앱의 Post 모델의 컨텐트 타입 아이디인 10이 지정되어 있습니다.
 장고 컨텐트 타입 테이블을 조회해 보시면, 블로그 앱의 퍼스트 모델의 아이디는 10이고, 웹블로그 앱의 퍼스트 모델의 아이디는 50이네요.
@@ -59,4 +59,4 @@ GenericForeignKey를 가진 웹 로그 앱의 코멘트 모델의 쿼리셋에�
 Prefetch Related를 쓰시면 이렇게 동작하고요.
 그런데 추가 쿼리 1개가 아니라 관계를 맺은 모델의 개수만큼 추가 쿼리가 수행되네요.
 웹로그 앱의 Post 모델과 블로그 앱의 Post 모델에 대해서 관계를 맺었으니 2개의 추가 쿼리가 수행되었습니다.
-이렇게 관계를 맺은 여러 종류의 모델에 대해서 하나의 코디렛으로 한번에 조회를 할 수 있습니다.
+이렇게 관계를 맺은 여러 종류의 모델에 대해서 하나의 쿼리렛으로 한번에 조회를 할 수 있습니다.

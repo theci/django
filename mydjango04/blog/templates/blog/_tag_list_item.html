@@ -1,14 +1,14 @@
 
 {% include "core/_messages_as_event.html" %}
-// htmx를 활용해 태그를 클릭하여 수정하거나 삭제하는 기능을 비동기적으로 처리
+# htmx를 활용해 태그를 클릭하여 수정하거나 삭제하는 기능을 비동기적으로 처리
 
 <div class="list-group-item d-flex justify-content-between align-items-center"> 
     <div
             style="cursor: pointer;"
-            hx-get="{% url 'blog:tag_edit' tag.pk %}" // // 사용자가 태그 이름을 클릭하면 해당 태그를 수정할 수 있는 페이지를 가져옵니다. hx-target="#modal-container"로 모달에 내용을 삽입합니다.
-            hx-trigger="click" // 클릭 이벤트를 트리거로 사용합니다.
+            hx-get="{% url 'blog:tag_edit' tag.pk %}" # # 사용자가 태그 이름을 클릭하면 해당 태그를 수정할 수 있는 페이지를 가져옵니다. hx-target="#modal-container"로 모달에 내용을 삽입합니다.
+            hx-trigger="click" # 클릭 이벤트를 트리거로 사용합니다.
             hx-target="#modal-container" 
-            hx-swap="innerHTML" // 서버에서 반환된 HTML을 #modal-container 요소의 내부 HTML로 교체합니다.
+            hx-swap="innerHTML" # 서버에서 반환된 HTML을 #modal-container 요소의 내부 HTML로 교체합니다.
     >
         {{ tag.name }}
     </div>
@@ -16,9 +16,9 @@
             class="text-danger"
             style="cursor: pointer;"
             hx-trigger="click"
-            hx-confirm="{{ tag.name }} 태그를 삭제하시겠습니까?" // 삭제를 확인하는 메시지를 띄웁니다. 사용자 확인 후 hx-delete로 태그를 삭제하는 요청을 보냅니다.
+            hx-confirm="{{ tag.name }} 태그를 삭제하시겠습니까?" # 삭제를 확인하는 메시지를 띄웁니다. 사용자 확인 후 hx-delete로 태그를 삭제하는 요청을 보냅니다.
             hx-delete="{% url 'blog:tag_delete' tag.pk %}"
-            hx-target="closest .list-group-item" // 삭제가 완료되면 해당 태그를 포함하는 리스트 아이템을 삭제합니다.
+            hx-target="closest .list-group-item" # 삭제가 완료되면 해당 태그를 포함하는 리스트 아이템을 삭제합니다.
             hx-swap="delete"
     >
             X

@@ -4,8 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 
 @csrf_exempt # post를 테스트하기 위함. 사용x
-def coffee_stamp(request):
-    if request.method == "GET":
+def coffee_stamp(request): # url로 request 요청이 올 때 처리하는 view 함수
+    if request.method == "GET": # GET으로 요청올 때 HTML 폼을 반환
         response = HttpResponse(
             """
             <form method="POST">
@@ -13,7 +13,7 @@ def coffee_stamp(request):
             </form>
             """
         )
-    else:
+    else: # POST로 요청올 때 사용자가 폼에 입력한 휴대폰 번호를 가져와서 count를 +1한 후 적립된 스탬프(주문 횟수)를 HTML 응답으로 반환
         phone = request.POST["phone"]
         request.session["phone"] = phone
 
