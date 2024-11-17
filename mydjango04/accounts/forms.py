@@ -1,6 +1,9 @@
 import datetime
 from typing import Iterator
 
+# from core.forms.fields import PhoneNumberField, DatePickerField
+from core.forms.widgets import (DatePickerInput, DatePickerOptions,
+                                NaverMapPointInput, PhoneNumberInput)
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.password_validation import validate_password
@@ -10,29 +13,21 @@ from django.shortcuts import resolve_url
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-# from core.forms.fields import PhoneNumberField, DatePickerField
-from core.forms.widgets import (
-    PhoneNumberInput,
-    DatePickerInput,
-    DatePickerOptions,
-    NaverMapPointInput,
-)
 from .models import Profile, User
-
 
 token_generator = default_token_generator
 
-
+# User 모델을 기반으로 하는 폼 클래스입니다. 사용자의 first_name과 last_name을 수정할 수 있는 필드를 제공
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["first_name", "last_name"]
+        fields = ["first_name", "last_name"] # 폼에 포함될 필드들을 나열
 
-    is_profile_update = forms.BooleanField(
-        required=False,  # 체크하지 않아도 유효성 검사에 통과하기
-        initial=True,
-        label="프로필 수정 여부",
-        help_text="체크 해제하시면 프로필 수정 단계를 생략합니다.",
+    is_profile_update = forms.BooleanField( # 사용자가 프로필 수정 여부를 체크할 수 있는 체크박스를 생성
+        required=False,  # 필수 입력 항목이 아님. 체크하지 않아도 유효성 검사에 통과하기
+        initial=True, # 기본값을 True로 설정하여 폼이 처음 로드될 때 체크박스가 선택된 상태로 나타나도록 합니다
+        label="프로필 수정 여부", # 폼에서 이 필드의 레이블(문구)을 "프로필 수정 여부"로 설정합니다. 폼에서 이 레이블은 체크박스 옆에 표시
+        help_text="체크 해제하시면 프로필 수정 단계를 생략합니다.", # 용자가 체크박스를 체크 해제하면 프로필 수정 단계를 생략한다는 안내 메시지가 표시
     )
 
 
@@ -56,7 +51,7 @@ class ProfileUserForm(forms.ModelForm):
                 raise forms.ValidationError("이미 등록된 이메일입니다.")
         return email
 
-
+# Profile 모델의 데이터를 입력받는 폼
 class ProfileForm(forms.ModelForm):
     # mydate = DatePickerField(
     #     min_value=lambda: datetime.date.today(),
@@ -67,29 +62,29 @@ class ProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["address"].required = True
+        self.fields["address"].required = True # address 필드를 필수 입력 항목으로 설정
 
     class Meta:
         model = Profile
-        fields = [
+        fields = [ # Profile 모델에 정의된 필드 중에서 이 폼에서 입력될 필드들을 나열한 것
             "birth_date",
             "address",
             "location_point",
             "phone_number",
             "photo",
         ]
-        widgets = {
-            "birth_date": DatePickerInput(
-                date_picker_options=DatePickerOptions(
-                    datesDisabled=lambda: [
+        widgets = { # 폼 필드에 사용될 위젯(UI)을 지정하는 딕셔너리
+            "birth_date": DatePickerInput( # DatePickerInput 위젯 - 날짜를 선택할 수 있는 입력창을 생
+                date_picker_options=DatePickerOptions( # date_picker_options - 날짜 선택기의 옵션을 설정
+                    datesDisabled=lambda: [ # 특정 날짜들을 비활성화합니다. 예시에서는 오늘로부터 2일 후의 날짜를 비활성화하고 있습니다. 즉, 사용자가 이 날짜는 선택할 수 없습니다.
                         datetime.date.today() + datetime.timedelta(days=2),
                     ],
-                    todayButton=True,
-                    todayHighlight=True,
+                    todayButton=True, # 날짜 선택기에서 오늘 날짜로 이동하는 버튼을 표시
+                    todayHighlight=True, # 오늘 날짜를 강조 표시
                 ),
             ),
-            "location_point": NaverMapPointInput,
-            "phone_number": PhoneNumberInput,
+            "location_point": NaverMapPointInput, # 네이버 지도에서 좌표를 선택하는 입력창을 위한 위젯
+            "phone_number": PhoneNumberInput, # 사용자가 입력하는 전화번호 형식을 검증하고
         }
 
 

@@ -1,5 +1,6 @@
 from django.urls import path, re_path
-from . import converters  # noqa
+
+from . import converters  # noqa - 파이썬에서 특정 줄에 대한 스타일 검사나 오류 경고를 무시하고 싶을 때 사용
 from . import views
 
 app_name = "hottrack"

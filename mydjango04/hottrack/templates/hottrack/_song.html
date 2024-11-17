@@ -1,22 +1,32 @@
 {# 경로 : hottrack/templates/hottrack/_song.html #}
 
-<div class="card shadow-sm">
+<div class="card shadow-sm"> # card는 Bootstrap의 카드 UI 컴포넌트를 사용하여 카드 형태로 콘텐츠를 표시. shadow-sm는 카드에 부드러운 그림자를 추가하여 시각적으로 강조
     {# refs: https://picsum.photos/ #}
-    <img src="{{ song.cover_url }}" alt="{{ song.name }}" class="cart-img-top" />
+    <img src="{{ song.cover_url }}" alt="{{ song.name }}" class="cart-img-top" /> # song 객체에서 cover_url 속성의 값을 가져와서 이미지의 src 속성에 넣습니다
+    # alt="{{ song.name }}": 이미지가 로드되지 않거나 접근성 요구 사항을 충족하기 위해 alt 속성에 노래의 이름을 텍스트로 입력합니다.
+    # class="cart-img-top": Bootstrap에서 제공하는 스타일로 이미지를 카드의 상단에 배치하고 크기를 조절하는 클래스
 
-    <div class="card-body">
-        <p class="card-text">
+    <div class="card-body"> # 카드의 본문 부분으로, 실제 콘텐츠가 들어가는 영역
+        <p class="card-text"> # 텍스트 내용을 감싸는 클래스
             <div class="text-nowrap overflow-hidden text-truncate">{{ song.artist.name }} | {{ song.name }}</div>
+            # text-nowrap: 텍스트가 줄 바꿈 없이 한 줄로 표시되도록 합니다.
+            # overflow-hidden: 텍스트가 넘칠 경우 보이지 않도록 숨깁니다.
+            # text-truncate: 넘치는 텍스트를 잘라서 말줄임표(...)로 표시합니다.
         </p>
         <div class="d-flex justify-content-between align-items-center">
+            # d-flex: flexbox 레이아웃을 활성화합니다.
+            # justify-content-between: 버튼들이 양쪽 끝으로 배치됩니다.
+            # align-items-center: 버튼들을 수직으로 중앙 정렬합니다.
             <div class="btn-group">
                 <a href="{{ song.get_absolute_url }}"
                    class="btn btn-sm btn-outline-primary">Detail</a>
+                   # btn-outline-* 클래스는 버튼에 테두리만 있는 스타일을 적용
+                   # 버튼 크기는 btn-sm으로 설정되어 있습니다.
                 {# Song 모델에서 melon_uid 필드를 id 기본키로 변경했기에 melon_uid 인자 지원이 필요없어졌습니다. #}
                 <a href="{{ song.melon_detail_url }}" type="button" class="btn btn-sm btn-outline-danger">Melon</a>
                 <a href="{{ song.youtube_search_url }}" type="button" class="btn btn-sm btn-outline-danger">Youtube</a>
             </div>
-            <small class="text-body-secondary">
+            <small class="text-body-secondary"> # 이 클래스는 텍스트를 작게 표시하고, 색상은 일반적인 본문 텍스트보다 조금 더 회색조로 처리하여 보조 정보임을 강조합니다.
                 {{ song.like_count }}
             </small>
         </div>

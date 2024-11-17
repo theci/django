@@ -1,20 +1,20 @@
+from accounts.models import User
+from blog.forms import DemoForm, MemoForm, ReviewForm, TagForm
+from blog.models import Memo, MemoGroup, Post, Review, Tag
+from core.decorators import login_required_hx
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.files import File
 from django.db.models import Q
-from django.forms import formset_factory, modelformset_factory, inlineformset_factory
+from django.forms import (formset_factory, inlineformset_factory,
+                          modelformset_factory)
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse_lazy, reverse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 from django.views.decorators.http import require_http_methods
 from django_htmx.http import HttpResponseClientRefresh, trigger_client_event
-from vanilla import CreateView, ListView, DetailView, UpdateView, FormView
-
-from accounts.models import User
-from blog.forms import ReviewForm, DemoForm, MemoForm, TagForm
-from blog.models import Post, Review, Memo, MemoGroup, Tag
-from core.decorators import login_required_hx
+from vanilla import CreateView, DetailView, FormView, ListView, UpdateView
 
 
 @login_required # 이 데코레이터는 사용자가 로그인한 상태에서만 이 뷰를 실행할 수 있도록 합니다
@@ -39,15 +39,17 @@ def premium_user_guide(request):
 def post_list(request):
     query = request.GET.get("query", "").strip() # GET 요청의 쿼리 매개변수에서 query 값을 가져오고, 양옆의 공백을 제거
 
-    post_qs = Post.objects.all()
+    post_qs = Post.objects.all() # Post 모델의 모든 게시물을 쿼리셋 형태로 가져옵니다.
 
     if query:
         post_qs = post_qs.filter(
-            Q(title__icontains=query) | Q(tag_set__name__in=[query])
+            Q(title__icontains=query) | Q(tag_set__name__in=[query]) 
+            # Q(title__icontains=query): title 필드에 query 문자열이 대소문자 구분 없이 포함된 게시물을 찾습니다.
+            # Q(tag_set__name__in=[query]): 게시물과 연결된 태그들 중 query와 일치하는 태그가 있는지 확인합니다.
         )
 
-    post_qs = post_qs.select_related("author") # Post 객체와 관련된 author 정보를 한 번의 쿼리로 미리 가져옵니다
-    post_qs = post_qs.prefetch_related("tag_set") # tag_set에 연결된 태그들을 미리 가져옵니다
+    post_qs = post_qs.select_related("author") # 쿼리 최적화를 위해 사용. Post 모델의 author 필드는 ForeignKey 관계이므로, Post 객체를 조회할 때 author 객체를 별도로 조회하지 않고, 한 번의 쿼리로 Post와 author를 모두 가져옵니다.
+    post_qs = post_qs.prefetch_related("tag_set") # tag_set에 연결된 태그들을 미리 가져옵니다. prefetch_related는 여러 개의 테이블을 별도의 쿼리로 한 번에 가져오는 방식으로, ManyToMany 또는 Reverse ForeignKey 관계에서 성능을 최적화하는 데 유용합니다.
 
     return render( # query와 post_qs(게시물 목록)를 전달하여 결과를 렌더링
         request,
