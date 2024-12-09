@@ -142,3 +142,63 @@ performCreate 메서드를 재정의하여 Serializer 인스턴스의 save
 API 뷰에서는 디폴드 설정으로 어플리케이션 JSON 요청도 지원하니깐요 요청을 보내보시면
 앞선 Form URL 인코디드 방식과 비교해서 요청의 바디 데이터만 다를 뿐 API
 구현에서는 동일한 코드로 처리하고 동일한 응답을 하고 있음을 확인하실 수 있습니다
+
+
+Django REST Framework를 사용하여 생성 API를 구현하는 과정은 기본적인 모델 폼을 사용한 생성 프로세스를 API 환경에 맞게 변환하는 과정입니다. 이 과정을 다음과 같이 요약할 수 있습니다:
+
+1. 모델 폼을 활용한 생성 페이지
+GET 요청: 빈 폼을 제공하여 사용자가 입력할 수 있도록 합니다.
+POST 요청: 사용자가 입력한 데이터를 처리하여 모델에 저장합니다. 데이터가 유효하지 않으면 오류 메시지와 함께 다시 폼을 제공합니다.
+로그인 요구: 로그인한 사용자만 폼을 제출할 수 있도록 로그인 상태를 확인합니다.
+유효성 검사 후 저장: 유효성 검사를 거쳐 데이터베이스에 저장합니다.
+2. Django REST Framework 시리얼라이저를 활용한 생성 API 구현
+API에서는 폼을 제공하지 않고, 클라이언트가 직접 JSON 데이터를 전송하여 API가 데이터를 처리하는 방식으로 구현됩니다.
+
+기본 구현 과정
+요청 파서 준비: 요청 데이터를 파싱하기 위한 파서를 설정합니다. DRF에서는 다양한 인코딩 방식(예: JSON, form-data 등)을 지원합니다.
+인증 방식 설정: 세션 인증, 베이직 인증, 또는 JSON Web Token(JWT) 인증 등을 설정합니다. API에서는 인증이 필수이며, 인증되지 않은 사용자는 요청을 처리할 수 없습니다.
+권한 설정: API를 호출할 권한을 설정합니다. 예를 들어, IsAuthenticated 권한 클래스를 사용하여 인증된 사용자만 요청을 처리할 수 있도록 합니다.
+시리얼라이저를 통한 데이터 유효성 검사 및 저장
+시리얼라이저 생성: 요청 데이터를 시리얼라이저 인스턴스에 전달하여 유효성 검사를 진행합니다.
+유효성 검사: is_valid() 메서드를 사용하여 데이터가 유효한지 확인합니다. 유효하지 않으면 오류 메시지가 포함된 응답을 반환합니다.
+저장: 유효성 검사를 통과한 데이터는 save() 메서드를 사용하여 데이터베이스에 저장됩니다. 모델 필드에 추가적인 값이 필요한 경우 save() 호출 시 해당 값을 전달합니다.
+3. Create API View 클래스 구현
+CreateAPIView 클래스를 상속하여 API를 구현하면 POST 요청을 처리할 수 있습니다. CreateAPIView는 요청을 자동으로 처리하는 메서드를 제공하며, 다음과 같은 방식으로 API를 구현할 수 있습니다:
+
+python
+코드 복사
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import serializers
+from rest_framework.generics import CreateAPIView
+from .models import Post
+
+# 시리얼라이저 클래스 정의
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['title', 'content']
+
+# CreateAPIView를 상속받은 API 뷰 클래스 정의
+class PostCreateAPIView(CreateAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # 현재 로그인한 사용자를 'author' 필드로 저장
+        serializer.save(author=self.request.user)
+4. 요청과 응답 처리
+POST 요청 처리: CreateAPIView는 POST 요청을 자동으로 처리합니다. 요청에 포함된 데이터는 시리얼라이저에서 유효성 검사를 거쳐 데이터베이스에 저장됩니다.
+인증 및 권한 처리: IsAuthenticated 권한 클래스를 사용하여 로그인한 사용자만 API를 호출할 수 있도록 제한합니다.
+응답: 데이터가 유효하면, perform_create() 메서드에서 모델의 save() 메서드를 호출하여 데이터를 저장합니다. 그 후 성공적으로 저장된 데이터는 201 Created 응답과 함께 반환됩니다.
+5. 에러 처리 및 검증
+유효성 검사에서 실패할 경우, errors 속성을 통해 오류 메시지를 반환합니다.
+ValidationError가 발생하면 DRF는 자동으로 적절한 HTTP 응답을 반환합니다.
+6. 테스트와 인증
+Authorization 헤더에 로그인 정보를 포함시키지 않으면 403 Forbidden 오류가 발생합니다.
+로그인된 상태에서만 요청을 보내면, 요청은 성공적으로 처리되고 201 Created 응답을 받게 됩니다.
+7. 유저 모델 및 인증
+Account 앱에서 유저 모델을 관리하고 admin.py에서 유저 모델을 등록하여 관리할 수 있습니다.
+Authorization 헤더를 사용하여 API 요청에 인증을 추가하고, 이를 통해 특정 유저만 API에 접근할 수 있도록 합니다.
+결론
+Django REST Framework를 사용하여 생성 API를 구현하는 과정은 기본적인 모델 폼 처리와 유사하지만, 폼을 화면에 표시하지 않고 JSON 데이터로 직접 처리하는 방식입니다. 
+CreateAPIView 클래스를 사용하면 API 요청에 대해 간결하고 효율적으로 데이터를 생성하고, 유효성 검사 및 저장을 자동으로 처리할 수 있습니다. 또한, 인증과 권한 설정을 통해 API의 보안을 강화할 수 있습니다.

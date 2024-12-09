@@ -149,13 +149,16 @@ React 컴포넌트에서 UI와 관련된 동적인 데이터는 상태 값으로
 상태 값은 useState 훅을 통해 생성되며, 변경 시 UI가 재렌더링됩니다.
 useState는 상태 값과 상태 업데이트 함수 (setter)를 반환합니다.
 예제: const [count, setCount] = useState(0);
+
 2. 일반 변수와 상태 값의 차이
 일반 변수는 UI에 노출할 수 있지만, 값 변경 시 UI는 자동으로 업데이트되지 않습니다.
 상태 값은 변경 시 UI가 재렌더링되므로 UI에 반영됩니다.
+
 3. 상태 값 변경 함수 (setter)의 동작 원리
 setCount를 호출하면 상태 값이 변경되지만, 즉시 반영되지 않습니다.
 연속 호출 시 이전 상태를 기반으로 다음 상태를 계산하도록 함수 인자를 사용하는 것이 좋습니다.
 예제: setCount((prevCount) => prevCount + 1);
+
 4. 상태 변경 시 조건 로직 추가
 최대값/최소값 범위 내에서만 상태 값을 증가 또는 감소시키려면 조건 로직을 추가합니다.
 상태 값이 최대나 최소값에 도달할 경우 값이 고정되도록 합니다.
@@ -163,6 +166,7 @@ setCount를 호출하면 상태 값이 변경되지만, 즉시 반영되지 않�
 javascript
 코드 복사
 setCount((prevCount) => (prevCount >= 10 ? 10 : prevCount + 1));
+
 5. 상태 값 초기 설정 로직
 상태 값 초기화 시 동적 로직을 추가하려면 useState의 인자로 함수를 전달합니다.
 예를 들어, 최대값 10을 초과하는 초기값은 10으로 고정합니다.
@@ -172,6 +176,7 @@ javascript
 const [count, setCount] = useState(() => {
   return initialCount > 10 ? 10 : initialCount;
 });
+
 6. 의존 상태 값 추가 및 상태 간의 의존성 관리
 의존 관계가 있는 다른 상태 값을 추가하려면 useEffect 훅을 활용하여 상태 간의 의존성을 관리합니다.
 예를 들어, count 값에 따라 color 상태를 변경할 때 count가 변경될 때마다 color를 업데이트하도록 합니다.
@@ -181,6 +186,7 @@ javascript
 useEffect(() => {
   setColor(count % 2 === 0 ? 'red' : 'yellow');
 }, [count]);
+
 7. 이벤트에 따른 동작
 좌클릭(클릭) 시 increment 함수를 호출하여 count 값을 증가시키고,
 우클릭 시 decrement 함수를 호출하여 count 값을 감소시키도록 합니다.

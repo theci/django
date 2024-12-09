@@ -85,3 +85,74 @@ Credentials Include 설정을 추가합니다.
 페이지 새로고침에 보시면 이제 Session 인증이 수행되어 200 응답을 받았네요.
 요청 헤더를 보시면 이렇게 쿠키 헤더에 Session ID 값이 있음을 확인하실 수
 있습니다.
+
+
+
+
+
+이번 실습에서는 같은 호스트의 서로 다른 포트에서 운영되는 두 개의 서버—Django 서버와 웹 프론트엔드 서버(예: React, Vue.js 등의 JavaScript 앱)—간의 CORS 설정과 쿠키 전송 문제를 해결하는 과정을 다룹니다. 주로 CORS와 Session ID 쿠키 관련 문제를 해결하는 내용입니다. 요약은 다음과 같습니다:
+
+1. CORS 오류 발생
+문제 상황: 웹 프론트엔드 서버(http://localhost:3000)에서 Django 서버(http://localhost:8000)로 HTTP 요청을 보낼 때, CORS 정책 위반으로 요청이 차단됩니다.
+CORS란, 서로 다른 출처 간의 요청을 제어하는 보안 정책입니다.
+localhost는 동일한 도메인과 다른 포트를 사용할 때도 CORS 정책이 적용되며, 이 경우 쿠키나 인증 정보 전송이 차단될 수 있습니다.
+2. 쿠키 처리 문제
+Django 서버에서는 Session ID 쿠키를 HttpOnly로 설정하여 JavaScript로 쿠키를 읽을 수 없게 만듭니다. 이를 통해 XSS(크로스 사이트 스크립팅) 공격으로부터 쿠키를 보호할 수 있습니다.
+프론트엔드 페이지에서 JavaScript로 쿠키를 조회하면 Session ID 쿠키는 보이지 않고, CSRF 토큰 같은 다른 쿠키만 확인됩니다.
+다른 포트에서 요청을 보내면 쿠키는 도메인 기준으로 공유되지만, CORS 설정이 없으면 여전히 요청이 차단됩니다.
+3. Django에서 CORS 설정
+Django CORS Headers 라이브러리 설치:
+
+bash
+코드 복사
+pip install django-cors-headers
+INSTALLED_APPS와 MIDDLEWARE 설정:
+
+CORS 미들웨어를 Django 설정에 추가합니다. 이 미들웨어는 다른 출처로부터의 요청을 허용하는 HTTP 헤더를 추가합니다.
+**CORS_ALLOWED_ORIGINS**에 HTTP 요청을 허용할 출처(예: http://localhost:3000)를 명시합니다.
+python
+코드 복사
+INSTALLED_APPS = [
+    # 다른 앱들...
+    'corsheaders',
+]
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # 반드시 상단에 배치
+    # 다른 미들웨어들...
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # 웹 프론트엔드 서버 주소 추가
+]
+쿠키 전송 허용 설정:
+
+CORS_ALLOW_CREDENTIALS = True 설정을 통해 다른 출처에서의 요청 시 쿠키 자동 전송을 허용합니다.
+Django는 이제 **Access-Control-Allow-Origin**과 Access-Control-Allow-Credentials 헤더를 응답에 추가합니다.
+4. 쿠키 자동 전송
+문제 해결: 401 응답이 발생하는 이유는, 요청 시 Session ID 쿠키가 자동으로 포함되지 않아서 인증이 실패하기 때문입니다.
+
+이를 해결하려면, JavaScript에서 fetch 또는 XMLHttpRequest 요청 시 **credentials: 'include'**를 설정해주어야 합니다. 이 설정은 쿠키를 요청에 포함시켜 Session 인증을 가능하게 합니다.
+
+예시 코드:
+
+javascript
+코드 복사
+fetch('http://localhost:8000/some-api/', {
+    method: 'GET',
+    credentials: 'include'  // 쿠키 포함
+})
+.then(response => response.json())
+.then(data => console.log(data));
+변경 후 동작:
+
+credentials: 'include' 설정을 추가하면, 쿠키가 요청 헤더에 자동으로 포함되어 Session ID가 전송됩니다.
+Django 서버는 이 쿠키를 받아 Session 인증을 처리하고, 200 응답을 반환합니다.
+5. 결과 확인
+브라우저 개발자 도구:
+localhost:3000의 웹 프론트엔드 서버에서 CORS 관련 응답 헤더(예: Access-Control-Allow-Origin, Access-Control-Allow-Credentials)가 확인됩니다.
+요청 헤더에서 쿠키가 포함되어 전송되고, Django 서버는 이를 통해 인증을 처리합니다.
+Session ID 쿠키가 요청 헤더에 포함되었고, Django에서 인증에 성공하여 200 OK 응답을 받게 됩니다.
+6. 최종 요약
+CORS 설정을 통해 다른 포트에서 요청이 가능하도록 해주고, 쿠키를 포함시키기 위한 credentials: 'include' 설정을 추가하여 세션 인증이 가능하게 됩니다.
+Django 서버에서의 HttpOnly 쿠키 설정으로 보안을 강화하고, 쿠키 자동 전송을 활성화하여 CORS 정책에 맞게 정상적으로 인증을 처리할 수 있습니다.

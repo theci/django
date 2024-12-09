@@ -46,3 +46,118 @@ delete로 변경하시고 다시 테스트를 수행해 보시면 모든 테스�
 인스턴스 메서드이기에 인자로 셀프를 넣어 주셔야 합니다
 그룹의 설명도 추가하고요 다시 전체 테스트를 수행해 보시면 삭제 테스트만 이렇게 그룹으로
 수행됨을 확인하실 수 있고요 그룹만 지정해서 테스트를 수행하실 수도 있습니다
+
+
+수정 API와 삭제 API 테스트 구현
+이번 내용은 수정 API와 삭제 API의 테스트 코드 작성에 대해 다룹니다. 각 테스트는 두 가지 경우에 대한 동작을 검증합니다:
+
+작성자가 아닌 유저의 요청이 거부되는지 확인.
+작성자가 요청한 수정/삭제가 정상적으로 처리되는지 확인.
+수정 API 테스트
+수정 API는 두 가지 경우를 테스트해야 합니다:
+
+작성자가 아닌 유저가 요청하는 경우: 요청이 403 Forbidden으로 거부되어야 합니다.
+작성자가 요청하는 경우: 요청이 200 OK 상태와 함께 수정된 레코드 내역을 반환해야 합니다.
+테스트 절차:
+작성자가 아닌 유저가 수정 요청:
+
+API Client with New User Basic Auth Fixture를 사용해 인증된 새로운 유저를 생성하고, New Post Fixture로 새 포스팅을 생성합니다.
+생성된 포스팅의 작성자가 아닌 다른 유저가 수정 요청을 보내면 403 Forbidden 응답을 받아야 합니다.
+python
+코드 복사
+def test_update_post_unauthorized(api_client, new_post, user):
+    # 새로운 유저를 생성하고, 다른 유저의 포스트를 수정 요청
+    response = api_client.patch(
+        reverse('post-edit', kwargs={'pk': new_post.pk}),
+        data={'title': 'Updated Title'}
+    )
+    assert response.status_code == 403  # 권한이 없는 유저는 403 Forbidden을 받아야 합니다.
+작성자가 수정 요청:
+
+테스트 함수 내에서 유저와 포스트를 생성하고, 해당 유저가 PATCH 요청을 보내 수정합니다.
+PATCH 요청은 수정할 필드만 지정하면 되며, 응답은 200 OK와 함께 수정된 title이 포함된 포스트 데이터가 반환되어야 합니다.
+python
+코드 복사
+def test_update_post_authorized():
+    user = UserFactory.create(username='testuser', password='password123')
+    post = PostFactory.create(author=user, title='Original Title')
+
+    api_client = APIClient()
+    api_client.force_authenticate(user=user)
+    
+    # 수정 요청
+    response = api_client.patch(
+        reverse('post-edit', kwargs={'pk': post.pk}),
+        data={'title': 'Updated Title'}
+    )
+    
+    assert response.status_code == 200
+    assert response.data['title'] == 'Updated Title'
+삭제 API 테스트
+삭제 API는 수정 API와 유사한 방식으로 테스트됩니다:
+
+작성자가 아닌 유저가 삭제 요청: 403 Forbidden으로 거부되어야 합니다.
+작성자가 삭제 요청: 204 No Content 응답과 함께 포스트가 삭제되어야 하며, 데이터베이스에서 해당 포스트가 삭제되어야 합니다.
+테스트 절차:
+작성자가 아닌 유저가 삭제 요청:
+
+API Client with New User Basic Auth Fixture와 New Post Fixture를 사용하여 다른 유저가 삭제 요청을 보냈을 때 403 Forbidden 응답을 받도록 합니다.
+python
+코드 복사
+def test_delete_post_unauthorized(api_client, new_post, user):
+    # 새로운 유저가 작성자가 아닌 포스트 삭제 요청
+    response = api_client.delete(
+        reverse('post-delete', kwargs={'pk': new_post.pk})
+    )
+    assert response.status_code == 403  # 권한이 없는 유저는 403 Forbidden을 받아야 합니다.
+작성자가 삭제 요청:
+
+작성자가 DELETE 요청을 보내면, 204 No Content 상태 코드와 함께 데이터베이스에서 포스트가 삭제되어야 합니다. 삭제된 포스트는 ObjectDoesNotExist 예외를 발생시켜야 합니다.
+python
+코드 복사
+def test_delete_post_authorized():
+    user = UserFactory.create(username='testuser', password='password123')
+    post = PostFactory.create(author=user, title='Post to delete')
+
+    api_client = APIClient()
+    api_client.force_authenticate(user=user)
+    
+    # 삭제 요청
+    response = api_client.delete(reverse('post-delete', kwargs={'pk': post.pk}))
+    
+    assert response.status_code == 204  # 삭제 성공 시 204 No Content 응답
+    
+    # 데이터베이스에서 해당 포스트가 삭제되었는지 확인
+    with pytest.raises(Post.DoesNotExist):
+        Post.objects.get(pk=post.pk)
+테스트 클래스 사용: 삭제 API 그룹화
+삭제 API 테스트는 클래스를 사용해 하나의 테스트 그룹으로 묶을 수 있습니다. 클래스 안에 여러 테스트 메서드를 정의하고 그룹 단위로 실행할 수 있습니다.
+
+python
+코드 복사
+@pytest.mark.django_db
+class TestDeletePostAPI:
+    def test_delete_post_unauthorized(self, api_client, new_post, user):
+        # 작성자가 아닌 유저가 삭제 요청
+        response = api_client.delete(
+            reverse('post-delete', kwargs={'pk': new_post.pk})
+        )
+        assert response.status_code == 403
+
+    def test_delete_post_authorized(self, api_client, new_post, user):
+        # 작성자가 삭제 요청
+        api_client.force_authenticate(user=user)
+        response = api_client.delete(
+            reverse('post-delete', kwargs={'pk': new_post.pk})
+        )
+        assert response.status_code == 204
+        with pytest.raises(Post.DoesNotExist):
+            Post.objects.get(pk=new_post.pk)
+클래스 내에서 각 테스트 메서드를 작성하고, pytest.mark.django_db 데코레이터로 데이터베이스 트랜잭션을 활성화합니다.
+reverse를 사용해 URL 리버스를 통해 API 엔드포인트에 접근합니다.
+작성자와 비작성자에 대해 각각 삭제 요청을 보내고 결과를 확인합니다.
+정리
+수정 API는 작성자와 요청자가 일치하는지, 그리고 수정할 필드가 모두 지정되었는지 확인하는 테스트가 필요합니다.
+삭제 API는 작성자가 아닌 유저의 요청을 403 Forbidden으로 거부하고, 작성자가 삭제 요청을 보냈을 때는 204 No Content로 삭제가 이루어져야 하며, 삭제된 데이터는 더 이상 존재하지 않도록 해야 합니다.
+클래스를 활용하여 테스트를 그룹화하면 관련된 여러 테스트를 한 번에 관리할 수 있어 테스트 코드가 더욱 체계적이고 유지보수하기 쉬워집니다.
+이러한 테스트는 Django REST Framework API의 핵심 기능들이 잘 동작하는지 확인할 수 있도록 도와줍니다

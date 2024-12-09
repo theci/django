@@ -171,3 +171,62 @@ Next.js 서버에서 요청을 받았을 때 요청 헤더에 쿠키 헤더가 �
 이 쿠키를 그대로 API 호출 시에 요청 헤더에 담아서 전송합니다
 그러면 이렇게 Session 인증에 성공하여 200 응답을 받았고요 로그인 유저명도 잘
 출력됨을 확인하실 수 있습니다
+
+
+
+이번 시간에는 Django 웹 프레임워크와 Next.js 애플리케이션을 사용하여 세션 인증을 활용한 API 요청 방법에 대해 살펴보았습니다. 주요 내용은 웹 브라우저와 서버 측에서의 인증 차이와 이를 어떻게 처리할 것인지에 대한 설명입니다.
+
+1. Next.js와 Django에서 세션 인증 활용
+Next.js는 React 기반의 풀 스택 웹 프레임워크로, **CSR(Client-Side Rendering)**과 **SSR(Server-Side Rendering)**을 모두 지원합니다. 즉, 클라이언트와 서버 측에서 API 요청을 처리할 수 있습니다.
+Django는 백엔드 서버로, 세션 인증 방식으로 Session ID 쿠키를 관리합니다. 이 쿠키를 활용하여 로그인 상태를 유지하고 인증을 처리합니다.
+2. 웹 브라우저에서 API 요청 (CSR)
+웹 브라우저에서의 React 컴포넌트 내에서 API 요청을 보내는 경우, 기본적으로 CORS 정책에 영향을 받습니다. 다른 출처의 서버에 요청을 보내려면 CORS 설정을 해야 하며, Django 서버의 주소와 Next.js 서버의 주소가 다르면 CORS 에러가 발생할 수 있습니다.
+CORS 설정을 해결하려면 Django 서버에서 적절한 CORS 헤더를 설정하거나, 서버를 Reverse Proxy로 구성하여 동일 출처에서 서비스하도록 할 수 있습니다.
+예를 들어, http://localhost:3000에서 http://localhost:8000으로 API 요청을 보낼 경우 CORS 설정이 필요합니다.
+
+3. 서버 사이드 렌더링 (SSR)에서의 API 요청
+Next.js의 getServerSideProps 함수는 서버에서 실행되므로 CORS 정책에 영향을 받지 않습니다. 이는 서버 단에서 API 요청을 보내는 방식으로, 웹 브라우저와는 달리 쿠키 자동 전송이 없으므로 세션 인증에 Session ID 쿠키를 직접 설정해야 합니다.
+세션 인증을 제대로 처리하려면, Next.js 서버에서 Django 서버로 API 요청을 보낼 때 Session ID 쿠키를 수동으로 요청 헤더에 포함시켜야 합니다.
+4. Django와 Next.js 연동 아키텍처
+Next.js 서버는 독립적으로 사용할 수 있지만, Django와 연동할 경우 리버스 프록시 서버를 두어 Django를 통해 Next.js 서버로 요청을 전달할 수 있습니다. 이를 통해 Django에서 Next.js 서버로의 접근을 제어하고, 웹 페이지 레이아웃을 Django 템플릿에 맞춰 구성할 수 있습니다.
+Next.js는 서버 사이드 렌더링과 클라이언트 사이드 렌더링을 함께 지원하므로, Django 서버를 경유하여 요청을 처리할 수 있습니다.
+5. Next.js 프로젝트 생성 및 실행
+Next.js 프로젝트는 npx create-next-app 명령어를 사용하여 생성할 수 있습니다. 이를 통해 프로젝트를 초기화하고, 기본적으로 3000번 포트에서 개발 서버를 구동할 수 있습니다.
+예를 들어:
+bash
+코드 복사
+npx create-next-app@14 mynextjs
+cd mynextjs
+npm run dev
+6. React 컴포넌트에서 API 요청 처리
+Next.js에서 React 컴포넌트 내에서 useEffect 훅을 사용하여 API 요청을 보내고, 그 응답을 받아 상태를 변경하는 방법을 실습했습니다.
+하지만, 클라이언트 사이드 렌더링(CSR)에서는 CORS 정책으로 인해 API 요청이 실패할 수 있습니다.
+7. getServerSideProps를 사용한 서버 측 API 요청
+getServerSideProps는 Next.js에서 서버 사이드 렌더링을 위해 호출되는 함수로, 웹 브라우저에서 보내는 요청이 아니라 서버 단에서 요청이 이루어지므로 CORS 정책에 영향을 받지 않습니다.
+그러나, Session ID 쿠키가 자동으로 전송되지 않으므로, 이를 수동으로 API 요청 헤더에 포함시켜야 합니다.
+예시:
+
+javascript
+코드 복사
+export async function getServerSideProps(context) {
+    const res = await fetch('http://localhost:8000/api/endpoint/', {
+        headers: {
+            'Cookie': context.req.headers.cookie, // 서버 단에서 받은 쿠키를 API 요청에 포함
+        },
+    });
+    const data = await res.json();
+    return { props: { data } };
+}
+이 코드를 사용하면, Next.js 서버는 브라우저에서 받은 쿠키를 API 요청에 포함하여 세션 인증을 처리합니다.
+
+8. 결과 확인
+웹 브라우저에서 API 요청을 보낼 때 CORS 정책 위반이 발생했지만, 서버 사이드 렌더링을 통해 요청 시 쿠키를 헤더에 포함시켜 200 응답을 성공적으로 받을 수 있었습니다.
+Session ID 쿠키를 제대로 요청 헤더에 포함시키면 세션 인증이 성공적으로 이루어집니다.
+9. 정리
+Django와 Next.js는 각기 다른 방식으로 API 요청을 처리하지만, 세션 인증을 활용하면 API 요청 시 Session ID 쿠키를 활용하여 인증을 처리할 수 있습니다.
+웹 브라우저에서의 요청은 CORS 정책을 피하기 위해 Reverse Proxy 설정이나 CORS 헤더 설정을 해야 하고, 서버 사이드 렌더링에서는 Session ID 쿠키를 수동으로 요청 헤더에 포함시켜 인증을 처리해야 합니다.
+이를 통해 Next.js와 Django를 연동하여 세션 인증을 처리하는 방법을 배웠습니다.
+
+
+
+

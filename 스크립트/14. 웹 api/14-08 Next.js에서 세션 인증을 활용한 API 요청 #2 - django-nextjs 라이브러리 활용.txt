@@ -161,3 +161,38 @@ index.html 템플릿을 지정하고, 템플릿에서 필요한 컨텍스트 데
 페이지 새로고침하시면 이렇게 Next.js 응답에 Bootstrap 5 CSS를 추가하고
 레이아웃을 적용하고 장고단에서 추가한 HTML 컨텐츠도 추가된 화면을 확인하실 수
 있습니다.
+
+
+
+이번 실습은 Django와 Next.js를 통합하여, Django 서버를 경유해 Next.js 서버로 요청을 보내고, CSR(Client-Side Rendering)과 SSR(Server-Side Rendering) 방식에서 세션 인증을 처리하는 방법을 다룹니다.
+
+1. Django + Next.js 설정
+Django Next.js 라이브러리 설치:
+ASGI 방식의 구동을 위해 Channels와 Daphne 라이브러리를 설치하고 설정합니다.
+Daphne를 INSTALLED_APPS 목록의 처음에 추가하여 Django 서버의 runserver 명령이 아닌 Daphne의 runserver 명령이 실행되도록 합니다.
+2. ASGI 서버 설정
+asgi.py 설정:
+Django의 ASGI 애플리케이션을 설정하고, Next.js 관련 요청을 Django ASGI 서버에서 처리하도록 라우팅 규칙을 정의합니다.
+Next.js의 개발 서버 URL을 Next.js_설정 사전에서 설정하고, 필요 시 웹소켓 요청에 대한 처리도 추가합니다.
+3. Next.js 서버와 Django 통합
+라우팅 처리:
+Django 서버에서 Next.js 서버로 요청을 전달하고, 응답 HTML을 반환합니다.
+Next.js 응답을 Django 뷰에서 커스터마이징할 수 있습니다. (예: Django 디버그 툴바 추가)
+4. 세션 인증
+Django의 세션 인증을 활용하여, Django 서버를 경유하는 방식으로 Session ID 쿠키가 자동으로 전달됩니다.
+CORS 설정은 필요 없고, CSR 방식에서는 API 요청 시 쿠키가 자동으로 포함됩니다.
+5. Next.js CSR과 SSR 방식
+CSR 방식: 클라이언트에서 API 요청 후 데이터를 받아 화면에 반영됩니다.
+SSR 방식: 서버에서 데이터를 받아와 페이지가 초기 렌더링 시부터 데이터를 포함하여 표시됩니다.
+쿠키는 요청 헤더에서 추출하여 API 호출에 사용됩니다.
+6. Django에서 Next.js 페이지 커스터마이징
+Django 템플릿에서 Next.js 응답 HTML을 커스터마이징할 수 있습니다.
+_document.jsx 파일을 수정하여 Next.js 페이지의 레이아웃을 정의하고, Django 템플릿에서 컨텐츠 블록을 재정의하여 Django 내용 추가 가능합니다.
+Bootstrap 5 스타일을 적용하여 기본 레이아웃을 구성하고, Django에서 추가적인 HTML 컨텐츠를 삽입할 수 있습니다.
+7. 결과
+**http://localhost:8000**에서 Django와 Next.js를 통합하여 페이지를 렌더링하면, Next.js 응답에 Django 레이아웃을 추가한 화면을 확인할 수 있습니다.
+CSR과 SSR 방식에서 세션 인증을 활용한 API 요청이 정상적으로 처리됩니다.
+요약
+Django는 ASGI를 통해 Next.js와 통합되어, 서버 측에서 HTML 응답을 수정하고, 세션 인증을 관리할 수 있습니다.
+CSR 방식에서는 클라이언트에서 API 호출 후 세션 인증을 포함한 요청을 처리하고, SSR 방식에서는 서버에서 데이터를 처리하여 초기 렌더링 시 응답을 완성합니다.
+Next.js의 레이아웃을 Django에서 커스터마이징하여, Django와 Next.js의 통합된 환경에서 원활한 개발을 할 수 있습니다.

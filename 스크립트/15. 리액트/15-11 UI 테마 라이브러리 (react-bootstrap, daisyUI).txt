@@ -85,3 +85,106 @@ UI 라이브러리와 React DaisyUI 라이브러리의 코드 경로를 추가�
 이제 React Daisy UI 라이브러리의 컴포넌트를 활용하실 수 있습니다.
 앱 컴포넌트에서 버튼 컴포넌트를 렌더링 해봤고요.
 Color 속성 값으로 Primary, Secondary 등을 지원합니다.
+
+
+
+이번 시간에는 React 프로젝트에서 사용할 수 있는 UI 프레임워크들을 간략히 소개하였습니다. 각 UI 프레임워크의 특징과 설정 방법을 아래와 같이 정리했습니다.
+
+1. React-Bootstrap (Bootstrap 5 라이브러리의 React 래퍼)
+React-Bootstrap은 Bootstrap 5 CSS 프레임워크를 React 컴포넌트로 변환하여 제공합니다. 이를 통해, 기존의 Bootstrap 5 스타일을 React 환경에서 손쉽게 사용할 수 있습니다.
+
+주의점: Bootstrap 5의 JavaScript 동작을 재구현한 형태이기 때문에, Bootstrap 5 테마와 JavaScript 기능을 확장하여 사용하는 경우 호환성 이슈가 발생할 수 있습니다.
+
+설치 방법:
+
+react-bootstrap 라이브러리와 Bootstrap 5 CSS를 설치합니다.
+CSS를 React 프로젝트에서 사용하려면, index.js 또는 index.html 파일에서 Bootstrap CSS를 로딩합니다.
+예시:
+
+jsx
+코드 복사
+import Button from 'react-bootstrap/Button';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const App = () => {
+  return <Button variant="primary">Primary Button</Button>;
+};
+스타일 적용:
+
+CSS를 HTML 파일에서 <link> 태그로 CDN을 통해 로딩하거나, React 컴포넌트에서 직접 import하여 적용할 수 있습니다.
+2. Ant Design (Antd)
+Ant Design은 알리바바에서 개발한 UI 프레임워크로, 고품질의 UI 컴포넌트들을 제공합니다.
+
+특징:
+
+UI 완성도가 높고, 기업용 대규모 시스템 UI에 적합합니다.
+커스터마이징이 제한적이지만, 제공되는 UI 컴포넌트를 빠르게 사용할 수 있습니다.
+설치 및 사용:
+
+bash
+코드 복사
+npm install antd
+jsx
+코드 복사
+import { Button } from 'antd';
+import 'antd/dist/antd.css';
+
+const App = () => {
+  return <Button type="primary">Primary Button</Button>;
+};
+3. DaisyUI (Tailwind CSS 기반)
+DaisyUI는 Tailwind CSS 기반의 UI 프레임워크로, 다양한 테마와 스타일을 제공합니다.
+
+특징:
+
+Tailwind CSS 기반으로 작동하므로, Tailwind의 유연한 스타일링을 그대로 사용할 수 있습니다.
+여러 가지 테마를 지원하여, UI 디자인을 쉽게 변경할 수 있습니다.
+설치 방법:
+
+Tailwind CSS를 먼저 설치하고 설정합니다.
+DaisyUI 라이브러리를 설치하고, tailwind.config.js 파일에서 DaisyUI 플러그인을 추가합니다.
+React에서 react-daisyui를 설치하여 컴포넌트를 사용합니다.
+설치 단계:
+
+tailwindcss 설치
+daisyui 설치
+tailwind.config.js 파일에서 DaisyUI 플러그인 추가
+예시:
+
+bash
+코드 복사
+npm install daisyui
+npm install react-daisyui
+jsx
+코드 복사
+import 'daisyui/dist/full.css';
+
+const App = () => {
+  return <button className="btn btn-primary">Primary Button</button>;
+};
+Tailwind 설정: tailwind.config.js에서 content 항목에 React 소스 경로를 추가하고, CSS 파일에 Tailwind CSS 스타일을 적용합니다.
+
+js
+코드 복사
+module.exports = {
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
+  plugins: [require("daisyui")],
+};
+특징: DaisyUI는 Tailwind CSS를 기반으로 하므로, Tailwind CSS의 클래스들을 활용하여 UI를 손쉽게 스타일링할 수 있습니다.
+
+4. UI 프레임워크 선택 요약
+React-Bootstrap:
+
+Bootstrap 5의 스타일을 React에서 바로 사용하고 싶을 때 유용.
+JavaScript 기능과 테마 확장이 필요할 경우 호환성 문제 가능.
+Ant Design:
+
+고품질의 UI 컴포넌트가 필요한 대규모 애플리케이션에 적합.
+커스터마이징이 제한적이지만, 빠르게 사용할 수 있음.
+DaisyUI:
+
+Tailwind CSS와 함께 사용하여 유연한 UI 스타일링을 원하는 경우 적합.
+여러 테마를 지원하여 디자인 변경이 용이.
+이상으로, React에서 사용할 수 있는 주요 UI 프레임워크들을 간략히 소개하였습니다. 각 프레임워크는 특성에 따라 프로젝트에 적합한 선택이 될 수 있으니, 상황에 맞는 UI 라이브러리를 선택하시기 바랍니다!

@@ -94,3 +94,72 @@ Session 인증 외에, JSON 웹 토큰 등의 다른 인증 방법 검토가 필
 장고 서버와 웹 프론트엔드 서버가 하나의 서비스로 운영하는 경우가 99%일 텐데요.
 서로 도메인을 맞춰 1번 상황이나 3번 상황으로 운영하시어 Session 인증을 활용하시길
 적극 권장 드립니다.
+
+
+1. 웹 브라우저의 보안 정책(CORS)
+CORS (Cross-Origin Resource Sharing)는 웹 브라우저의 보안 정책으로, 웹 페이지가 로드된 출처(origin)와 다른 출처의 리소스에 접근하려 할 때 이를 차단합니다.
+예를 들어, http://localhost:3000에서 http://localhost:8000으로 API 요청을 보내면 CORS 정책에 의해 차단됩니다. 이는 웹 브라우저가 다른 출처의 API 호출을 기본적으로 막기 때문입니다.
+2. 세션 인증 문제
+세션 인증은 보통 서버에서 쿠키를 통해 관리됩니다. 예를 들어, Django 서버에서 쿠키를 통해 세션을 관리할 때, 프론트엔드 서버의 요청이 동일한 출처에서 오면 인증이 자동으로 처리됩니다.
+그러나 CORS가 발생하는 경우, 쿠키가 자동으로 전송되지 않아서 인증에 실패할 수 있습니다. 이를 해결하려면 CORS 정책을 적절히 설정하고, credentials: 'include' 옵션을 사용해야 합니다.
+3. 상황에 따른 처리 방법
+다음은 장고 서버와 웹 프론트엔드 서버가 서로 다른 출처일 때 각 경우의 처리 방법을 요약한 것입니다.
+
+1. 장고 서버와 웹 프론트엔드 서버를 같은 호스트와 포트에서 운영
+설명: 요청과 응답이 동일한 출처에서 발생합니다.
+처리 방법: CORS 설정이 필요 없습니다. Django 서버에서의 쿠키는 자동으로 공유되며, fetch로 요청을 보낼 때 credentials: 'include' 옵션을 사용하면 자동으로 세션 인증이 처리됩니다.
+2. 장고 서버와 웹 프론트엔드 서버를 같은 호스트, 다른 포트에서 운영 (개발 환경)
+설명: 로컬에서 개발할 때 주로 발생합니다. 예: localhost:8000(Django)과 localhost:3000(프론트엔드).
+처리 방법: 포트가 다르므로 CORS 설정이 필요합니다. Django에서 CORS 설정을 해주어야 하며, fetch 요청 시 credentials: 'include'를 설정하여 쿠키가 전송되도록 합니다. Django CORS Headers 라이브러리를 사용하면 이를 간단히 처리할 수 있습니다.
+3. 장고 서버와 웹 프론트엔드 서버를 같은 루트 도메인에서 운영 (서브 도메인 다름)
+설명: www.example.com과 api.example.com과 같은 형태로, 도메인은 같지만 서브 도메인이 다릅니다.
+처리 방법: CORS 설정이 필요합니다. 쿠키를 공유하려면 Django에서 SESSION_COOKIE_DOMAIN을 설정하여 루트 도메인에서 쿠키를 공유할 수 있도록 해야 합니다. 그리고 credentials: 'include'를 사용하여 세션 인증이 처리됩니다.
+4. 장고 서버와 웹 프론트엔드 서버가 다른 도메인에서 운영
+설명: 서로 다른 도메인에서 운영되는 경우입니다. 예: example.com과 otherexample.com.
+처리 방법: CORS 설정이 필요합니다. 그러나 도메인이 다르므로, Django 서버에서 쿠키를 다른 도메인으로 전달할 수 없습니다. 이 경우, 세션 인증을 대신할 다른 인증 방식(예: JWT)을 사용하는 것이 적절할 수 있습니다.
+4. CORS 설정과 Django CORS Headers
+CORS를 처리하려면 Django CORS Headers 라이브러리를 사용하면 편리합니다.
+
+설치: pip install django-cors-headers
+설정: settings.py에 다음과 같이 설정을 추가합니다.
+python
+코드 복사
+INSTALLED_APPS = [
+    # ...
+    'corsheaders',
+]
+
+MIDDLEWARE = [
+    # ...
+    'corsheaders.middleware.CorsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # 프론트엔드 서버 주소
+]
+CORS_ALLOW_CREDENTIALS = True: 쿠키를 전송하려면 이 옵션도 추가해야 합니다.
+5. fetch 요청 시 credentials: 'include' 설정
+설명: CORS를 우회하기 위해 쿠키를 전송하려면 fetch 요청에서 credentials: 'include' 옵션을 추가해야 합니다.
+
+예시:
+
+javascript
+코드 복사
+fetch('http://localhost:8000/api/endpoint', {
+    method: 'GET',
+    credentials: 'include'  // 쿠키를 포함한 요청
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.log('Error:', error));
+6. 세션 쿠키 공유를 위한 Django 설정
+Django 설정: 쿠키가 도메인 간에 공유되도록 설정할 수 있습니다. SESSION_COOKIE_DOMAIN을 사용하여 쿠키가 공유될 수 있는 도메인을 설정합니다.
+
+python
+코드 복사
+SESSION_COOKIE_DOMAIN = '.example.com'  # 서브 도메인에서 쿠키 공유
+요약
+CORS 설정을 통해 다른 출처에서 발생하는 요청을 허용할 수 있으며, 이를 통해 세션 인증을 처리할 수 있습니다.
+세션 인증을 사용할 때는 쿠키가 자동으로 전달되도록 credentials: 'include'를 설정하는 것이 중요합니다.
+개발 환경에서는 Django 서버와 웹 프론트엔드 서버가 다른 포트에서 운영되기 때문에 CORS 설정을 적절히 해주어야 하며, 프로덕션 환경에서는 가능한 한 동일 출처 정책을 따르는 것이 이상적입니다.
+이러한 방식으로 다양한 환경에서 세션 인증을 안전하고 효율적으로 사용할 수 있습니다.

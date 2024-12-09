@@ -146,3 +146,165 @@ QuerySetFiltering 부분은 매 뷰마다 다르게 정의되어야 하는 부�
 인덱스 뷰에서는 검색어 속성만을 체크해서 QuerySet 필터링만 구현해주면 됩니다
 인덱스 뷰 클래스가 더 깔끔해졌고 각 부분의 역할이 명확해져
 코드의 가독성과 유지 보수성이 향상되었습니다
+
+
+이번 강의에서는 ListView와 관련된 다양한 기능들을 활용하여 Django 프로젝트에서 리스트 뷰를 구현하는 방법을 다루었습니다. 주요 내용은 ListView 클래스를 사용한 기본 목록 조회, 검색 필터링, 페이징 처리, 템플릿 구성 등입니다. 아래는 주요 내용을 단계별로 정리한 것입니다.
+
+1. ListView 기본 구현
+ListView는 모델 데이터를 리스트 형식으로 조회하고 템플릿을 통해 응답을 반환하는 클래스입니다.
+ListView를 사용하면 기본적으로 모델에 대한 쿼리셋을 생성하고, 특정 템플릿을 사용하여 결과를 보여줍니다.
+템플릿 경로는 앱 이름 + 모델 이름 소문자 + _list.html 형식으로 자동으로 설정됩니다.
+기본적으로 템플릿에서 쿼리셋은 object_list라는 이름으로 참조됩니다. 다른 이름으로 참조하려면 context_object_name 속성을 사용하여 변경할 수 있습니다.
+기본 구현 예시
+python
+코드 복사
+class SongListView(ListView):
+    model = Song
+    template_name = 'hottrack/song_list.html'
+    context_object_name = 'song_list'
+템플릿에서 song_list라는 이름으로 모델 데이터를 사용할 수 있습니다.
+2. 템플릿 및 쿼리셋 참조
+기본적으로 ListView는 _list.html 템플릿 파일을 찾습니다.
+
+템플릿 내에서 쿼리셋 데이터를 사용할 때는 기본적으로 object_list라는 이름을 사용하지만, context_object_name 속성을 통해 이를 변경할 수 있습니다.
+
+예시:
+
+python
+코드 복사
+context_object_name = 'song_list'
+템플릿에서 song_list로 쿼리셋 데이터를 참조할 수 있습니다.
+
+3. ListView에서 템플릿 경로 변경
+기본적으로 ListView는 앱 이름/model_name_list.html 경로를 찾지만, 이를 template_name 속성을 사용하여 커스터마이즈 할 수 있습니다.
+4. 검색어 필터링
+ListView에서 쿼리 매개변수(query parameter)를 활용해 필터링을 구현할 수 있습니다.
+
+get_queryset 메소드를 오버라이드하여 검색어나 URL에서 캡처한 값을 기반으로 쿼리셋 필터링을 처리합니다.
+
+예시:
+
+python
+코드 복사
+class SongListView(ListView):
+    model = Song
+    template_name = 'hottrack/song_list.html'
+    
+    def get_queryset(self):
+        queryset = Song.objects.all()
+        
+        query = self.request.GET.get('query')
+        if query:
+            queryset = queryset.filter(name__icontains=query)
+        
+        return queryset
+이 예시에서는 검색어를 query라는 이름으로 받아서 필터링을 수행합니다. 검색어가 있을 경우 해당 이름을 포함하는 곡들을 조회합니다.
+
+5. 페이징 처리
+ListView에서 기본적으로 페이징 기능을 지원합니다.
+
+paginate_by 속성을 설정하면 한 페이지에 표시할 객체의 수를 지정할 수 있습니다.
+
+예시:
+
+python
+코드 복사
+class SongListView(ListView):
+    model = Song
+    template_name = 'hottrack/song_list.html'
+    paginate_by = 10
+이 속성을 설정하면 페이지네이션 처리가 자동으로 이루어집니다.
+
+템플릿에서 페이징 네비게이션을 추가하려면 is_paginated와 page_obj를 사용할 수 있습니다.
+
+예시 (템플릿):
+
+html
+코드 복사
+{% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; 처음</a>
+            <a href="?page={{ page_obj.previous_page_number }}">이전</a>
+        {% endif %}
+        <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">다음</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">마지막</a>
+        {% endif %}
+    </div>
+{% endif %}
+6. ListView에서 커스터마이징: get_context_data와 get_queryset 재정의
+get_context_data 메소드를 오버라이드하여 추가적인 컨텍스트 데이터를 템플릿에 전달할 수 있습니다.
+
+검색어와 같은 추가적인 데이터를 컨텍스트에 추가하고 싶다면, get_context_data를 재정의하여 처리할 수 있습니다.
+
+예시:
+
+python
+코드 복사
+class SongListView(ListView):
+    model = Song
+    template_name = 'hottrack/song_list.html'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        queryset = Song.objects.all()
+        query = self.request.GET.get('query')
+        if query:
+            queryset = queryset.filter(name__icontains=query)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('query', '')
+        return context
+템플릿에서 query를 사용하여 검색어를 표시할 수 있습니다.
+
+7. 믹스인(Mixin) 활용
+검색어 필터링과 같은 기능은 여러 뷰에서 반복될 수 있기 때문에 이를 Mixin으로 분리하여 재사용성을 높일 수 있습니다.
+
+SearchQueryMixin 클래스를 작성하여 검색어 필터링 및 추가적인 컨텍스트 데이터 처리를 공통 기능으로 분리할 수 있습니다.
+
+예시:
+
+python
+코드 복사
+class SearchQueryMixin:
+    def get_search_query(self):
+        return self.request.GET.get('query', '')
+
+    def get_queryset(self):
+        queryset = Song.objects.all()
+        query = self.get_search_query()
+        if query:
+            queryset = queryset.filter(name__icontains=query)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.get_search_query()
+        return context
+
+class SongListView(SearchQueryMixin, ListView):
+    model = Song
+    template_name = 'hottrack/song_list.html'
+    paginate_by = 10
+이렇게 작성하면 검색어 필터링과 검색어를 컨텍스트 데이터로 넘겨주는 작업을 재사용할 수 있습니다.
+
+8. Bootstrap 5와 Pagination
+Bootstrap 5를 사용하여 페이징 네비게이션을 더 보기 좋게 스타일링할 수 있습니다.
+
+django-bootstrap-5 라이브러리를 사용하면 pagination을 쉽게 적용할 수 있으며, bootstrap-pagination 템플릿 태그를 활용하면 간단히 스타일링된 페이징 네비게이션을 구현할 수 있습니다.
+
+예시 (템플릿):
+
+html
+코드 복사
+{% load bootstrap5 %}
+{% bootstrap_pagination page_obj %}
+9. 결론
+ListView를 활용하면 Django에서 목록 조회 기능을 간편하게 구현할 수 있으며, 검색, 필터링, 페이징 기능을 쉽게 추가할 수 있습니다.
+get_queryset과 get_context_data를 오버라이드하여 쿼리셋 필터링과 추가적인 데이터 처리를 할 수 있으며, SearchQueryMixin을 사용하여 반복되는 코드를 재사용할 수 있습니다.
+Bootstrap과 같은 CSS 프레임워크를 사용하여 페이지네이션을 스타일링할 수 있으며, django-bootstrap-5 라이브러리를 활용하면 더 쉽게 페이징 네비게이션을 구현할 수 있습니다.
+이 과정을 통해 ListView의 기본 동작을 이해하고, 검색어 필터링, 페이징 등을 추가하여 좀 더 실용적인 리스트 뷰를 만들 수 있습니다.

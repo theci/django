@@ -66,7 +66,6 @@ offset 값은 시작 인덱스의 값이 그대로 전달되고요 limit 값은 
 세 번째로, 리스트에서는 거꾸로 조회를 위해 인덱스 증가량을 음수를 지정할 수 있습니다
 이때 시작 인덱스 값이 끝 인덱스 값보다 작으면 음수 인덱스 증가량이 성립되지 않아요
 그래서 빈 리스트를 반환합니다
-<<<<<<< HEAD
 하지만 쿼리셋에서는 시작 인덱스 값과 끝 인덱스 값은 인덱스 증가량 값과는 상관없이 limit, offset 절에 그대로 반영이 되어 레코드를 조회합니다
 음수 인덱스 증가량 값은 반환되는 모델 인스턴스의 방향과 그리고 건너뛸 그 간격만 결정합니다 
 그래서 "-1"을 지정하면 거꾸로 반환됩니다. 거꾸로 반환이 됩니다
@@ -74,20 +73,6 @@ offset 값은 시작 인덱스의 값이 그대로 전달되고요 limit 값은 
 파이썬 리스트에서는 시작 인덱스 값을 음수로 지정하여 끝을 기준으로 원하는 개수만큼 범위를 지정할 수 있습니다
 이를 쿼리셋에 적용하면 ValueError 예외가 발생하며 음수 인덱스는 지원하지 않는다는 오류 메시지를 만나게 됩니다
 리스트와 비슷한 결과를 내려면 정렬 방향을 반대로 지정하고 처음 10개를 조회한 다음 파이썬의 리버스트 함수를 통해 역순으로 순회를 돌 수 있겠습니다.
-=======
-하지만 쿼리셋에서는 시작 인덱스 값과 끝 인덱스 값은 인덱스 증가량 값과는 상관없이
-limit, offset 절에 그대로 반영이 되어 레코드를 조회합니다
-음수 인덱스 증가량 값은 반환되는 모델 인스턴스의 방향과 그리고 건너뛸 그 간격만
-결정합니다 그래서 "-1"을 지정하면 거꾸로 반환됩니다. 거꾸로 반환이 됩니다
-리스트에서 거꾸로 반환하려면 인덱스 증가량을 양수로 지정하고 조회된 목록을 리버스트 함수를
-통해 역순으로 순회를 돌 수 있습니다
-파이썬 리스트에서는 시작 인덱스 값을 음수로 지정하여 끝을 기준으로 원하는 개수만큼 범위를
-지정할 수 있습니다
-이를 코디셋에 적용하면 ValueError 예외가 발생하며 음수 인덱스는 지원하지 않는다는
-오류 메시지를 만나게 됩니다
-리스트와 비슷한 결과를 내려면 정렬 방향을 반대로 지정하고 처음 10개를 조회한 다음
-파이썬의 리버스트 함수를 통해 역순으로 순회를 돌 수 있겠습니다.
->>>>>>> c753b33e5a2263a502dd7d3e57bc41ae23fae5ce
 목록 조회는 데이터베이스에서 여러 레코드를 조건에 따라 선택하여 조회하는 방법입니다
 이 과정에서 Song 모델을 예로 들면 다음과 같은 다양한 조회 방법을 사용할 수 있습니다
 song.objects.all 호출을 통해 Song 모델에 대한 기본 쿼리셋을 생성합니다
@@ -211,3 +196,145 @@ __result__cache 속성으로 조회 내역이 캐싱됩니다
 바람직할 수 있겠고요
 반면 데이터를 반복적으로 활용하거나 캐싱이 유리한 상황에서는 전체 데이터 조회가 더
 효율적일 수도 있습니다
+
+
+
+장고 ORM을 통한 데이터베이스 조회
+장고의 ORM(Object-Relational Mapping)을 사용하면, 데이터베이스를 SQL을 직접 작성하는 대신 파이썬 코드를 통해 간편하게 다룰 수 있습니다. 
+이를 통해 데이터를 조회하고 필터링하는 다양한 방법을 제공합니다.
+
+1. 쿼리셋(QuerySet)
+쿼리셋은 데이터베이스 조회를 위한 객체로, 지연 평가(lazy evaluation) 특성을 가집니다. 이는 쿼리셋을 호출해도 실제로 데이터베이스에 접근하지 않고, 
+데이터가 실제로 필요할 때에만 조회가 발생하는 방식입니다.
+
+쿼리셋 생성: 모델 클래스의 기본 매니저인 objects를 사용해 쿼리셋을 생성합니다.
+python
+코드 복사
+songs = Song.objects.all()
+지연 평가 확인: 쿼리셋을 출력하거나 반복문을 통해 순회하면, 그때 데이터베이스 조회가 발생합니다.
+
+
+2. 쿼리셋 메서드
+쿼리셋은 다양한 메서드를 제공하여 데이터 조회 및 필터링을 할 수 있습니다.
+
+filter: 조건에 맞는 데이터를 반환합니다.
+python
+코드 복사
+songs = Song.objects.filter(genre='dance', rank__lte=10)
+exclude: 조건에 맞지 않는 데이터를 반환합니다.
+python
+코드 복사
+songs = Song.objects.exclude(likes__lte=5)
+order_by: 데이터를 정렬합니다.
+python
+코드 복사
+songs = Song.objects.order_by('-rank')  # 내림차순 정렬
+values_list: 특정 필드의 값만 리스트로 반환합니다.
+python
+코드 복사
+song_ids = Song.objects.values_list('id', flat=True)
+
+
+3. 집계 함수(aggregation)
+쿼리셋에서 집계 함수는 즉시 실행됩니다. aggregate와 annotate를 사용하여 집계를 수행할 수 있습니다.
+
+aggregate: 조건에 맞는 데이터에 대해 요약된 결과를 반환합니다.
+python
+코드 복사
+from django.db.models import Avg, Max
+result = Song.objects.aggregate(Avg('price'), Max('rank'))
+annotate: 각 항목에 대해 집계 연산을 수행하고 그 결과를 추가합니다.
+python
+코드 복사
+from django.db.models import Count
+songs = Song.objects.annotate(num_reviews=Count('reviews'))
+
+
+4. 슬라이싱 및 범위 지정
+쿼리셋은 슬라이싱 문법을 지원하여 SQL의 LIMIT과 OFFSET과 유사한 방식으로 데이터를 조회할 수 있습니다.
+
+슬라이싱: 조회 범위를 지정할 수 있습니다.
+python
+코드 복사
+songs = Song.objects.all()[10:20]  # 10번째부터 20번째까지
+인덱스 증가량: 인덱스 증가량은 데이터베이스 쿼리에는 반영되지 않지만, 파이썬 레벨에서만 영향을 미칩니다.
+
+
+5. 정렬
+order_by: 필드를 기준으로 데이터를 정렬할 수 있습니다. 기본적으로 오름차순이며, 내림차순은 '-'을 사용합니다.
+
+python
+코드 복사
+songs = Song.objects.order_by('name')  # 오름차순
+songs = Song.objects.order_by('-name')  # 내림차순
+디폴트 정렬: 모델의 Meta 클래스를 사용하여 기본 정렬을 지정할 수 있습니다.
+
+python
+코드 복사
+class Song(models.Model):
+    # 필드 정의...
+    
+    class Meta:
+        ordering = ['name']  # 기본 오름차순 정렬
+
+
+6. 단건 조회
+get: 특정 조건에 맞는 레코드를 하나만 조회합니다. 조건에 맞는 데이터가 없거나 여러 개가 있을 경우 예외가 발생합니다.
+
+python
+코드 복사
+song = Song.objects.get(id=1)
+예외: DoesNotExist 또는 MultipleObjectsReturned
+
+first / last: 조건에 맞는 첫 번째 또는 마지막 레코드를 조회합니다. 데이터가 없으면 None을 반환합니다.
+
+python
+코드 복사
+song = Song.objects.first()  # 첫 번째 레코드
+song = Song.objects.last()   # 마지막 레코드
+
+
+7. 조건문과 OR 조건
+Q 객체: 여러 조건을 논리 연산자(AND, OR, NOT)로 결합할 수 있습니다.
+python
+코드 복사
+from django.db.models import Q
+songs = Song.objects.filter(Q(genre='dance') | Q(rank__lte=10))
+
+
+8. 데이터 조회 최적화
+only / defer: 필요한 필드만 조회하거나 특정 필드를 제외하여 불필요한 데이터를 가져오는 것을 방지할 수 있습니다.
+
+python
+코드 복사
+songs = Song.objects.only('name')  # name 필드만 조회
+songs = Song.objects.defer('lyrics')  # lyrics 필드는 제외
+exists: 데이터가 존재하는지 여부만 확인할 때 효율적입니다.
+
+python
+코드 복사
+exists = Song.objects.filter(genre='dance').exists()
+
+
+9. 페이징 처리
+Paginator 클래스를 사용하거나 ListView에서 paginate_by 속성을 사용하여 데이터 조회에 대한 페이징 처리를 할 수 있습니다.
+
+python
+코드 복사
+from django.core.paginator import Paginator
+songs = Song.objects.all()
+paginator = Paginator(songs, 10)  # 한 페이지에 10개씩
+page_obj = paginator.get_page(1)
+
+
+10. 기타 유틸리티 함수
+get_object_or_404: 특정 객체를 조회하고, 없으면 404 오류를 발생시킵니다.
+python
+코드 복사
+from django.shortcuts import get_object_or_404
+song = get_object_or_404(Song, id=1)
+
+요약
+장고 ORM을 통해 다양한 방식으로 데이터베이스 조회를 할 수 있으며, QuerySet을 사용해 데이터를 필터링하고, 정렬하며, 집계 및 페이징을 처리할 수 있습니다. 
+ORM의 지연 평가 특성을 이용해 효율적인 쿼리 작성이 가능하며, only, defer, exists 등을 활용해 성능을 최적화할 수 있습니다. 
+Q 객체를 이용한 복잡한 조건 조합이나, get, first, last와 같은 단건 조회 방식도 유용하게 사용할 수 있습니다.

@@ -90,3 +90,145 @@ Edit To Do 함수를 구현하고요.
 지정 인덱스에 할 일 텍스트를 가져와서 프롬프트 입력 박스에 채워주고요.
 입력된 값이 있고, 입력된 값이 수정되었을 때에만 To-Do 리스트 상태 값에 반영하도록
 합니다.
+
+
+이번 시간에는 **React로 할 일 목록 애플리케이션(To Do List)**을 구현하는 과정에 대해 다뤘습니다. 주요 내용은 할 일 목록의 생성, 수정, 삭제와 상태 관리입니다. 각 단계별로 진행한 내용을 간략하게 정리해드리겠습니다.
+
+1. ToDoList 컴포넌트 구현
+기본 할 일 목록과 완료 여부 토글 기능은 이미 구현되어 있었고, 여기에 빈 목록 시 메시지 표시를 추가하였습니다.
+상태값의 초기값은 빈 배열로 설정하고, 목록이 비었을 때 **"할 일이 없습니다"**와 같은 메시지를 표시합니다.
+javascript
+코드 복사
+const [todoList, setTodoList] = useState([]);
+
+return todoList.length === 0 ? (
+  <p>할 일이 없습니다</p>
+) : (
+  <ul>
+    {/* 할 일 목록 렌더링 */}
+  </ul>
+);
+2. 새 할 일 추가 기능 구현
+새 할 일을 추가하기 위한 form과 input 요소를 ToDoList 컴포넌트에 추가하였습니다.
+input 엘리먼트의 name 속성은 content로 지정하고, 폼 제출 시 SubmitEventHandler에서 새 할 일을 todoList 상태값에 추가합니다.
+javascript
+코드 복사
+const handleSubmit = (event) => {
+  event.preventDefault();
+  const newContent = event.target.content.value.trim();
+  if (newContent) {
+    setTodoList([...todoList, { content: newContent, completed: false }]);
+  }
+  event.target.reset();  // 입력 폼 리셋
+};
+3. 컴포넌트 리팩토링: ToDoForm 컴포넌트
+ToDoList 컴포넌트가 비대해지지 않도록 새 할 일 입력을 별도의 ToDoForm 컴포넌트로 분리했습니다.
+ToDoForm은 새 할 일 텍스트를 부모 컴포넌트로 전달하고, 부모 컴포넌트는 이를 상태값에 반영합니다.
+setToDoList 함수는 부모 컴포넌트에서만 사용하고, 자식 컴포넌트는 단지 새 할 일 텍스트만 전달합니다.
+이를 위해 onEnter라는 속성(prop)을 사용하여 텍스트를 전달합니다.
+javascript
+코드 복사
+// ToDoForm 컴포넌트
+const handleSubmit = (event) => {
+  event.preventDefault();
+  const newContent = event.target.content.value.trim();
+  if (newContent) {
+    onEnter(newContent);  // 부모 컴포넌트에 새 할 일 텍스트 전달
+  }
+  event.target.reset();
+};
+
+// ToDoList 컴포넌트
+const addToDo = (newContent) => {
+  setTodoList([...todoList, { content: newContent, completed: false }]);
+};
+
+// ToDoForm 컴포넌트 사용
+<ToDoForm onEnter={addToDo} />
+4. React Bootstrap을 이용한 UI 개선
+React Bootstrap을 활용하여 UI를 개선했습니다.
+ToDoForm에서는 Form과 Form.Control을 사용하여 입력 폼을 구성하고, ToDoList에서는 Container, Card, ListGroup 등의 컴포넌트로 목록을 표시했습니다.
+빈 목록 메시지는 ListGroup.Item으로 감싸고, 경고 스타일을 적용해 가독성을 높였습니다.
+javascript
+코드 복사
+import { Form, Button, ListGroup, Card, Container } from 'react-bootstrap';
+
+// ToDoForm
+<Form onSubmit={handleSubmit}>
+  <Form.Control type="text" name="content" placeholder="새 할 일을 입력하세요" />
+  <Button type="submit">추가</Button>
+</Form>
+
+// ToDoList
+<Card>
+  <Card.Body>
+    {todoList.length === 0 ? (
+      <ListGroup.Item variant="warning">할 일이 없습니다</ListGroup.Item>
+    ) : (
+      <ListGroup>
+        {todoList.map((todo, index) => (
+          <ListGroup.Item key={index}>
+            {todo.content}
+          </ListGroup.Item>
+        ))}
+      </ListGroup>
+    )}
+  </Card.Body>
+</Card>
+5. 할 일 항목 삭제 기능 구현
+각 할 일 항목에 삭제 버튼을 추가하고, 클릭 시 삭제 확인 메시지를 표시하여 항목을 삭제합니다.
+deleteToDo 함수를 사용해 삭제할 항목의 인덱스를 참조하여 상태값에서 해당 항목을 제거합니다.
+javascript
+코드 복사
+const deleteToDo = (index) => {
+  if (window.confirm('정말 삭제하시겠습니까?')) {
+    const updatedList = todoList.filter((_, i) => i !== index);
+    setTodoList(updatedList);
+  }
+};
+
+// 삭제 버튼
+<Button variant="danger" onClick={() => deleteToDo(index)}>삭제</Button>
+6. 할 일 항목 수정 기능 구현
+각 항목에 수정 버튼을 추가하여 클릭 시 프롬프트로 수정 내용을 입력받고, 수정된 내용만 상태값에 반영합니다.
+EditToDo 함수에서 수정된 내용이 있을 때에만 상태값을 업데이트합니다.
+javascript
+코드 복사
+const editToDo = (index) => {
+  const newContent = prompt('수정할 내용을 입력하세요:', todoList[index].content);
+  if (newContent && newContent !== todoList[index].content) {
+    const updatedList = todoList.map((todo, i) =>
+      i === index ? { ...todo, content: newContent } : todo
+    );
+    setTodoList(updatedList);
+  }
+};
+
+// 수정 버튼
+<Button variant="warning" onClick={() => editToDo(index)}>수정</Button>
+7. Flexbox를 이용한 UI 레이아웃 조정
+각 할 일 항목을 Flexbox로 구성하여 할 일 텍스트와 버튼이 양 끝에 정렬되도록 했습니다.
+수정 버튼과 삭제 버튼 사이에 마진을 주어 UI를 더 깔끔하게 개선했습니다.
+css
+코드 복사
+// Flexbox로 항목과 버튼을 정렬
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+최종 구현 구조
+ToDoList 컴포넌트
+
+할 일 목록을 관리하고, ToDoForm을 통해 새 할 일을 추가.
+할 일 목록을 렌더링하고, 삭제 및 수정 기능을 제공합니다.
+ToDoForm 컴포넌트
+
+새 할 일을 입력받는 폼을 담당하고, 입력된 데이터를 부모 컴포넌트로 전달합니다.
+React Bootstrap UI:
+
+Bootstrap 컴포넌트로 UI를 꾸미고, 할 일 목록을 카드 형식으로 표시.
+빈 목록에 대한 경고 메시지와 스타일을 추가.
+결론
+이번 구현에서는 할 일 목록의 생성, 수정, 삭제 기능을 구현하면서 컴포넌트 분리와 상태 관리의 중요성을 강조했습니다. 
+또한, React Bootstrap을 활용해 UI를 개선하고, React의 상태 관리 및 이벤트 처리를 통해 사용자가 인터랙티브하게 할 일을 관리할 수 있도록 했습니다.

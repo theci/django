@@ -161,3 +161,88 @@ import만 해주시면은 register 컨버터를 통해서 등록이 됩니다
 데이트 필드이기 때문에 이렇게 데이트 객체로 바로 코리셋을 작성할 수 있는 겁니다
 새로 고침해보시면 이렇게 여자아이들의 톰보이 이 노래만 2022년 3월 14일 이더라구요
 이렇게 확인하실 수 있습니다
+
+
+이번 시간에서는 URL 패턴 정의와 Path Converter를 활용하는 방법에 대해 설명하셨습니다. 주요 내용은 자주 사용하는 정규 표현식을 커스텀 컨버터로 등록하여 URL 패턴을 정의하는 방식입니다. 이를 통해 URL에서 캡처된 값을 뷰 함수에 적절한 타입으로 전달할 수 있습니다. 아래에 주요 개념을 정리해드리겠습니다.
+
+1. 기본 Path Converter
+Django는 URL 패턴에서 다양한 컨버터를 제공하여 정규표현식을 관리할 수 있습니다. 기본적으로 제공되는 컨버터는 다음과 같습니다:
+
+int: 정수 타입
+uuid: UUID 타입
+slug: 슬러그 문자열
+path: 경로 문자열
+str: 문자열
+이들을 사용하면 복잡한 정규 표현식을 직접 작성할 필요 없이 간단하게 URL을 정의할 수 있습니다. 예를 들어, int를 사용하면 정수형 데이터를 뷰 함수로 전달할 수 있습니다.
+
+2. Path에 정규표현식 적용하기
+패스를 사용할 때 기본적인 정규 표현식도 지정할 수 있습니다. 예를 들어, INT 별칭은 \d+와 동일한 정규 표현식으로 작동합니다. 하지만, 매번 정규 표현식을 직접 입력하는 것은 번거롭기 때문에 자주 사용하는 정규 표현식을 커스텀 컨버터로 등록해 두면 편리합니다.
+
+3. 정규표현식 사용 예시
+정규 표현식에서 다양한 패턴을 작성할 수 있습니다. 몇 가지 예시를 들면:
+
+[0-9]: 한 자리 숫자
+[2-4]: 숫자 2, 3, 4
+\d: 숫자 한 자리를 의미하는 예약어
+\d{2,4}: 두 자리에서 네 자리까지의 숫자
+[A-Za-z]: 알파벳 소문자, 대문자 범위
+4. URL 캡처된 값
+URL 패턴에서 매칭되는 값을 URL 캡처드 밸류라고 하며, Path와 Aliased Path에서는 컨버터를 사용하여 캡처된 값을 뷰 함수에 전달합니다. Path에서는 값을 변환하여 전달하는 반면, str이나 slug와 같은 경우는 문자열로 그대로 전달됩니다.
+
+5. 커스텀 컨버터 만들기
+커스텀 컨버터를 만들면 특정한 형식에 맞는 URL 패턴을 정의하고 이를 뷰 함수에서 사용할 수 있습니다. 예를 들어, 날짜를 처리하는 DateConverter를 만든다면, 이를 통해 2022/03/14와 같은 형식으로 날짜를 URL에서 받아올 수 있습니다.
+
+1) 커스텀 컨버터 예시 (DateConverter)
+python
+코드 복사
+import re
+from django.urls import register_converter
+
+class DateConverter:
+    regex = r'(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})'
+
+    def to_python(self, value):
+        year, month, day = map(int, value.split('/'))
+        return datetime.date(year, month, day)
+
+    def to_url(self, value):
+        return value.strftime('%Y/%m/%d')
+
+register_converter(DateConverter, 'date')
+이와 같은 커스텀 컨버터를 작성하여 urls.py에 등록하고, URL 패턴에 사용할 수 있습니다.
+
+2) URL 패턴 사용 예시
+python
+코드 복사
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('archive/<date:release_date>/', views.index, name='archive_index'),
+]
+6. 뷰 함수에서 인자 처리
+뷰 함수에서는 URL에서 전달된 값을 인자로 받습니다. 예를 들어, release_date를 받으면 이를 DateConverter를 통해 변환하여 datetime.date 객체로 사용할 수 있습니다.
+
+1) 뷰 함수 예시
+python
+코드 복사
+from django.shortcuts import render
+from .models import Song
+
+def index(request, release_date=None):
+    if release_date:
+        songs = Song.objects.filter(release_date=release_date)
+    else:
+        songs = Song.objects.all()
+    return render(request, 'index.html', {'songs': songs})
+이와 같이 release_date가 None인 경우와 날짜가 주어진 경우를 처리할 수 있습니다.
+
+7. URL 캡처된 값의 타입
+Path에서 정규 표현식을 사용한 값은 변환 후 뷰 함수로 전달됩니다. 예를 들어 int는 정수, uuid는 UUID 타입으로 전달됩니다.
+Aliased Path는 정규 표현식을 사용하지 않고 문자열 그대로 전달됩니다.
+8. 불필요한 요청 필터링
+엄격하게 URL 패턴을 정의하면 불필요한 요청을 미리 차단할 수 있습니다. 예를 들어, 2023/02/30 같은 날짜는 유효하지 않음을 패턴으로 정의하여 잘못된 요청을 처리할 수 있습니다.
+
+9. 결론
+URL 패턴을 정의할 때, Path Converter와 커스텀 컨버터를 사용하여 코드의 재사용성을 높이고, 정규 표현식을 효율적으로 관리할 수 있습니다. 
+이를 통해 서버 리소스를 절약하고, 예상치 못한 오류나 보안 문제를 줄일 수 있습니다.

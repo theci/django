@@ -199,3 +199,109 @@ song-archive-day죠. 인자로 year, month, day 세 개가 필요하니까
 여기도 year, month, day까지 지정해 주시고요.
 여기는 일자까지 해서 d1이라고 써주시고 새로 고침하시면 링크가 만들어지고 클릭하면 5월
 2일 데이터가 보여지고 있습니다.
+
+
+
+이번 강의에서는 장고의 Generic DateView에 대해 다뤘습니다. Generic DateView는 날짜 필드를 기준으로 데이터를 목록화하는 뷰로, 여러 종류의 아카이브 뷰를 제공합니다. 주요 내용은 다음과 같습니다.
+
+1. Generic DateView의 종류
+장고의 Generic DateView에는 다음과 같은 7가지 뷰가 있습니다:
+
+YearArchiveView: 특정 해의 목록과 그 해의 월별 날짜 목록을 제공합니다.
+MonthArchiveView: 특정 달의 목록과 해당 달의 일별 날짜 목록을 제공합니다.
+DayArchiveView: 특정 일의 목록을 제공합니다.
+TodayArchiveView: 조회 날짜가 오늘인 데이터를 제공합니다.
+WeekArchiveView: 특정 주의 목록을 제공합니다.
+ArchiveIndexView: 전체 목록을 날짜 필드를 기준으로 역순 정렬하여 제공합니다.
+DateDetailView: 해, 월, 일 정보와 함께 상세 정보를 제공합니다.
+2. 공통 옵션
+모든 Generic DateView에서는 아래와 같은 공통 옵션을 지원합니다:
+
+AllowFuture: 기본값은 False. 날짜가 미래인 데이터를 허용할지 여부를 결정합니다.
+AllowEmpty: 기본값은 False. 빈 데이터 리스트에 대해 404 오류를 발생시킬지, 아니면 빈 리스트를 반환할지 결정합니다.
+fascinatedBy: None이 기본값으로, DateDetailView에서만 유효하며 목록 뷰에는 사용되지 않습니다.
+3. YearArchiveView
+YearArchiveView는 특정 해의 데이터를 조회하는 뷰입니다. 예를 들어, 특정 해에 발매된 곡들을 조회하는 경우 사용됩니다. 이 뷰는 release_date와 같은 날짜 필드를 기준으로 데이터를 필터링합니다.
+
+python
+코드 복사
+from django.views.generic.dates import YearArchiveView
+from .models import Song
+
+class SongYearArchiveView(YearArchiveView):
+    model = Song
+    date_field = 'release_date'
+    queryset = Song.objects.all()
+URL 패턴 설정:
+urls.py에서 year를 캡쳐해서 YearArchiveView를 호출합니다.
+
+python
+코드 복사
+urlpatterns = [
+    path('archives/<int:year>/', SongYearArchiveView.as_view(), name='song-archive-year'),
+]
+템플릿: song-archive.html 템플릿을 생성하고, 기본적인 템플릿 상속을 사용하여 중복을 최소화합니다.
+
+4. MonthArchiveView
+MonthArchiveView는 특정 월의 데이터를 조회하는 뷰입니다. 예를 들어, 2022년 5월의 곡들을 조회할 때 사용됩니다.
+
+python
+코드 복사
+from django.views.generic.dates import MonthArchiveView
+
+class SongMonthArchiveView(MonthArchiveView):
+    model = Song
+    date_field = 'release_date'
+    month_format = '%m'  # 월을 숫자로 표시
+URL 패턴 설정:
+
+python
+코드 복사
+urlpatterns = [
+    path('archives/<int:year>/<int:month>/', SongMonthArchiveView.as_view(), name='song-archive-month'),
+]
+템플릿: song-archive-month.html 템플릿을 사용하며, 여기서는 월별 곡 목록을 표시하고, 각 날짜로 링크를 연결할 수 있습니다.
+
+5. DayArchiveView
+DayArchiveView는 특정 일자의 데이터를 조회하는 뷰입니다. 예를 들어, 2022년 5월 2일에 발매된 곡들을 조회할 때 사용됩니다.
+
+python
+코드 복사
+from django.views.generic.dates import DayArchiveView
+
+class SongDayArchiveView(DayArchiveView):
+    model = Song
+    date_field = 'release_date'
+    month_format = '%m'  # 월을 숫자로 표시
+URL 패턴 설정:
+
+python
+코드 복사
+urlpatterns = [
+    path('archives/<int:year>/<int:month>/<int:day>/', SongDayArchiveView.as_view(), name='song-archive-day'),
+]
+템플릿: song-archive-day.html 템플릿을 사용하여 해당 일자의 곡 목록을 표시하고, PreviousMonth, NextMonth 등의 날짜 네비게이션 링크를 제공할 수 있습니다.
+
+6. Pagination
+Generic DateView는 기본적으로 페이징 처리를 지원합니다. 결과 목록이 길어질 경우, 페이지를 나누어 표시할 수 있습니다.
+
+7. MakeObjectList
+MakeObjectList 속성은 기본값이 False로 설정되어 있습니다. 이 옵션이 True로 설정되면, 데이터가 있는 날짜 목록을 제공하고 템플릿에서 목록을 표시할 수 있습니다. 예시에서는 이를 True로 설정하여 곡 목록을 페이지에 표시했습니다.
+
+8. URL 템플릿 태그 활용
+장고의 URL 템플릿 태그를 사용하여, PreviousYear, NextYear, PreviousMonth, NextMonth 등의 링크를 동적으로 생성할 수 있습니다. 이 기능을 활용하면 유연한 내비게이션을 제공할 수 있습니다.
+
+예시:
+
+html
+코드 복사
+{% url 'song-archive-year' year=previous_year %}
+9. 예시 구현
+강의에서는 SongYearArchiveView, SongMonthArchiveView, SongDayArchiveView 등의 클래스를 정의하여 각 연도, 월, 일에 해당하는 곡 목록을 제공하는 기능을 구현했습니다. URL 패턴 설정과 템플릿에서 각 날짜에 대한 링크를 동적으로 생성하고, 이전/다음 링크를 제공하여 사용자가 원하는 날짜로 쉽게 이동할 수 있도록 했습니다.
+
+요약
+Generic DateView는 날짜 필드를 기준으로 데이터를 리스트 형식으로 제공하는 뷰입니다.
+연도, 월, 일, 주별로 아카이브 뷰를 제공하며, 기본적인 페이징 처리도 지원합니다.
+URL 템플릿 태그를 활용하여 동적인 링크 생성을 할 수 있으며, MakeObjectList, AllowFuture와 같은 다양한 옵션을 통해 데이터 조회 방식을 세밀하게 조정할 수 있습니다.
+각 아카이브 뷰는 기본적으로 템플릿 상속을 활용하여 효율적으로 관리할 수 있습니다.
+이 내용들을 바탕으로 다양한 날짜 기반의 데이터 조회를 구현할 수 있습니다.

@@ -184,3 +184,69 @@ author, 작성자 필드를 통해 유저 모델과 외래키도 연결되며, m
 않아 데이터베이스의 성능과 유연성이 향상될 수 있습니다.
 하지만 이 경우 애플리케이션 로직에서 데이터 무결성을 보장해야 하는 책임이 증가하게
 됩니다.
+
+
+
+1. 자동 증가 필드 (AutoField)
+설명: 기본 키로 많이 사용되는 정수형 필드. 자동으로 1씩 증가하는 값을 데이터베이스에서 할당받음.
+기본 키 설정: 기본적으로 id 필드가 자동으로 생성됨.
+예시: BigAutoField (8바이트), AutoField (4바이트)
+
+2. 숫자 필드 (Numeric Fields)
+IntegerField, SmallIntegerField, BigIntegerField: 정수 필드.
+PositiveIntegerField: 양의 정수만 허용.
+FloatField: 부동소수점 수 필드 (정확성 문제 발생 가능).
+DecimalField: 고정소수점 수 필드 (정확한 소수점 계산 필요 시 사용).
+
+3. 문자열 필드 (String Fields)
+CharField: 길이가 제한된 문자열 필드 (최대 길이 설정 필수).
+TextField: 길이 제한이 없는 텍스트 필드.
+SlugField: URL-friendly 문자열.
+EmailField, URLField: 이메일과 URL 형식의 문자열 필드.
+
+4. 파일 및 이미지 필드
+FileField: 파일을 저장하는 필드.
+ImageField: 이미지 파일을 저장하는 필드 (Pillow 라이브러리 필요).
+BinaryField: 파일 데이터를 바이너리 형태로 저장하는 필드.
+
+5. 날짜/시간 필드 (Date/Time Fields)
+DateField: 날짜만 저장 (연/월/일).
+TimeField: 시간만 저장 (시/분/초).
+DateTimeField: 날짜와 시간 저장.
+DurationField: 시간의 길이 저장 (예: 2시간 30분).
+AutoNow, AutoNowAdd: 모델 객체가 생성/수정될 때 자동으로 날짜/시간이 설정됨.
+
+6. 불리언 필드 (Boolean Field)
+BooleanField: 참/거짓 값 저장.
+Custom Boolean: 커스텀 필드를 만들어 Y/N 등의 값으로 저장할 수도 있음.
+
+7. 기타 필드
+GenericIPAddressField: IP 주소 저장 (IPv4/IPv6 지원).
+JSONField: JSON 데이터를 저장 (SQLite에서는 문자열로 저장).
+UUIDField: 범용 고유 식별자(UUID) 저장.
+
+8. 관계 필드 (Relation Fields)
+ForeignKey (Many-to-One): 여러 개의 객체가 하나의 객체와 관계를 맺을 때 사용.
+OneToOneField (One-to-One): 두 객체 간 일대일 관계를 설정.
+ManyToManyField: 여러 객체 간 다대다 관계 설정.
+
+9. 기타 설정
+Null, Blank 옵션: 데이터베이스에서 값이 없을 수 있는 필드를 지정. 문자열의 경우 Null=True는 사용하지 않는 것이 권장됨.
+default: 필드의 기본 값을 설정.
+editable: 모델에서 필드가 사용자에 의해 수정될 수 있는지 여부를 설정.
+validators: 필드 값에 대해 유효성 검사를 추가.
+
+10. 커스텀 필드
+장고 모델 필드는 사용자 정의 필드를 통해 새로운 필드를 만들어 사용할 수 있으며, 데이터 유효성 검사 및 관리가 용이해짐.
+예시: 주민번호 필드, 휴대폰 번호 필드 등.
+
+11. 파일 업로드 관리
+FileField, ImageField를 통해 파일을 데이터베이스 외부 (파일 시스템)에 저장하고, 데이터베이스에는 해당 파일 경로만 저장.
+
+12. 기타 중요한 필드
+PathField: 파일 경로를 저장할 수 있는 필드.
+ForeignKey에서 db_constraint=False: 외래키 제약을 비활성화하여 데이터베이스의 성능을 개선할 수 있음.
+
+정리
+장고의 모델 필드는 데이터베이스의 다양한 데이터를 효율적으로 저장할 수 있도록 다양한 종류가 제공되며, 각 필드는 데이터베이스 타입에 맞춰 최적화되어 사용될 수 있습니다. 
+모델 필드들을 적절히 사용하여 데이터베이스 관계를 정의하고, 데이터의 유효성 검사를 통해 애플리케이션의 안정성과 유지보수성을 향상시킬 수 있습니다.
