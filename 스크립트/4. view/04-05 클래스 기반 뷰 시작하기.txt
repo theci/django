@@ -103,27 +103,28 @@ HandleNoPermission이라는 메소드를 호추합니다
 
 
 클래스 기반 뷰 (CBV) 시작하기
-장고는 DRY(Don't Repeat Yourself) 원칙을 핵심 가치로 채택하고 있으며, 이를 실현하기 위해 **클래스 기반 뷰(CBV)**를 제공합니다. CBV는 코드의 중복을 줄이고 재사용성과 확장성을 높이는 데 유리합니다. 클래스는 상속을 통해 공통 기능을 정의하고, 이를 자식 클래스에서 재사용하며 수정할 수 있어 유지보수성이 향상됩니다.
+장고는 DRY(Don't Repeat Yourself) 원칙을 핵심 가치로 채택하고 있으며, 이를 실현하기 위해 **클래스 기반 뷰(CBV)**를 제공합니다. 
+CBV는 코드의 중복을 줄이고 재사용성과 확장성을 높이는 데 유리합니다. 
+클래스는 상속을 통해 공통 기능을 정의하고, 이를 자식 클래스에서 재사용하며 수정할 수 있어 유지보수성이 향상됩니다.
 
 1. 함수 기반 뷰 (FBV) vs 클래스 기반 뷰 (CBV)
 함수 기반 뷰(FBV):
 절차적인 방식으로 구현됩니다.
 코드 흐름이 간단하고, 한눈에 이해하기 쉽습니다.
 재사용성 측면에서 제한이 있으며, 코드 중복이 발생할 수 있습니다.
+
 클래스 기반 뷰(CBV):
 클래스 상속과 메서드 오버라이딩을 통해 기능을 확장하고 재사용할 수 있습니다.
 여러 기능을 메서드 단위로 나누어 관리할 수 있어 가독성과 유지보수성이 높습니다.
 ListView, DetailView 등 장고에서 제공하는 기본 뷰를 상속하고, 필요한 기능만 수정할 수 있습니다.
+
+
 2. 코드 구현 방식 비교
 1) FBV 예시
-python
-코드 복사
 def my_view(request):
     items = Item.objects.all()
     return render(request, 'my_template.html', {'items': items})
 2) CBV 예시 (ListView 사용)
-python
-코드 복사
 from django.views.generic import ListView
 from .models import Item
 
@@ -132,13 +133,12 @@ class ItemListView(ListView):
     template_name = 'my_template.html'
 CBV에서는 ListView를 상속받아 model과 template_name만 지정하면 기본적인 리스트 기능을 제공해줍니다.
 추가적인 기능이 필요할 경우, get_queryset 등의 메서드를 오버라이딩하여 쉽게 확장할 수 있습니다.
+
+
 3. 검색 기능 추가 비교
 FBV에서 검색 기능을 추가하려면 기존 로직에 검색 로직을 삽입해야 하므로 코드가 길어지고 복잡해집니다. 재사용성도 떨어지며, 다른 뷰에서 검색 기능을 추가하려면 동일한 코드를 복사해야 합니다.
 
 CBV에서는 get_queryset 메서드를 오버라이드하여 간단하게 검색 기능을 추가할 수 있습니다.
-
-python
-코드 복사
 class ItemListView(ListView):
     model = Item
     template_name = 'my_template.html'
@@ -150,13 +150,12 @@ class ItemListView(ListView):
             queryset = queryset.filter(name__icontains=search_query)
         return queryset
 CBV는 기능을 메서드 단위로 분리하여 가독성과 유지보수성을 높이며, 중복 코드를 줄일 수 있습니다.
+
+
 4. 로그인 필터링
 FBV에서 로그인 여부를 처리하려면 데코레이터를 사용하여 로그인 여부를 확인한 후, 로그인하지 않은 경우 리디렉션을 해야 합니다.
 
 CBV에서는 LoginRequiredMixin을 상속받아 로그인 필터링을 간편하게 처리할 수 있습니다.
-
-python
-코드 복사
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from .models import Item
@@ -166,6 +165,7 @@ class ItemListView(LoginRequiredMixin, ListView):
     template_name = 'my_template.html'
     login_url = '/login/'
 LoginRequiredMixin을 상속받은 클래스에서는 로그인하지 않은 사용자가 접근할 경우 자동으로 로그인 페이지로 리디렉션됩니다.
+
 5. 클래스 기반 뷰의 확장성
 FBV는 함수로 이루어져 있어서 기능을 확장하거나 재사용하는 데 한계가 있습니다. 필요할 때마다 코드를 복사하여 재사용해야 하며, 다른 기능을 추가할 때도 코드가 길어집니다.
 
@@ -181,8 +181,6 @@ DeleteView: 객체 삭제 뷰
 6. 메서드 오버라이딩을 통한 유연성
 CBV에서는 기본 제공되는 메서드를 오버라이드하여 동작을 수정할 수 있습니다. 예를 들어, get_queryset 메서드를 오버라이드하여 특정 필터링 로직을 추가할 수 있습니다.
 
-python
-코드 복사
 class ItemListView(ListView):
     model = Item
 
@@ -190,12 +188,16 @@ class ItemListView(ListView):
         queryset = super().get_queryset()  # 부모의 get_queryset 호출
         # 필터링 로직 추가
         return queryset
+
 7. 클래스 기반 뷰의 장점
 재사용성: 클래스를 상속하고 메서드를 오버라이드하여 기존 뷰를 쉽게 확장하고 재사용할 수 있습니다.
 유지보수성: 코드가 잘 분리되어 있어 가독성이 높고, 유지보수가 용이합니다.
 DRY 원칙 준수: 중복된 코드를 줄이고, 필요한 부분만 재정의하여 코드의 반복을 피할 수 있습니다.
+
 8. 결론
-FBV와 CBV의 차이점을 잘 이해하고, 클래스 기반 뷰의 유용성을 잘 활용하는 것이 중요합니다. FBV는 간단한 뷰 구현에 적합하고, CBV는 중복을 줄이고 재사용성을 높이며 유지보수가 쉬운 코드 작성을 가능하게 합니다. CBV를 활용하려면 FBV에 대한 이해가 먼저 필요하며, 이후 기능을 클래스로 확장하고 필요한 메서드만 수정하는 방식으로 구현하면 효율적인 개발이 가능합니다.
+FBV와 CBV의 차이점을 잘 이해하고, 클래스 기반 뷰의 유용성을 잘 활용하는 것이 중요합니다. 
+FBV는 간단한 뷰 구현에 적합하고, CBV는 중복을 줄이고 재사용성을 높이며 유지보수가 쉬운 코드 작성을 가능하게 합니다. 
+CBV를 활용하려면 FBV에 대한 이해가 먼저 필요하며, 이후 기능을 클래스로 확장하고 필요한 메서드만 수정하는 방식으로 구현하면 효율적인 개발이 가능합니다.
 
 
 

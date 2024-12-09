@@ -103,3 +103,107 @@ first.object.published라고 하시면 이렇게 조회 조건으로 발행이 �
 되었죠
 .search에 맛집이라고 넣으시면 외열자들의 앞선 published 조건 플러스 맛집
 조건이 이렇게 추가가 된 것을 확인을 하실 수 있습니다
+
+
+
+이번 시간에는 커스텀 모델 매니저에 대해 학습하였으며, 이를 통해 쿼리셋을 효율적으로 관리하고 반복되는 코드의 중복을 줄이는 방법을 다뤘습니다. 아래는 주요 개념과 코드 구현을 정리한 내용입니다.
+
+1. 커스텀 모델 매니저란?
+커스텀 모델 매니저는 모델의 기본 동작을 확장하여, 복잡한 쿼리 로직을 캡슐화하고 재사용할 수 있는 방법입니다.
+이를 사용하면 특정 조건에 맞는 데이터를 쉽게 조회할 수 있으며, 코드의 중복을 줄이고 유지보수를 용이하게 할 수 있습니다.
+
+2. 커스텀 모델 매니저 구현 방법
+방법 1: get_queryset() 메서드 오버라이딩
+기본 모델 매니저인 objects를 덮어쓰지 않고, 새로운 매니저를 정의하여 특정 조건을 가진 쿼리셋을 제공할 수 있습니다.
+get_queryset()을 오버라이딩하여 조건에 맞는 데이터를 반환하도록 합니다.
+
+PublishedPostManager 정의:
+get_queryset()을 오버라이딩하여 status가 PUBLISHED인 조건을 추가합니다.
+from django.db import models
+
+class PublishedPostManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status=Post.Status.PUBLISHED)
+
+
+모델에 매니저 등록:
+기본 매니저인 objects를 덮어쓰지 않고, published라는 이름으로 커스텀 모델 매니저를 등록합니다.
+
+class Post(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = 'D', 'Draft'
+        PUBLISHED = 'P', 'Published'
+
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    status = models.CharField(max_length=1, choices=Status.choices, default=Status.DRAFT)
+    
+    published = PublishedPostManager()  # 커스텀 매니저 등록
+    objects = models.Manager()  # 기본 모델 매니저도 필요
+쿼리셋 사용 예시:
+post.objects.all()로 모든 데이터를 조회하고,
+post.published.all()로 PUBLISHED 상태인 포스트만 조회할 수 있습니다.
+python
+코드 복사
+# 모든 포스팅 조회
+Post.objects.all()
+
+# 발행 상태인 포스팅만 조회
+Post.published.all()
+포스팅 생성 시 기본 값 설정:
+published.create()를 사용하면 status가 기본적으로 PUBLISHED로 설정됩니다.
+python
+코드 복사
+Post.published.create(title="New Post", content="Content of the post")
+
+방법 2: 쿼리셋 클래스를 상속받아 메서드 체이닝 방식으로 구현
+두 번째 방법은 쿼리셋 클래스를 상속받아 여러 메서드를 체이닝하여 조건을 명확하게 추가하는 방식입니다.
+get_queryset()을 오버라이딩하는 대신, QuerySet 클래스를 상속받아 여러 조건을 메서드 체이닝으로 처리합니다.
+PostQuerySet 정의:
+QuerySet 클래스를 상속받아 여러 쿼리 메서드를 정의합니다. 예를 들어, published 메서드를 정의하여 status가 PUBLISHED인 포스팅만 조회하도록 합니다.
+class PostQuerySet(models.QuerySet):
+    def published(self):
+        return self.filter(status=Post.Status.PUBLISHED)
+    
+    def draft(self):
+        return self.filter(status=Post.Status.DRAFT)
+    
+    def search(self, query):
+        return self.filter(title__icontains=query) | self.filter(content__icontains=query)
+
+Post 모델에 커스텀 쿼리셋과 매니저 등록:
+Post 모델에서 QuerySet을 사용하려면 PostManager를 정의하여 이를 모델에 등록합니다.
+class Post(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = 'D', 'Draft'
+        PUBLISHED = 'P', 'Published'
+
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    status = models.CharField(max_length=1, choices=Status.choices, default=Status.DRAFT)
+
+    objects = PostQuerySet.as_manager()  # 커스텀 쿼리셋을 매니저로 등록
+
+쿼리셋 사용 예시:
+post.objects.published.all()로 발행 상태인 포스팅만 조회할 수 있으며, 체이닝을 통해 다양한 조건을 추가할 수 있습니다.
+# 발행 상태인 포스팅 조회
+Post.objects.published()
+
+# 발행 상태인 포스팅 중 제목에 '맛집'이 포함된 포스팅만 조회
+Post.objects.published().search('맛집')
+
+
+포스팅 생성 시 기본 값 설정:
+create() 메서드에서 status 값을 기본값으로 설정하려면, create() 메서드를 오버라이딩하여 status가 없을 때 기본적으로 PUBLISHED로 설정하도록 합니다.
+class PostQuerySet(models.QuerySet):
+    def create(self, **kwargs):
+        if 'status' not in kwargs:
+            kwargs['status'] = Post.Status.PUBLISHED  # 기본 상태를 PUBLISHED로 설정
+        return super().create(**kwargs)
+
+3. 요약 및 장점
+중복 코드 제거: 커스텀 모델 매니저를 사용하면 여러 뷰에서 반복적으로 사용하는 복잡한 쿼리 로직을 한 번만 정의하고 재사용할 수 있어 코드 중복을 줄일 수 있습니다.
+가독성 향상: 체이닝 방식으로 쿼리 조건을 추가하면 복잡한 쿼리를 명확하고 간결하게 표현할 수 있습니다.
+유지보수 용이: 쿼리 로직이 모델 매니저에 집중되므로, 나중에 쿼리 조건을 변경할 때 코드의 일관성을 유지하면서 쉽게 수정할 수 있습니다.
+기본 모델 매니저와 구분: objects 매니저를 덮어쓰지 않거나, 기본 매니저와 별도로 커스텀 매니저를 등록하여 다양한 조회 방식에 대응할 수 있습니다.
+이렇게 커스텀 모델 매니저를 활용하면 복잡한 쿼리셋 로직을 한 곳에서 관리하고, 코드의 재사용성과 가독성을 높이며, 나아가 유지보수를 쉽게 할 수 있습니다.

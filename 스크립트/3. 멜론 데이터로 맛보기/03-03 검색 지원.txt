@@ -31,3 +31,98 @@ Query가 Song의 Album Name에 있거나 이렇게 코드를 써보실 수 있�
 씁니다 입력 받은 검색어를 그대로 화면에 반영하는 거죠
 이렇게 해서 새로 고치 마셔도 악뮬라고 출력이 되고 있습니다
 그래서 저는 첫 번째 방법을 추천드리지만은 상황에 따라 두 번째 방법이 필요하실 때도 있으니까 기억해 두셨다가 사용하시면 되겠습니다
+
+
+
+
+
+이번 과정에서는 검색 기능을 추가하여, 사용자가 입력한 검색어에 맞춰 곡 리스트를 필터링하고, 검색어를 입력 창에 그대로 표시하는 방법을 다루었습니다. 아래는 주요 내용의 정리입니다:
+
+1. 검색 입력 창 구현 (HTML 폼)
+검색 폼 추가:
+index.html 파일에 검색창을 위한 form 태그를 추가합니다.
+input 태그의 type을 search로 지정하여 검색어를 입력받을 수 있게 하고, placeholder를 설정하여 사용자가 검색어를 입력하라는 안내를 합니다.
+HTML 코드 예시:
+html
+코드 복사
+<form method="get" class="col-12 mb-3">
+    <input type="search" name="query" class="form-control" placeholder="검색어를 입력해 주세요" value="{{ request.GET.query }}">
+</form>
+form 태그에 method="get"을 설정하여, 검색어가 쿼리 파라미터로 전달되도록 했습니다.
+input 태그에 name="query"를 지정하여 검색어를 query라는 이름으로 서버로 전달합니다.
+2. 서버에서 검색어 처리
+뷰에서 쿼리 파라미터 받기:
+클라이언트에서 검색어가 전달되면, 이를 서버에서 처리하여 query 파라미터 값을 가져옵니다.
+request.GET.get('query', '')로 query 파라미터를 가져오고, 검색어가 없으면 빈 문자열('')을 반환합니다.
+좌우 공백을 제거하여 정확한 검색을 할 수 있도록 합니다.
+검색어로 곡 필터링:
+song_list는 Song 클래스의 인스턴스로 이루어진 리스트입니다. 이 리스트에서 각 Song 객체의 name, artist_name, album_name을 기준으로 검색어와 매칭되는 곡을 필터링합니다.
+리스트 컴프리헨션을 사용하여 조건에 맞는 곡만 필터링합니다.
+예시:
+python
+코드 복사
+query = request.GET.get('query', '').strip()
+if query:
+    song_list = [song for song in song_list if query.lower() in song.name.lower() or
+                 query.lower() in song.artist_name.lower() or
+                 query.lower() in song.album_name.lower()]
+3. 검색 결과 UI 구현
+검색어와 매칭된 곡만 출력:
+필터링된 song_list를 템플릿에서 출력하여, 검색어에 맞는 곡만 보여줍니다.
+검색어 표시:
+검색어를 입력하고 나서 페이지를 새로고침하면, 입력된 검색어가 그대로 입력창에 표시되도록 합니다.
+input 태그의 value 속성을 request.GET.query로 설정하여 사용자가 입력한 검색어를 그대로 표시할 수 있습니다.
+예시:
+html
+코드 복사
+<input type="search" name="query" class="form-control" placeholder="검색어를 입력해 주세요" value="{{ request.GET.query }}">
+4. 결과 확인
+검색어 반영:
+페이지 새로고침 후, 검색어가 그대로 검색창에 남아 있고, 검색어에 맞는 곡들만 리스트로 보여집니다.
+예를 들어, "악뮤"라는 검색어를 입력하면, "악뮤"라는 아티스트명이나 곡명이 포함된 노래만 필터링되어 출력됩니다.
+5. 템플릿에서 조건에 맞는 곡 출력
+템플릿에서 곡 정보 출력:
+song_list를 순회하면서 각 곡의 정보를 HTML로 출력합니다. 예시로, 곡의 이름, 아티스트명, 앨범명, 커버 이미지를 출력할 수 있습니다.
+6. 장고 템플릿에서 request.GET 사용
+템플릿에서 요청된 쿼리 파라미터 접근:
+request.GET.query로 URL에 전달된 query 파라미터를 바로 템플릿에서 사용할 수 있습니다. 이를 통해 검색어를 입력 창에 다시 출력할 수 있습니다.
+템플릿 예시:
+html
+코드 복사
+<input type="search" name="query" class="form-control" placeholder="검색어를 입력해 주세요" value="{{ request.GET.query }}">
+7. 핵심 코드 예시
+View 코드 (검색어 처리):
+
+python
+코드 복사
+def index(request):
+    song_list = Song.objects.all()  # 모든 곡을 가져옵니다.
+    query = request.GET.get('query', '').strip()  # 검색어를 가져옵니다.
+
+    if query:
+        song_list = [song for song in song_list if query.lower() in song.name.lower() or
+                     query.lower() in song.artist_name.lower() or
+                     query.lower() in song.album_name.lower()]
+
+    return render(request, 'index.html', {'song_list': song_list})
+템플릿 코드 (검색 창 및 검색 결과 표시):
+
+html
+코드 복사
+<form method="get" class="col-12 mb-3">
+    <input type="search" name="query" class="form-control" placeholder="검색어를 입력해 주세요" value="{{ request.GET.query }}">
+</form>
+
+<div class="song-list">
+    {% for song in song_list %}
+        <div class="song-card">
+            <img src="{{ song.cover_url }}" alt="{{ song.name }}">
+            <h3>{{ song.name }}</h3>
+            <p>{{ song.artist_name }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+8. 결론
+검색 기능 구현: 사용자가 검색어를 입력하고 엔터를 치면, 해당 검색어를 쿼리 파라미터로 서버에 전달하여, 서버에서 이를 기반으로 곡 목록을 필터링하고, 필터링된 결과를 템플릿에서 출력하는 방식으로 검색 기능을 구현했습니다.
+입력한 검색어 유지: 페이지 새로고침 후에도 검색어가 입력 창에 표시되어 사용자 경험을 개선했습니다.

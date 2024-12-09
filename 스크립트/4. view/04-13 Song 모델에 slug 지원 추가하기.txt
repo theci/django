@@ -118,106 +118,38 @@ forward 코드란 인자를 지정을 해주고요.
 이렇게 열어보시면 slug라는 컬럼의 필드 값이 모두 이렇게 잘 채워져 있음을 확인을 하실
 수 있습니다
 
+이번 과정에서는 Django 모델에 slug 필드를 추가하고, 이를 이용해 URL을 구성하여 상세 페이지를 조회하는 기능을 구현하는 방법을 다루었습니다. 
+과정은 크게 모델 수정, URL 패턴 정의, 마이그레이션 생성 및 적용, 그리고 상세 페이지에서 slug를 통한 조회가 잘 동작하도록 수정하는 순서로 진행됩니다.
 
-이번에는 Django 프로젝트에서 slug 필드를 추가하고, 이를 **DetailView**에서 사용하여 URL 경로를 동적으로 생성하는 과정을 살펴봤습니다. 이를 통해 SEO를 고려한 URL을 만들어주고, 장고의 slugify 함수와 마이그레이션 기능을 활용하여 데이터를 일괄 처리하는 방법을 다뤘습니다.
+1. Slug 필드 추가 및 모델 수정
+Song 모델에 slug 필드 추가: slug 필드는 name 필드를 변환하여 자동으로 채워지도록 하며, 한글도 지원하도록 allow_unicode=True로 설정합니다.
+getAbsoluteURL 메서드 추가: Song 모델에 getAbsoluteURL 메서드를 추가하여, URL을 동적으로 생성합니다. 이 메서드는 slugify 함수로 변환된 slug 값을 사용하여 URL을 만듭니다.
+save 메서드 수정: slug 필드 값이 비었을 경우, name 필드 값을 slug 필드로 변환하여 저장하도록 save 메서드를 오버라이드합니다.
 
-주요 내용 요약:
-Slug 필드 추가:
-
-Slug 필드를 Song 모델에 추가합니다. 이 필드는 주로 SEO를 위해 URL에 사용되는 문자열로, 이름(name) 필드를 기반으로 생성합니다.
-slugify 함수 사용:
-slugify는 문자열을 슬러그 형태로 변환합니다. 한글을 지원하려면 allow_unicode=True로 설정해야 합니다.
-Song 모델에서 get_absolute_url() 메서드를 통해, URL을 동적으로 생성합니다. 여기서 slug는 name 필드를 기반으로 변환하여 생성됩니다.
-Slug로 조회하는 DetailView:
-
-DetailView에서 기본적으로 PK를 사용하여 조회하지만, slug 필드를 사용하도록 URL 패턴을 수정합니다.
-URL 패턴에서 slug를 캡쳐하여 slug 기반으로 Song 객체를 조회하도록 구현합니다.
-urls.py에서 slug를 사용하는 URL 패턴을 새롭게 정의하며, 정규 표현식을 통해 연도, 월, 일과 slug를 포함한 경로를 처리합니다.
-URL 패턴 수정:
-
-urls.py에서 기존의 PK 기반 URL 패턴을 slug 기반으로 수정합니다.
-정규 표현식에서 연도, 월, 일 그리고 slug를 캡쳐하는 방식으로 새로운 URL 패턴을 추가합니다.
-get_absolute_url() 수정:
-
-Song 모델에 get_absolute_url() 메서드를 구현하여, 모델 인스턴스의 slug를 사용해 URL을 생성합니다.
-이를 위해 self.slug 값을 직접 사용하고, slugify를 통해 변환된 name 필드를 기반으로 URL을 동적으로 생성합니다.
-마이그레이션:
-
-slug 필드를 데이터베이스에 추가한 후, 마이그레이션을 수행하여 테이블에 컬럼을 추가합니다.
-마이그레이션 파일을 통해 데이터베이스에 변경 사항을 반영합니다.
-makemigrations 명령을 통해 새로운 마이그레이션 파일을 생성하고, migrate 명령으로 적용합니다.
-기존 데이터에 대해 Slug 값 채우기:
-
-마이그레이션 파일을 통해 기존의 Song 객체들에 대해 slug 필드를 채워주는 작업을 합니다.
-이를 위해 커스텀 마이그레이션을 작성하여, slug 필드가 비어있는 객체들에 대해 name 필드를 기반으로 slug 값을 채워주는 코드를 추가합니다.
-이 작업은 bulk_update를 사용하여 효율적으로 처리됩니다.
-결과 확인:
-
-마이그레이션을 완료한 후, 데이터베이스 테이블을 확인하여 slug 필드에 값이 잘 채워졌는지 확인합니다.
-Song 모델의 객체들이 slug 필드를 기준으로 조회되고, URL 패턴도 정상적으로 동작하는지 검증합니다.
-구체적인 구현 내용:
-Song 모델에 slug 필드 추가:
-
-python
+2. Slug 필드의 URL 패턴 정의
+urls.py에서 slug를 사용하여 상세 페이지를 조회할 수 있도록 URL 패턴을 수정합니다. 이때 정규 표현식으로 연도, 월, 일, slug를 함께 포함시킵니다.
+예시 URL 패턴:
+php
 코드 복사
-from django.db import models
-from django.utils.text import slugify
+path('<int:year>/<int:month>/<int:day>/<slug:slug>/', views.SongDateDetailView.as_view(), name='songDateDetail')
 
-class Song(models.Model):
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(unique=True, blank=True)
-    release_date = models.DateField()
+3. 마이그레이션
+기존 모델에 slug 필드 추가: slug 필드를 models.CharField로 추가하고, 해당 필드에 인덱스를 추가합니다. 이를 위해 Django의 마이그레이션 기능을 사용하여 데이터베이스 스키마를 변경합니다.
+makemigrations 실행: python manage.py makemigrations 명령어를 통해 마이그레이션 파일을 생성하고, python manage.py migrate로 데이터베이스에 반영합니다.
+기존 데이터의 slug 값 채우기: 기존에 존재하는 데이터의 slug 값을 자동으로 채우기 위해 빈 마이그레이션 파일을 만들고, slugify 메서드를 사용하여 slug 값을 업데이트합니다. 이를 위해 bulk_update를 사용하여 성능을 최적화합니다.
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name, allow_unicode=True)
-        super().save(*args, **kwargs)
-    
-    def get_absolute_url(self):
-        return f"/songs/{self.release_date.year}/{self.release_date.month}/{self.release_date.day}/{self.slug}/"
-URL 패턴 설정 (urls.py):
+4. 템플릿에서 getAbsoluteURL 사용
+song.getAbsoluteURL()을 템플릿에서 호출하여 slug 기반의 URL을 동적으로 생성하도록 합니다. 템플릿에서 인자 없이 메서드를 호출하면 URL이 자동으로 계산됩니다.
 
-python
-코드 복사
-from django.urls import path, re_path
-from .views import SongDetailView
+5. 마이그레이션 파일 생성 및 실행
+빈 마이그레이션 파일 생성: 기존 slug 필드가 빈 값으로 저장된 상태에서 데이터를 업데이트할 수 있도록 빈 마이그레이션 파일을 생성하고, 해당 파일에서 slug 값을 채우는 파이썬 함수를 정의합니다.
+bulk_update 사용: 기존 Song 객체의 slug 값을 일괄 업데이트하는 bulk_update를 사용하여 성능을 개선합니다.
 
-urlpatterns = [
-    re_path(r'^(?P<year>\d{4})/(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<slug>[-\w]+)/$', SongDetailView.as_view(), name='song_date_detail'),
-]
-마이그레이션 생성 및 적용:
+6. 테스트 및 확인
+서버를 다시 실행하고, 인덱스 페이지에서 생성된 URL을 통해 상세 페이지로 이동하면 slug를 기반으로 하는 URL이 정상적으로 동작하는 것을 확인할 수 있습니다.
+데이터베이스에서 slug 컬럼이 잘 채워졌는지 확인할 수 있습니다.
 
-마이그레이션 명령:
-bash
-코드 복사
-python manage.py makemigrations hottrack
-python manage.py migrate hottrack
-기존 레코드에 대해 slug 값 채우기 위한 커스텀 마이그레이션 생성:
-bash
-코드 복사
-python manage.py makemigrations hottrack --empty --name populate_slug
-커스텀 마이그레이션 코드:
-
-python
-코드 복사
-from django.db import migrations
-
-def forward_code(apps, schema_editor):
-    Song = apps.get_model('hottrack', 'Song')
-    for song in Song.objects.filter(slug=''):
-        song.slug = slugify(song.name, allow_unicode=True)
-    Song.objects.bulk_update(song_list, ['slug'])
-
-class Migration(migrations.Migration):
-    dependencies = [
-        ('hottrack', '0002_auto_20240101_1234'),
-    ]
-
-    operations = [
-        migrations.RunPython(forward_code),
-    ]
-결론:
-Slug 필드를 추가하여 SEO 친화적인 URL을 생성하고, 이를 통해 사용자가 URL을 통해 더 직관적으로 정보를 찾을 수 있도록 했습니다.
-Django의 slugify 함수를 활용해 한글과 같은 유니코드 문자가 포함된 슬러그를 생성할 수 있게 했으며, 마이그레이션을 통해 기존 데이터를 처리하는 방법도 소개했습니다.
-
-
+7. 최종 결과
+URL에서 slug를 기반으로 노출되며, 한글을 포함한 slug도 정상적으로 작동합니다. Django의 템플릿 시스템과 모델 메서드를 활용하여 URL을 동적으로 생성할 수 있습니다.
+모든 데이터가 마이그레이션되어 slug 필드가 비어 있는 경우 자동으로 채워지고, 상세 페이지 조회 시 URL이 정상적으로 동작합니다.
+이 과정을 통해 Django에서 SEO에 유용한 slug 필드를 사용하여, URL을 직관적이고 유연하게 설계할 수 있습니다.

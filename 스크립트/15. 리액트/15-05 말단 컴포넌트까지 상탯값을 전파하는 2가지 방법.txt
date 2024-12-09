@@ -49,44 +49,123 @@ useContext hook을 통해 카운트 컨텍스트를 통해 공유된 값을 조�
 카운트 상태 값이 잘 렌더링되고 있습니다.
 
 
-React 컴포넌트 트리 구조:
 
-React 애플리케이션은 부모-자식 관계로 구성된 컴포넌트 트리로 이루어짐.
-상위 컴포넌트에서 하위 컴포넌트로 데이터와 상태를 전달.
-상태 값 공유 방법:
+React에서 상태 값을 여러 컴포넌트 간에 공유하는 두 가지 주요 방법에 대해 설명하겠습니다. 이를 통해 컴포넌트 트리에서 효율적으로 데이터를 전달하는 방법을 이해할 수 있습니다.
 
-상태를 상위 컴포넌트에서 하위 컴포넌트로 속성(props)을 통해 전달.
-하지만, 모든 컴포넌트가 상태를 사용하지 않더라도 중간 컴포넌트에서 일일이 전달해줘야 하는 번거로움이 있음.
-App2 컴포넌트 구현:
+1. 상위 컴포넌트에서 하위 컴포넌트로 직접 전달
+가장 기본적인 방법은 상위 컴포넌트에서 하위 컴포넌트로 데이터를 속성(props)으로 전달하는 방식입니다. 이 방법은 직관적이고 명시적으로 데이터를 전달하는데 유용하지만, 중간 계층에서 해당 데이터를 사용하지 않더라도 일일이 전달해야 하는 번거로움이 있습니다.
 
-app2.js 파일에서 빈 App 함수를 생성하고 제공된 소스 코드를 복사.
-useState Hook 임포트.
-App 컴포넌트에서는 루트 컴포넌트만 렌더링하고, 루트 컴포넌트에서 count 상태 값을 정의.
-증가 버튼을 클릭 시 count 상태 값이 증가하며 말단 컴포넌트까지 전달.
-props 전달 방식:
+예시: 상위 컴포넌트에서 하위 컴포넌트로 데이터 전달
+App 컴포넌트에서 카운트 상태(count)를 관리하고, 이를 여러 자식 컴포넌트(A, B, C 등)를 통해 전달합니다.
+A, B 컴포넌트는 count를 직접 사용하지 않지만, 이를 C 컴포넌트로 전달하기 위해 속성으로 받아야 합니다.
+count 상태 값은 최종적으로 E 컴포넌트까지 전달되어 화면에 표시됩니다.
 
-count 상태 값이 말단 컴포넌트에서 렌더링되므로 A, B, C, E, Ref 컴포넌트를 거쳐 전달됨.
-index.js 파일에서 App2 컴포넌트를 임포트하고, 기존 App 대신 렌더링.
-Context API의 필요성:
 
-Context API를 통해 중간 컴포넌트들이 일일이 상태를 전달할 필요 없이, 말단 컴포넌트가 필요한 값만 직접 참조 가능.
-Context API의 제한사항:
+2. Context API를 사용하여 상태 값 공유
+Context API는 컴포넌트 트리에서 중간 컴포넌트들이 데이터를 직접 전달하지 않고, 특정 값이 필요한 컴포넌트만 그 값을 참조할 수 있도록 도와줍니다. 이 방법을 사용하면 상태 관리가 더 간편해지며, 여러 레벨의 컴포넌트에 걸쳐 상태 값을 공유할 수 있습니다.
 
-모든 상태 값을 전역으로 관리할 경우, 불필요한 재렌더링이 발생해 성능 저하 가능.
-최소한의 상태 값만 Context API로 관리하는 것이 바람직함.
-CountContext 생성:
+Context API의 사용 예시
+**createContext**를 사용하여 상태 값을 공유할 Context 객체 (CountContext)를 생성합니다.
+CountContext.Provider를 사용하여 상위 컴포넌트에서 값(count)을 하위 컴포넌트로 공급합니다.
+이제 하위 컴포넌트는 useContext 훅을 사용하여 필요한 값만 조회할 수 있습니다.
+이 방법은 중간 컴포넌트들이 불필요하게 속성 값을 전달할 필요가 없어 코드가 더 간결해집니다.
+구현 절차:
+createContext로 Context 객체 생성:
 
-createContext API를 사용해 CountContext 객체 생성.
-CountContext.Provider로 컴포넌트 트리에서 count 값을 공급.
-Provider 설정:
+CountContext를 만들어, 이를 통해 카운트 상태 값을 관리합니다.
+Provider로 값 전달:
 
-value 속성으로 공유할 count 값을 지정해 컴포넌트 트리에 전달.
-props 제거:
+CountContext.Provider를 사용하여, count 값을 트리 내의 자식 컴포넌트들에게 전달합니다.
+useContext 훅으로 값 조회:
 
-중간 컴포넌트에서 일일이 props를 전달할 필요가 없어짐. count 속성 값을 사용하는 코드 제거.
-말단 컴포넌트에서 useContext 사용:
+자식 컴포넌트에서는 useContext(CountContext)를 사용하여 count 값을 직접 조회할 수 있습니다.
+구체적인 코드 구현
+1. App2.js (Context 사용 전)
+상위 컴포넌트에서 하위 컴포넌트로 count 값을 직접 전달:
+jsx
+코드 복사
+import React, { useState } from 'react';
+import A from './A';
+import B from './B';
 
-Ref 컴포넌트에서 useContext Hook을 사용해 CountContext에서 count 값을 가져옴.
-결과 확인:
+function App2() {
+  const [count, setCount] = useState(0);
 
-페이지 새로 고침 후, Context API를 통한 전역 상태 관리로 count 값이 말단 컴포넌트에 잘 전달되어 렌더링됨.
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Increase Count</button>
+      <A count={count} />
+      <B count={count} />
+    </div>
+  );
+}
+
+export default App2;
+A 컴포넌트, B 컴포넌트, 그리고 그 아래의 모든 하위 컴포넌트가 count를 속성값으로 받아야 합니다.
+
+2. App2.js (Context 사용 후)
+CountContext 생성 및 Provider로 값 제공:
+jsx
+코드 복사
+import React, { createContext, useState, useContext } from 'react';
+import A from './A';
+import B from './B';
+
+const CountContext = createContext();
+
+function App2() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <CountContext.Provider value={{ count }}>
+      <div>
+        <button onClick={() => setCount(count + 1)}>Increase Count</button>
+        <A />
+        <B />
+      </div>
+    </CountContext.Provider>
+  );
+}
+
+export { CountContext };
+export default App2;
+CountContext.Provider가 count 값을 하위 컴포넌트들에게 전달합니다. 이제 중간 컴포넌트들은 count 값을 전달할 필요가 없습니다.
+
+3. 자식 컴포넌트에서 useContext 사용
+자식 컴포넌트에서 useContext 훅을 사용하여 count 값을 가져옵니다.
+jsx
+코드 복사
+import React, { useContext } from 'react';
+import { CountContext } from './App2';
+
+function A() {
+  const { count } = useContext(CountContext);
+  return <div>A Component Count: {count}</div>;
+}
+
+export default A;
+jsx
+코드 복사
+import React, { useContext } from 'react';
+import { CountContext } from './App2';
+
+function B() {
+  const { count } = useContext(CountContext);
+  return <div>B Component Count: {count}</div>;
+}
+
+export default B;
+
+4. 페이지 렌더링 확인
+페이지를 새로 고침하면, App2에서 카운트 값이 변경되고, A와 B 컴포넌트는 count 값을 Context를 통해 공유받아 각각에 렌더링됩니다.
+이제 중간 컴포넌트들이 count 값을 일일이 전달할 필요가 없으므로 코드가 간결하고 효율적입니다.
+정리
+상위 -> 하위 전달 방식:
+
+직관적이고 명시적이지만, 중간 컴포넌트들도 데이터를 일일이 전달해야 하는 단점이 있습니다.
+Context API 방식:
+
+**createContext**로 값 생성 후 **Provider**를 사용하여 하위 컴포넌트에 값을 전달.
+useContext 훅을 사용하여 하위 컴포넌트에서 쉽게 값을 조회.
+불필요한 중간 전달을 피할 수 있어 코드가 간결해집니다.
+Context API는 주로 애플리케이션의 전역 상태(예: 테마, 인증 정보, 언어 설정 등)를 관리할 때 유용하지만, 불필요하게 많은 값을 전역 상태로 관리하면 성능 문제가 발생할 수 있으므로 적절하게 사용하는 것이 중요합니다.

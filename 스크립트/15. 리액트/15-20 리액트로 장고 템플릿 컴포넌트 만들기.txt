@@ -90,48 +90,59 @@ Web 컴포넌트의 dispatchEvent 메서드를 통해 커스텀 이벤트를 발
 Node.js나 React 개발 환경이 없어도 됩니다.
 
 
-이번 시간에는 Django 템플릿과 React 컴포넌트를 통합하여 사용하는 방법에 대해 다뤘습니다. 특히, React 컴포넌트를 Django 템플릿에서 바로 참조할 수 있도록 웹 컴포넌트 기술을 활용한 방법을 중심으로 설명했습니다. 주요 개념과 단계를 정리해드리겠습니다.
+이번 시간에는 Django 템플릿과 React 컴포넌트를 통합하여 사용하는 방법에 대해 다뤘습니다. 
+특히, React 컴포넌트를 Django 템플릿에서 바로 참조할 수 있도록 웹 컴포넌트 기술을 활용한 방법을 중심으로 설명했습니다. 주요 개념과 단계를 정리해드리겠습니다.
 
 1. React 컴포넌트와 Django 템플릿 통합 개요
-Django와 React를 통합하려면 기본적으로 두 시스템 간의 상호작용을 매끄럽게 하기 위한 방법이 필요합니다. Django는 서버 측에서 템플릿을 렌더링하고, React는 클라이언트 측에서 동적인 UI를 담당합니다. 이를 위해 웹 컴포넌트(Web Components) 기술을 활용하여 React 컴포넌트를 Django 템플릿에서 사용할 수 있도록 만듭니다.
+Django와 React를 통합하려면 기본적으로 두 시스템 간의 상호작용을 매끄럽게 하기 위한 방법이 필요합니다. 
+Django는 서버 측에서 템플릿을 렌더링하고, React는 클라이언트 측에서 동적인 UI를 담당합니다. 
+이를 위해 웹 컴포넌트(Web Components) 기술을 활용하여 React 컴포넌트를 Django 템플릿에서 사용할 수 있도록 만듭니다.
 
 웹 컴포넌트: React 컴포넌트를 웹 컴포넌트로 래핑하여 Django 템플릿에서 사용할 수 있게 만듭니다.
 Parcel 번들러: React 컴포넌트를 빌드하여 최종적으로 필요한 CSS, JavaScript, Mapping 파일을 생성합니다.
+
 2. React 컴포넌트 프로젝트 설정
-React 컴포넌트를 Django 프로젝트 내에서 src-react-components 폴더로 자동 생성합니다. 이를 위해 react-components라는 명령어를 통해 프로젝트 초기화 및 컴포넌트를 쉽게 생성할 수 있습니다.
+React 컴포넌트를 Django 프로젝트 내에서 src-react-components 폴더로 자동 생성합니다. 
+이를 위해 react-components라는 명령어를 통해 프로젝트 초기화 및 컴포넌트를 쉽게 생성할 수 있습니다.
 
 초기화 과정:
 React 컴포넌트 이닛 명령: Django 프로젝트 내에 src-react-components 폴더를 생성하고, Parcel과 React, React DOM 라이브러리를 자동으로 설치합니다.
 필요한 라이브러리 설치: 추가로 필요한 라이브러리는 NPM을 사용하여 설치하거나 react-components install 명령어를 사용하여 설치할 수 있습니다.
+
 3. React 컴포넌트 생성 및 빌드
-1. React 컴포넌트 생성
-react-components create [컴포넌트명] 명령을 사용하여 React 컴포넌트와 이를 연결하는 Django 템플릿 컴포넌트를 자동으로 생성합니다. 예를 들어, HelloWorld 컴포넌트를 생성할 수 있습니다.
-2. React 컴포넌트 빌드
+3-1. React 컴포넌트 생성
+react-components create [컴포넌트명] 명령을 사용하여 React 컴포넌트와 이를 연결하는 Django 템플릿 컴포넌트를 자동으로 생성합니다. 
+예를 들어, HelloWorld 컴포넌트를 생성할 수 있습니다.
+3-2. React 컴포넌트 빌드
 Parcel을 사용해 React 컴포넌트를 빌드하며, start-watch-build 명령으로 개발 서버를 구동합니다.
 Parcel은 기본적으로 포트 1234에서 React 컴포넌트를 개발 서버로 실행합니다.
-3. 웹 컴포넌트 래핑
+3-3. 웹 컴포넌트 래핑
 React 컴포넌트는 웹 컴포넌트로 래핑됩니다. 이 웹 컴포넌트는 Django 템플릿에서 사용할 수 있도록 HTML 요소로 변환됩니다.
-4. 컴포넌트 속성 전달
+3-4. 컴포넌트 속성 전달
 웹 컴포넌트는 React 컴포넌트의 **속성(attribute)**을 전달받을 수 있습니다. 예를 들어, Name 속성에 기본값을 설정하고, 이를 React 컴포넌트로 전달하여 동적으로 렌더링할 수 있습니다.
+
 4. Django 템플릿에서 React 컴포넌트 사용
 Django 템플릿에서 React 컴포넌트 임포트:
 
 Django 템플릿에서 HelloWorld 컴포넌트를 사용할 수 있도록, CSS와 JavaScript 파일을 함께 임포트합니다.
 Django에서 HTML 템플릿에 <hello-world></hello-world> 태그로 컴포넌트를 참조합니다.
-속성값 전달:
 
+속성값 전달:
 Django 템플릿에서 컴포넌트 속성 값을 전달할 수 있습니다. 예를 들어, name="John"과 같은 방식으로 속성을 전달하고, 이를 React 컴포넌트에서 사용할 수 있습니다.
 속성은 data-* 형식으로 전달되며, React 컴포넌트는 이를 속성 값으로 받습니다.
-페이지 새로고침 후 속성값 반영:
 
+페이지 새로고침 후 속성값 반영:
 Django 템플릿에서 전달한 속성 값이 웹 컴포넌트를 통해 React 컴포넌트에 반영됩니다. 브라우저에서 강력 새로고침을 통해 결과를 확인할 수 있습니다.
+
 5. React 컴포넌트와 Django 템플릿 간 이벤트 처리
 이벤트 처리: React 컴포넌트에서 발생한 이벤트를 Django 템플릿에서 처리할 수 있습니다. React 컴포넌트는 웹 컴포넌트의 dispatchEvent 메서드를 통해 커스텀 이벤트를 발생시킬 수 있습니다.
 Django 템플릿은 웹 컴포넌트로 렌더링된 이벤트를 자바스크립트 코드에서 직접 처리할 수 있습니다.
+
 6. 배포 및 빌드
 배포 준비: 배포 시에는 Parcel 빌드를 실행하여 최적화된 자바스크립트 및 CSS 파일을 생성합니다.
 빌드된 파일은 단순한 자바스크립트와 CSS 파일이므로, Node.js나 React 개발 환경 없이도 사용할 수 있습니다.
 .gitignore 설정: **.parcel-cache**와 node_modules 폴더는 .gitignore에 추가하여 Git에서 제외합니다.
+
 7. 정리
 React 컴포넌트와 Django 템플릿을 통합하려면 웹 컴포넌트 기술을 사용하여 React 컴포넌트를 Django 템플릿에서 사용 가능한 HTML 요소로 변환합니다.
 Parcel 번들러를 사용하여 React 컴포넌트를 빌드하고, Django 템플릿에서 JavaScript와 CSS 파일을 임포트하여 웹 컴포넌트를 렌더링합니다.

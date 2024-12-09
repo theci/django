@@ -218,20 +218,15 @@ songs = Song.objects.all()
 쿼리셋은 다양한 메서드를 제공하여 데이터 조회 및 필터링을 할 수 있습니다.
 
 filter: 조건에 맞는 데이터를 반환합니다.
-python
-코드 복사
 songs = Song.objects.filter(genre='dance', rank__lte=10)
+
 exclude: 조건에 맞지 않는 데이터를 반환합니다.
-python
-코드 복사
 songs = Song.objects.exclude(likes__lte=5)
+
 order_by: 데이터를 정렬합니다.
-python
-코드 복사
 songs = Song.objects.order_by('-rank')  # 내림차순 정렬
+
 values_list: 특정 필드의 값만 리스트로 반환합니다.
-python
-코드 복사
 song_ids = Song.objects.values_list('id', flat=True)
 
 
@@ -239,13 +234,10 @@ song_ids = Song.objects.values_list('id', flat=True)
 쿼리셋에서 집계 함수는 즉시 실행됩니다. aggregate와 annotate를 사용하여 집계를 수행할 수 있습니다.
 
 aggregate: 조건에 맞는 데이터에 대해 요약된 결과를 반환합니다.
-python
-코드 복사
 from django.db.models import Avg, Max
 result = Song.objects.aggregate(Avg('price'), Max('rank'))
+
 annotate: 각 항목에 대해 집계 연산을 수행하고 그 결과를 추가합니다.
-python
-코드 복사
 from django.db.models import Count
 songs = Song.objects.annotate(num_reviews=Count('reviews'))
 
@@ -254,23 +246,17 @@ songs = Song.objects.annotate(num_reviews=Count('reviews'))
 쿼리셋은 슬라이싱 문법을 지원하여 SQL의 LIMIT과 OFFSET과 유사한 방식으로 데이터를 조회할 수 있습니다.
 
 슬라이싱: 조회 범위를 지정할 수 있습니다.
-python
-코드 복사
 songs = Song.objects.all()[10:20]  # 10번째부터 20번째까지
 인덱스 증가량: 인덱스 증가량은 데이터베이스 쿼리에는 반영되지 않지만, 파이썬 레벨에서만 영향을 미칩니다.
 
 
 5. 정렬
 order_by: 필드를 기준으로 데이터를 정렬할 수 있습니다. 기본적으로 오름차순이며, 내림차순은 '-'을 사용합니다.
-
-python
-코드 복사
 songs = Song.objects.order_by('name')  # 오름차순
 songs = Song.objects.order_by('-name')  # 내림차순
-디폴트 정렬: 모델의 Meta 클래스를 사용하여 기본 정렬을 지정할 수 있습니다.
 
-python
-코드 복사
+
+디폴트 정렬: 모델의 Meta 클래스를 사용하여 기본 정렬을 지정할 수 있습니다.
 class Song(models.Model):
     # 필드 정의...
     
@@ -280,47 +266,31 @@ class Song(models.Model):
 
 6. 단건 조회
 get: 특정 조건에 맞는 레코드를 하나만 조회합니다. 조건에 맞는 데이터가 없거나 여러 개가 있을 경우 예외가 발생합니다.
-
-python
-코드 복사
 song = Song.objects.get(id=1)
 예외: DoesNotExist 또는 MultipleObjectsReturned
 
 first / last: 조건에 맞는 첫 번째 또는 마지막 레코드를 조회합니다. 데이터가 없으면 None을 반환합니다.
-
-python
-코드 복사
 song = Song.objects.first()  # 첫 번째 레코드
 song = Song.objects.last()   # 마지막 레코드
 
 
 7. 조건문과 OR 조건
 Q 객체: 여러 조건을 논리 연산자(AND, OR, NOT)로 결합할 수 있습니다.
-python
-코드 복사
 from django.db.models import Q
 songs = Song.objects.filter(Q(genre='dance') | Q(rank__lte=10))
 
 
 8. 데이터 조회 최적화
 only / defer: 필요한 필드만 조회하거나 특정 필드를 제외하여 불필요한 데이터를 가져오는 것을 방지할 수 있습니다.
-
-python
-코드 복사
 songs = Song.objects.only('name')  # name 필드만 조회
 songs = Song.objects.defer('lyrics')  # lyrics 필드는 제외
-exists: 데이터가 존재하는지 여부만 확인할 때 효율적입니다.
 
-python
-코드 복사
+exists: 데이터가 존재하는지 여부만 확인할 때 효율적입니다.
 exists = Song.objects.filter(genre='dance').exists()
 
 
 9. 페이징 처리
 Paginator 클래스를 사용하거나 ListView에서 paginate_by 속성을 사용하여 데이터 조회에 대한 페이징 처리를 할 수 있습니다.
-
-python
-코드 복사
 from django.core.paginator import Paginator
 songs = Song.objects.all()
 paginator = Paginator(songs, 10)  # 한 페이지에 10개씩
@@ -329,8 +299,6 @@ page_obj = paginator.get_page(1)
 
 10. 기타 유틸리티 함수
 get_object_or_404: 특정 객체를 조회하고, 없으면 404 오류를 발생시킵니다.
-python
-코드 복사
 from django.shortcuts import get_object_or_404
 song = get_object_or_404(Song, id=1)
 

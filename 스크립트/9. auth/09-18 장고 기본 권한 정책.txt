@@ -60,7 +60,7 @@ PermissionMixin 클래스에서는 Group 모델과 Permission 모델에 대해�
 Group 모델은 이렇게 Permission 모델과 Many-to-Many 관계가 맺어져 있죠
 이 관계를 활용해서 User 모델과 그룹 모델에 각각 add_perm 메서드를 추가해
 보겠습니다
-accounts 앱의 User 모델 클래스에 add_perm 메서드 코드를 복사해서 직접
+accounts 앱의 User 모델 클래스에 add_perm 메서드 코드를 복사해서 직접
 적용하고요.
 Group 모델 클래스는 auth 앱 내에 있죠.
 우리가 Group 모델 클래스 코드를 수정하는 것은 불가능하지만 setattr

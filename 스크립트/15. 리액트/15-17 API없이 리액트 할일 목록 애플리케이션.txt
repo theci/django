@@ -145,6 +145,7 @@ const addToDo = (newContent) => {
 
 // ToDoForm 컴포넌트 사용
 <ToDoForm onEnter={addToDo} />
+
 4. React Bootstrap을 이용한 UI 개선
 React Bootstrap을 활용하여 UI를 개선했습니다.
 ToDoForm에서는 Form과 Form.Control을 사용하여 입력 폼을 구성하고, ToDoList에서는 Container, Card, ListGroup 등의 컴포넌트로 목록을 표시했습니다.
@@ -175,6 +176,7 @@ import { Form, Button, ListGroup, Card, Container } from 'react-bootstrap';
     )}
   </Card.Body>
 </Card>
+
 5. 할 일 항목 삭제 기능 구현
 각 할 일 항목에 삭제 버튼을 추가하고, 클릭 시 삭제 확인 메시지를 표시하여 항목을 삭제합니다.
 deleteToDo 함수를 사용해 삭제할 항목의 인덱스를 참조하여 상태값에서 해당 항목을 제거합니다.
@@ -189,6 +191,7 @@ const deleteToDo = (index) => {
 
 // 삭제 버튼
 <Button variant="danger" onClick={() => deleteToDo(index)}>삭제</Button>
+
 6. 할 일 항목 수정 기능 구현
 각 항목에 수정 버튼을 추가하여 클릭 시 프롬프트로 수정 내용을 입력받고, 수정된 내용만 상태값에 반영합니다.
 EditToDo 함수에서 수정된 내용이 있을 때에만 상태값을 업데이트합니다.
@@ -206,6 +209,7 @@ const editToDo = (index) => {
 
 // 수정 버튼
 <Button variant="warning" onClick={() => editToDo(index)}>수정</Button>
+
 7. Flexbox를 이용한 UI 레이아웃 조정
 각 할 일 항목을 Flexbox로 구성하여 할 일 텍스트와 버튼이 양 끝에 정렬되도록 했습니다.
 수정 버튼과 삭제 버튼 사이에 마진을 주어 UI를 더 깔끔하게 개선했습니다.
@@ -229,6 +233,7 @@ React Bootstrap UI:
 
 Bootstrap 컴포넌트로 UI를 꾸미고, 할 일 목록을 카드 형식으로 표시.
 빈 목록에 대한 경고 메시지와 스타일을 추가.
+
 결론
 이번 구현에서는 할 일 목록의 생성, 수정, 삭제 기능을 구현하면서 컴포넌트 분리와 상태 관리의 중요성을 강조했습니다. 
 또한, React Bootstrap을 활용해 UI를 개선하고, React의 상태 관리 및 이벤트 처리를 통해 사용자가 인터랙티브하게 할 일을 관리할 수 있도록 했습니다.

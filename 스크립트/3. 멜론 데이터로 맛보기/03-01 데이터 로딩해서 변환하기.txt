@@ -150,3 +150,53 @@ installedapps에서 admin을 추가하면 이 앱 밑에 있는 템플리스 경
 근데 템플릿 폴더를 만드시고 나서 만약에 Python 파일을 한번 바꿨어요
 이렇게 바꾸시고 저장하시면 자동 재시작이 되죠
 자동 재시작이 된 상황에서는 이 새로 생긴 템플릿 폴더를 인식했을 겁니다
+
+
+
+이번 시간에는 웹 멜론 데이터를 데이터베이스에 저장하고, 장고 모델과 어드민을 통해 노래 검색 서비스를 만들기 위한 기본적인 설정과 구성을 다루었습니다. 주요 과정은 아래와 같습니다:
+
+1. 프로젝트 및 가상환경 설정
+새 장고 프로젝트 폴더 생성: mydjango03hottrack이라는 폴더를 생성.
+가상환경 설정: python -m venv env 명령어로 가상 환경을 생성하고 활성화.
+Windows: env\Scripts\activate
+macOS/Linux: source env/bin/activate
+장고 설치: pip install django==4.2.0으로 장고를 설치.
+
+2. 장고 프로젝트 및 앱 생성
+장고 프로젝트 생성: django-admin startproject mysite 명령어로 프로젝트 생성.
+앱 생성: python manage.py startapp hottrack 명령어로 hottrack 앱 생성.
+생성 후 apps.py에서 verbose_name = '핫트랙'으로 앱 이름 설정.
+
+3. urls.py 설정
+앱의 URL 설정: hottrack/urls.py를 만들어 URL 패턴을 정의하고, 이를 mysite/urls.py에 include로 연결.
+예시: path('', views.index, name='index')로 views.index와 연결.
+최상위 URL에서 hottrack 주소로 리디렉션: views.index 함수에서 리디렉션을 구현.
+
+4. 앱 등록 및 설정
+앱 등록: mysite/settings.py의 INSTALLED_APPS에 hottrack 앱 추가.
+hottrack.apps.HottrackConfig를 지정하거나 hottrack만 입력하여 기본 설정을 사용.
+정적 파일 및 템플릿 설정: static 폴더 및 templates 폴더가 자동으로 설정됨.
+
+5. 뷰 및 템플릿 생성
+뷰 함수 작성: views.py에서 index 함수 작성. 이 함수는 템플릿을 렌더링하도록 구성.
+템플릿 생성: hottrack/templates/hottrack/index.html 및 underbar_song.html 파일 생성.
+Bootstrap 5 CDN을 사용하여 기본적인 UI를 구성.
+이미지는 lorem pixum 서비스에서 제공하는 URL을 사용.
+
+6. 템플릿 경로 문제 해결
+템플릿 경로 설정: 템플릿이 올바르게 로드되지 않으면 경로 설정을 확인.
+문제 해결: 템플릿 파일을 찾지 못하는 경우, django-admin 서버를 재시작하여 템플릿 경로를 인식하게 함.
+템플릿을 찾을 수 없다는 오류가 발생하면, INSTALLED_APPS에 hottrack을 추가한 후 개발 서버를 재시작해야 합니다.
+
+7. 개발 서버 실행
+서버 실행: python manage.py runserver 명령어로 장고 개발 서버를 실행.
+서버가 실행되면, http://127.0.0.1:8000/에서 웹 페이지를 확인할 수 있습니다.
+
+8. 추가적인 설정 및 주의 사항
+뷰 함수 인자: views.index 함수에서 첫 번째 인자는 request여야 하고, render 함수에서 템플릿과 컨텍스트를 전달해야 합니다.
+템플릿 자동 재시작: 장고 개발 서버는 파일 변경 시 자동으로 서버를 재시작하지만, 새로 생성된 템플릿 파일을 인식하려면 수동으로 서버를 재시작해야 합니다.
+
+요약
+이 과정에서는 장고 프로젝트를 설정하고, hottrack 앱을 생성한 뒤 기본적인 URL, 뷰, 템플릿 구조를 통해 간단한 웹 서비스를 구성했습니다. 
+또한 템플릿 파일 경로 문제를 해결하고, 개발 서버에서 제대로 작동하도록 설정하는 방법을 다루었습니다. 
+이 기본적인 흐름을 통해 더 복잡한 기능과 데이터베이스 연동, 어드민 설정 등을 추가할 수 있습니다.
