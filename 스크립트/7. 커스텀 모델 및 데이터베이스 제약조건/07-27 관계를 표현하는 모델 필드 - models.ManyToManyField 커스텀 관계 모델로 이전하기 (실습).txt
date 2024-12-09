@@ -66,3 +66,95 @@ showmigrations 블로그 명령으로 블로그 앱에 마이그레이션 적용
 장고 셀을 구동하시고, post-model, 태그셋 필드의 관계 모델도
 post-tag-relation으로 잘 적용되어 있고요.
 태그 목록도 조회해 보시면 잘 동작합니다.
+
+
+
+Django에서 ManyToMany 관계를 커스텀 관계 모델로 이전하는 마이그레이션 과정
+ManyToMany 관계를 Django에서 기본 관계 테이블(자동 생성된 관계 테이블)에서 커스텀 관계 모델로 이전하는 과정은 여러 단계로 나눠집니다. 이 과정에서 중요한 점은 데이터의 무손실 이전과, 새 관계 모델로의 마이그레이션 파일을 적절히 구성하는 것입니다. 아래는 이 과정을 정리한 단계별 흐름입니다.
+
+1. 새로운 관계 모델 정의
+먼저 커스텀 관계 모델을 정의합니다. 이 모델은 기존의 ManyToManyField 관계를 관리할 새로운 테이블을 담당합니다. 예를 들어, Post와 Tag 모델 간의 관계를 추적하는 PostTagRelation 모델을 정의합니다.
+
+python
+코드 복사
+class PostTagRelation(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+이 모델은 기존 ManyToManyField가 사용하는 기본 관계 테이블 대신 사용할 모델입니다.
+ManyToManyField 설정은 아직 변경하지 않습니다. 즉, through 설정은 추가하지 않습니다.
+마이그레이션:
+
+make_migrations 명령어를 실행하여 PostTagRelation 모델에 대한 마이그레이션 파일을 생성합니다.
+이 단계에서 데이터베이스에 새로운 관계 테이블이 생성됩니다.
+2. 기본 관계 테이블에서 새 관계 모델로 데이터 복제
+두 번째 단계는 기본적으로 자동 생성된 관계 테이블에 저장된 기존 관계 데이터를 새로 정의한 관계 모델로 복사하는 작업입니다.
+
+마이그레이션 파일을 수정하여 run-python 오퍼레이션을 사용하여 데이터를 복제하는 작업을 추가합니다.
+run-python 오퍼레이션 추가
+새 관계 모델을 사용하는 마이그레이션 파일에서 run-python을 사용하여 기존 관계 테이블에서 PostTagRelation으로 데이터를 복제합니다.
+python
+코드 복사
+from django.db import migrations
+
+def copy_relations(apps, schema_editor):
+    Post = apps.get_model('app_name', 'Post')
+    Tag = apps.get_model('app_name', 'Tag')
+    PostTagRelation = apps.get_model('app_name', 'PostTagRelation')
+
+    # 기존 관계 테이블을 조회하여 데이터 복제
+    for post in Post.objects.all():
+        for tag in post.tags.all():
+            PostTagRelation.objects.create(post=post, tag=tag)
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('app_name', 'previous_migration'),
+    ]
+
+    operations = [
+        migrations.RunPython(copy_relations),
+    ]
+기존 Post와 Tag 모델에 대한 관계 데이터를 읽어 PostTagRelation 테이블에 한 번에 저장합니다. 이를 위해 bulk_create()를 사용할 수 있습니다.
+기존 관계 테이블을 조회하고 데이터를 복제한 후, PostTagRelation 테이블에 저장합니다.
+3. 기본 관계 테이블 삭제
+기존의 자동 생성된 관계 테이블을 삭제하려면, 다음 단계로 ManyToManyField 필드 설정에서 through 설정을 추가하고, 그 필드를 주석 처리한 후에 마이그레이션을 생성합니다.
+
+Post 모델의 tags 필드에서 through 설정을 추가하지 않고 주석 처리하여 ManyToMany 필드를 비활성화합니다.
+makemigrations 명령어를 실행하여 기존 관계 테이블 삭제를 위한 마이그레이션 파일을 생성합니다.
+4. through 설정 추가 및 새로운 관계 모델로 설정
+기존 관계 모델을 커스텀 관계 모델로 변경하려면, ManyToManyField에 through 속성을 추가합니다. 그리고 through_fields를 설정하여 어떤 외래 키 필드를 사용할지 지정합니다.
+
+through 속성에는 새로 정의한 관계 모델을 지정하고, through_fields를 통해 각 외래 키 필드를 명시합니다.
+python
+코드 복사
+class Post(models.Model):
+    title = models.CharField(max_length=100)
+    tags = models.ManyToManyField(Tag, through='PostTagRelation', through_fields=('post', 'tag'))
+이 설정으로 Post 모델의 tags 관계가 이제 PostTagRelation 모델을 통해 관리되도록 변경됩니다.
+5. 마이그레이션 실행
+마지막 단계는 마이그레이션을 순차적으로 실행하는 것입니다.
+
+makemigrations 명령어와 migrate 명령어를 실행하여 변경된 관계 모델에 대한 마이그레이션을 적용합니다.
+이때, 기존 관계 데이터가 PostTagRelation 테이블로 복제되고, 기존 관계 테이블은 삭제됩니다.
+bash
+코드 복사
+python manage.py makemigrations
+python manage.py migrate
+실습 예시
+기본 관계 테이블(BlogPostTagSet)에 저장된 데이터를 새 관계 모델(PostTagRelation)로 이전하는 과정은 run-python 오퍼레이션을 통해 데이터를 복제하는 방식으로 처리합니다.
+
+마이그레이션 오류가 발생할 경우, makemigrations 후 migrate 명령을 순차적으로 실행해보고, 오류가 발생하면 이를 수정하여 진행합니다.
+
+migrate 명령을 통해 데이터베이스가 새 관계 모델을 반영하도록 한 후, 기존 관계 테이블이 삭제되고 새 관계 모델로 전환됩니다.
+
+최종 마이그레이션
+PostTagRelation 모델을 정의하여 관계 데이터를 관리합니다.
+기존 관계 데이터는 run-python 오퍼레이션을 통해 새 관계 모델로 복사됩니다.
+기존 ManyToManyField 관계를 새로운 커스텀 관계 모델로 변경하고, 그에 맞게 through 설정을 추가합니다.
+마이그레이션을 실행하여 데이터베이스 테이블을 업데이트합니다.
+이 과정을 통해 기존의 자동 생성된 관계 테이블을 새로운 커스텀 관계 모델로 안전하게 이전할 수 있습니다.
+
+
+

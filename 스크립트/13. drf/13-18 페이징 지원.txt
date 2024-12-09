@@ -192,3 +192,56 @@ make-pagination-class 함수에 cursor-pagination-class
 지원을 추가합니다
 그리고 이 함수를 통해 새로운 cursor-pagination-class를 생성해서
 활용하고요 지정된 옵션으로 잘 동작하고 있습니다
+
+
+
+Django REST Framework에서 제공하는 페이징 방식에 대해 상세히 설명한 내용을 요약해드리겠습니다.
+
+1. 페이징의 중요성
+대량의 데이터를 한 번에 전송하는 대신, 페이징을 통해 작은 단위로 데이터를 나누어 전송함으로써 빠른 응답과 서버 부하 감소, 효율적인 네트워크 사용을 도울 수 있습니다.
+2. 지원하는 페이징 방식
+Django REST Framework는 세 가지 페이징 방식을 지원합니다:
+
+PageNumberPagination (페이지 번호 기반)
+LimitOffsetPagination (오프셋 기반)
+CursorPagination (커서 기반)
+3. 공통 설정
+페이징을 사용할 때 가장 먼저 해야 할 설정은 settings.py의 REST_FRAMEWORK 설정에서 PAGE_SIZE를 설정하는 것입니다. 이 값은 기본 페이지 크기로, 모든 페이징 방식에 적용됩니다.
+또한, DEFAULT_PAGINATION_CLASS를 지정하여 디폴트로 사용할 페이징 방식을 설정할 수 있습니다.
+4. PageNumberPagination
+페이지 번호를 기반으로 데이터를 조회하며, 쿼리 파라미터로 page를 사용해 페이지 번호를 전달합니다.
+응답에는 results, count, next, previous 네 가지 필드가 포함됩니다.
+장점: 간단하고 직관적.
+단점: 테이블 크기가 매우 커질 경우, 많은 레코드를 스캔해야 해서 조회 속도가 느려질 수 있음.
+구현: PageNumberPagination 클래스를 사용하고, get_paginated_response 메서드를 오버라이드하면 응답 포맷을 커스터마이징할 수 있습니다.
+5. LimitOffsetPagination
+쿼리 파라미터로 limit (페이지당 레코드 개수)와 offset (건너뛸 레코드 수)를 사용하여 데이터를 조회합니다.
+장점: 페이지 번호 대신 limit과 offset으로 원하는 위치부터 데이터를 가져올 수 있습니다.
+단점: 사용자가 너무 큰 limit 값을 지정하면 서버에 과부하를 줄 수 있습니다.
+보완: MaxLimit 값을 설정하여, limit 값을 제한할 수 있습니다.
+6. CursorPagination
+커서를 기반으로 페이지를 조회합니다. 커서는 각 페이지의 마지막 레코드 값을 기준으로 동작하며, Base64 인코딩된 커서 값을 cursor 파라미터로 전달합니다.
+장점: 테이블 크기가 매우 클 때도 조회 속도가 빠르며, 인덱스를 활용하여 성능을 최적화할 수 있습니다.
+단점: 사용자가 직접 페이지 번호를 지정할 수 없고, 페이지를 순차적으로만 조회할 수 있습니다.
+구현: CursorPagination 클래스에서 ordering과 page_size를 설정하여 사용할 수 있습니다.
+7. 페이징 방식별 특징 비교
+페이징 방식	장점	단점
+PageNumberPagination	직관적, 페이지 번호로 손쉽게 접근 가능	테이블이 클 경우 조회 성능이 떨어질 수 있음
+LimitOffsetPagination	더 유연한 limit과 offset으로 데이터 범위 지정 가능	limit을 너무 크게 설정하면 서버에 부담이 될 수 있음
+CursorPagination	큰 데이터셋에서도 성능이 뛰어나고, 인덱스를 활용 가능	페이지 번호로의 직접 접근이 불가능, 순차 조회만 가능
+8. 페이지 크기 설정 및 커스터마이징
+PAGE_SIZE 설정을 통해 기본 페이지 크기를 지정할 수 있습니다.
+각 API 뷰마다 다른 페이지 크기를 설정하려면, Pagination 클래스를 상속하여 커스터마이징하거나 makePagination 팩토리 함수 등을 활용하여 동적으로 클래스를 생성할 수 있습니다.
+9. LimitOffsetPagination의 추가 설정
+기본적으로 limit에 대한 범위 제한이 없기 때문에, MaxLimit 속성을 사용하여 사용자가 지정할 수 있는 limit의 최대 값을 설정하는 것이 좋습니다.
+MaxLimit을 설정하지 않으면, 사용자가 지나치게 큰 limit 값을 설정할 수 있어 서버에 과부하를 줄 수 있습니다.
+10. CursorPagination의 추가 설정
+ordering 속성으로 커서를 정렬할 기준 필드를 설정할 수 있습니다.
+데이터베이스에서 created와 같은 고유한 필드를 기준으로 정렬하고, 커서 값은 Base64로 인코딩되어 전달됩니다.
+커서를 기반으로 데이터를 가져오며, 한 페이지에 마지막 레코드를 커서로 사용하여 다음 페이지를 조회합니다.
+11. 동적 페이징 클래스 생성
+makePagination 팩토리 함수를 사용하여 원하는 페이징 방식과 페이지 크기를 인자로 전달하고, 동적으로 페이지네이션 클래스를 생성하여 사용할 수 있습니다.
+
+정리하자면, Django REST Framework에서는 세 가지 주요 페이징 방식을 제공하며, 각 방식은 데이터 요청 방식과 조회 성능에 따라 다르게 활용됩니다. 
+PageNumberPagination은 가장 기본적인 방식이고, LimitOffsetPagination은 더 유연한 방식, CursorPagination은 대규모 데이터셋에서 성능이 뛰어난 방식입니다. 
+각 페이징 방식은 적절한 설정을 통해 최적화할 수 있습니다.
