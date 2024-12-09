@@ -32,66 +32,34 @@ pk가 1인 카테고리가 있는지 검사를 하고 없다면 category.object.
 
 ---
 
-1. 문제 발생 상황: 외래키 제약 위반
-기존에 포스트(Post) 모델이 있고, 카테고리(Category) 모델을 새로 추가하려고 합니다.
-카테고리 모델을 추가하고, 포스트 모델에 카테고리 외래키 필드를 추가합니다.
-이때, 외래키 필드에 디폴트 값으로 1을 설정합니다. 그러나 카테고리 테이블에 기본 키 1을 가진 레코드가 없으면 외래키 제약 사항을 위배하여 마이그레이션이 실패합니다.
-문제의 원인:
-1을 기본 키로 지정한 카테고리 레코드가 없기 때문에, 외래키 필드에 이 값을 설정하려고 할 때 데이터베이스에서 제약 위반 오류가 발생합니다.
+1.
+이번 시간에 다룬 마이그레이션 실패 사례와 해결 방법은 다음과 같습니다.
 
-2. 문제 해결 방법: RunPython 오퍼레이션 사용
-해결책은 카테고리 테이블 생성 후, 기본 키 1을 가지는 카테고리 레코드를 추가하는 것입니다.
-이를 위해 run-python 오퍼레이션을 사용하여 마이그레이션 중간에 Python 코드를 실행할 수 있습니다.
-해결 과정:
-카테고리 모델 추가:
+사례 1: 외래키 추가 시 기본 키 값이 없는 경우
+문제 상황: 새로운 모델인 Category를 추가하고, Post 모델에 Category 모델에 대한 외래키를 추가하는 마이그레이션을 진행하면서, Category 모델의 기본 키 값(예: 1)이 존재하지 않아 외래키 제약조건을 위반하게 되어 마이그레이션이 실패하는 문제입니다.
 
-카테고리 모델을 새로 추가하고, 포스트 모델에 외래키 필드를 추가합니다. 외래키 필드에는 1을 디폴트 값으로 설정합니다.
-마이그레이션 생성:
+기존에 Post 모델이 있고 마이그레이션이 완료된 상태에서, Category 모델을 추가하고 Post 모델에 Category 외래키를 추가합니다.
+make migrations 명령으로 마이그레이션 파일을 생성하고, 외래키 필드에 기본 값으로 1을 지정합니다.
+migrate 명령을 실행하면, Category 모델에 기본 키가 1인 레코드가 없기 때문에 외래키 제약조건 위반으로 인해 마이그레이션이 실패합니다.
+해결 방법:
+Category 모델을 생성하는 마이그레이션과, Post 모델에 외래키를 추가하는 마이그레이션 사이에 Category 모델에 기본 키 1을 가지는 레코드를 추가하는 작업이 필요합니다.
 
-python manage.py makemigrations blog 명령어를 실행하여 마이그레이션 파일을 생성합니다.
-생성된 마이그레이션 파일을 보면, 카테고리 테이블을 생성하는 첫 번째 작업과 포스트 모델에 외래키 필드를 추가하는 두 번째 작업이 나옵니다.
-마이그레이션 실패:
+Post 모델에 Category 외래키 필드를 추가하고, make migrations 명령을 사용하여 마이그레이션 파일을 생성합니다.
+마이그레이션 파일에서 Category 모델을 생성하는 작업 뒤에, Post 모델에서 Category 외래키를 추가하는 작업이 포함됩니다.
+외래키 추가 작업을 수행하기 전에 기본 키가 1인 레코드가 존재하지 않으면 추가하는 작업을 삽입합니다.
+실행 방법:
 
-python manage.py migrate blog 명령어로 마이그레이션을 실행하면 카테고리 테이블이 생성된 직후, 외래키 필드에 1을 설정하려 할 때 기본 키가 1인 레코드가 없어서 마이그레이션이 실패합니다.
-문제 해결:
-
-run-python 오퍼레이션을 사용하여 카테고리 테이블이 생성된 후, 기본 키가 1인 카테고리 레코드가 있는지 확인하고, 없으면 새로 추가하는 작업을 수행합니다.
-이 작업을 마이그레이션 파일의 중간에 추가하여, 테이블 생성 후 외래키 필드 추가 전에 레코드가 존재하도록 만듭니다.
-
-run-python 오퍼레이션 구현:
-from django.db import migrations
-
+runPython operation을 사용하여, Category 모델에서 기본 키가 1인 레코드가 존재하는지 확인하고 없으면 새로 생성하는 코드를 추가합니다.
+python
+코드 복사
 def create_initial_category(apps, schema_editor):
     Category = apps.get_model('blog', 'Category')
     if not Category.objects.filter(pk=1).exists():
-        Category.objects.create(pk=1, name='Default Category')
+        Category.objects.create(id=1, name="Default Category")
+runPython을 통해 create_initial_category 함수를 실행하고, 역방향 실행 시에는 no_operation 함수를 사용합니다.
 
-def no_operation(apps, schema_editor):
-    pass
+migrate 명령을 실행하면 마이그레이션이 정상적으로 수행되고, Category 테이블에 기본 키 1인 레코드가 생성됩니다.
+요약:
+새로운 모델과 외래키를 추가할 때, 외래키 필드에 기본 값으로 지정된 레코드가 데이터베이스에 존재하지 않으면 마이그레이션이 실패할 수 있습니다. 이를 해결하려면 runPython을 사용하여, 외래키를 추가하는 작업 전에 필요한 기본 값 레코드를 생성하는 추가 작업을 해야 합니다.
 
-class Migration(migrations.Migration):
-    dependencies = [
-        ('blog', 'previous_migration'),
-    ]
 
-    operations = [
-        migrations.CreateModel(
-            name='Category',
-            fields=[
-                ('id', models.AutoField(primary_key=True)),
-                ('name', models.CharField(max_length=100)),
-            ],
-        ),
-        migrations.AddField(
-            model_name='post',
-            name='category',
-            field=models.ForeignKey(to='blog.Category', default=1, on_delete=models.CASCADE),
-        ),
-        migrations.RunPython(create_initial_category, reverse_code=no_operation),
-    ]
-마이그레이션 적용:
-python manage.py migrate blog 명령을 실행하여 카테고리 레코드가 정상적으로 추가된 후, 외래키 필드가 1로 설정되며 마이그레이션이 성공적으로 수행됩니다.
-
-3. 결과 확인
-데이터베이스에서 카테고리 테이블을 확인하면, 기본 키가 1인 카테고리 레코드가 추가된 것을 확인할 수 있습니다.
-이제 포스트 모델의 외래키 필드도 정상적으로 1 값을 가지며, 마이그레이션이 정상적으로 완료됩니다.

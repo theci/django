@@ -129,3 +129,43 @@ URL 패턴도 추가하고요.
 ToDoList 상태값에서 인자의 객체 정보가 있다면 갱신하고 없다면 추가하도록
 HandClose 함수 구현을 변경합니다.
 그럼 수정 후에 기존 항목이 갱신되며 수정 기능 구현 끝입니다.
+
+
+
+이번 시간에는 React와 Django를 결합한 하이브리드 애플리케이션 개발에 대해 다루었습니다. 구체적으로, 할 일 목록 관리 애플리케이션에서 Django의 폼과 뷰를 활용하여 React에서 iframe을 사용하여 할 일 생성 및 수정 기능을 구현하는 방식입니다. 핵심 내용을 정리하겠습니다:
+
+1. Django와 React 결합 방식
+Django 폼과 뷰를 사용하여 할 일 생성 및 수정 페이지를 Django에서 구현.
+React에서는 주로 데이터 표시와 모달 창을 통한 폼을 띄우는 역할만 담당.
+아이프레임 (iframe) 을 사용하여 Django에서 제공하는 할 일 생성/수정 페이지를 React에서 띄움.
+2. 아이프레임 모달 구현
+아이프레임 모달 컴포넌트:
+세 가지 속성: title, iframeSource (iframe의 URL), handleClose (모달을 닫을 함수).
+모달 내에서 할 일 생성/수정 페이지를 띄우고, 저장된 할 일 객체는 부모 React 컴포넌트로 전달됨.
+Django와 React 간 메시지 전달:
+Django에서 폼 처리 후 유효성 검사 결과를 React로 전달, 그 후 상태값을 업데이트하며 UI 갱신.
+3. Django 설정
+CSP (Content Security Policy) 설정을 통해 React에서 Django 서버로 iframe 요청을 허용.
+Django CSP 라이브러리를 설치하여 iframe 접근을 설정.
+할 일 생성 페이지는 Django에서 모델 폼을 사용해 구현되고, 유효성 검사 후 데이터를 부모 React 컴포넌트로 전송.
+4. 할 일 생성 및 수정 처리
+할 일 생성:
+Django 폼을 통해 할 일 생성 페이지를 제공하고, React에서 iframe으로 해당 페이지를 띄운다.
+폼 제출 후, Django는 생성된 데이터를 React로 전달하고, React는 이를 상태값에 추가하여 화면에 표시.
+할 일 수정:
+수정 페이지도 Django에서 구현하며, React에서는 수정할 페이지의 URL을 iframe에 전달하여 수정 기능을 처리.
+수정 후, React에서 상태값을 업데이트하여 UI 갱신.
+5. React에서의 상태 관리
+React에서는 상태값(ToDoList)을 관리하고, 아이프레임의 handleClose 함수는 인자로 전달된 할 일 객체를 통해 상태값을 갱신.
+새 할 일 추가 및 수정 시:
+새로운 할 일을 추가할 때와 수정할 때는 모두 Django에서 제공하는 페이지를 iframe으로 띄우고, React는 해당 페이지의 상태값을 반영하여 UI를 갱신.
+6. SPA(싱글 페이지 애플리케이션) 방식
+페이지 새로고침 없이 SPA 방식으로 데이터를 갱신하고, Django와 React가 효율적으로 통합되어 유지 보수성이 높은 애플리케이션을 구현.
+7. 코드 변경 및 설정
+Django 뷰:
+ToDoCreateView, ToDoUpdateView 클래스를 사용하여 할 일 생성 및 수정 페이지를 처리.
+이 페이지들은 Django의 CreateView, UpdateView 클래스 기반 뷰로 처리되며, 폼을 제출한 후 생성된 데이터를 React로 전달.
+React:
+아이프레임을 통한 Django 페이지를 렌더링하고, 이를 통해 데이터 생성 및 수정.
+아이프레임 소스를 통해 Django 페이지 URL을 설정하여 이를 React 페이지에서 띄우며, 폼 제출 후 결과를 부모 컴포넌트로 전달.
+이 방식으로 Django와 React의 장점을 결합하여 효율적이고 유지 보수가 용이한 애플리케이션을 개발할 수 있습니다.

@@ -68,3 +68,48 @@ inline 클래스에서 수정 권한을 일괄 삭제하면요.
 모델 코드를 보니 1 이상, 1 이하의 범위로 제한이 되어 있습니다.
 5 이하로 수정해 주시고 그리고 다시 저장해 보시면 저장이 잘 되죠.
 수정 기능을 다시 살리시면 이렇게 수정 범위 다시 보여집니다.
+
+
+
+이번 강의에서는 Django Admin에서 Generic ForeignKey와 Inline 모델을 사용하여 댓글을 관리하는 방법에 대해 다뤘습니다.
+
+Inline UI 차이점
+1. Tableau Inline:
+각 레코드를 수평으로 테이블 형식으로 표시.
+필드가 적을 때 유용.
+
+2. Stacked Inline:
+각 레코드를 수직으로 쌓아서 표시.
+필드가 많거나 더 많은 공간을 필요로 할 때 유용.
+Admin에서 Inline 사용법
+ForeignKey와 GenericForeignKey에서 TabularInline과 StackedInline 클래스를 상속받아 커스터마이징 할 수 있습니다.
+GenericForeignKey에서도 GenericTabularInline과 GenericStackedInline 클래스를 상속받아 같은 방식으로 인라인을 설정합니다.
+ModelAdmin에서 Inlines 설정을 통해 여러 모델 간 관계를 쉽게 관리할 수 있습니다.
+
+
+실습 단계
+
+3. Post 모델 등록: 먼저 Post 모델을 Django Admin에 등록합니다.
+Comment 모델 인라인 추가: Comment 모델을 Post 모델의 인라인으로 추가합니다.
+GenericTabularInline 클래스를 상속받고 Post와 Comment 모델 간의 관계를 설정합니다.
+
+4. UI 차이점 확인:
+TabularInline은 레코드를 수평으로 표시하며, Extra 입력 폼을 통해 여러 개의 댓글을 한 번에 추가할 수 있습니다.
+StackedInline은 레코드를 수직으로 쌓아 표시하며, 여러 필드를 추가할 때 유용합니다.
+Rating 필드 추가: 댓글 모델에 별점(rating) 필드를 추가하여 UI 차이를 명확하게 볼 수 있게 합니다. 별점은 최소 1, 최대 5로 설정하고, 필드가 추가되면서 StackedInline UI가 변경되는 것을 확인합니다.
+
+5. 데이터베이스 마이그레이션:
+make migrations와 migrate 명령으로 데이터베이스에 변경 사항을 반영합니다.
+디폴트 값을 묻는 메시지에서 5를 입력해주면, 새로 추가된 Rating 필드의 기본값이 설정됩니다.
+
+6. UI에서 변경 사항 확인:
+TabularInline과 StackedInline을 오가며 UI 차이를 확인합니다.
+필드가 하나일 때는 차이가 명확하지 않지만, Rating 필드를 추가하여 UI 차이를 확실히 볼 수 있습니다.
+
+7. 권한 설정: has_change_permission과 같은 메서드를 재정의하여 수정이나 삭제 권한을 제어할 수 있습니다.
+예를 들어, 댓글 모델의 수정 기능을 비활성화하고, 권한이 없는 유저가 수정하지 못하도록 설정할 수 있습니다.
+
+
+결론
+GenericForeignKey와 Inline UI를 활용하면 댓글 시스템을 쉽게 관리할 수 있으며, TabularInline과 StackedInline을 이용해 관리 인터페이스를 유연하게 설정할 수 있습니다.
+Rating 필드와 같은 추가적인 필드를 추가하여 더 풍부한 정보를 관리할 수 있고, 권한 제어를 통해 유저별로 관리 권한을 설정할 수 있습니다.

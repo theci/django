@@ -119,3 +119,33 @@ review.fullclean을 호출해 주면은 유효성 검사가 수행이 됩니다
 발생했죠 체크 제약사항을 위배했다 라고 나오고요 위배한 제약사항의 이름이 출력이 됩니다
 이처럼 장고 모델단에 적용한 체크 제약사항이지만 데이터베이스 레벨에서도 동작함을
 확인했습니다
+
+
+
+이번 강의에서는 Django 모델의 메타 설정과 데이터 유효성 검사에 대해 다뤘습니다. 주요 내용은 다음과 같습니다:
+
+1. 모델 메타 설정
+verbose_name: 모델의 단수 이름을 정의합니다. 지정하지 않으면 모델 클래스 이름이 소문자로 표시됩니다.
+verbose_name_plural: 모델의 복수 이름을 정의합니다. 지정하지 않으면 verbose_name에 "s"가 붙은 형태로 표시됩니다.
+이 설정은 Django 관리자(admin) 인터페이스에서 모델을 어떻게 표시할지에 영향을 줍니다.
+예시: verbose_name="posting", verbose_name_plural="posting 목록"으로 설정하여, 어드민에서 모델 이름을 다르게 표시할 수 있습니다.
+2. 데이터 유효성 검사
+Validators: 모델 필드의 유효성 검사를 파이썬 레벨에서 수행합니다. 예를 들어, Rating 필드에서 1 이상 5 이하의 값을 요구하는 유효성 검사를 설정할 수 있습니다.
+MinValueValidator, MaxValueValidator를 사용하여 범위를 설정하고, full_clean() 메서드를 호출하여 유효성 검사를 실행할 수 있습니다.
+full_clean() 메서드는 유효성 검사에 실패하면 ValidationError를 발생시킵니다.
+3. 데이터베이스 제약 조건 (Check Constraints)
+Check Constraints: 데이터베이스 레벨에서 값의 범위를 제약할 수 있는 방법입니다. 예를 들어, Rating 필드에 대해 1 이상, 5 이하의 범위를 설정할 수 있습니다.
+Check Constraints는 SQL 쿼리 실행 시 유효성 검사를 자동으로 수행합니다.
+Validators와 달리, Check Constraints는 데이터베이스에서 발생하는 오류 메시지를 커스터마이즈할 수 없습니다.
+Django에서 Check Constraints를 설정하려면 constraints 속성을 사용하여 Q 객체를 활용해 조건을 정의하고, 마이그레이션을 통해 데이터베이스에 반영합니다.
+4. Validators와 Check Constraints 비교
+Validators: 파이썬 코드에서 유효성 검사를 수행하며, 보다 세부적이고 친숙한 에러 메시지를 제공할 수 있습니다.
+Check Constraints: 데이터베이스에서 직접 실행되어, 데이터를 삽입하거나 수정할 때 제약 조건을 확인합니다. 그러나, 에러 메시지가 사용자 친화적이지 않고 제한적입니다.
+Check Constraints를 사용하면 애플리케이션에서 발생할 수 있는 유효성 검사의 중복을 방지하고, 데이터베이스 수준에서의 무결성을 강화할 수 있습니다.
+5. 실습
+Review 모델 생성: Rating 필드에 대해 Validators를 사용하여 유효성 검사와 Check Constraints를 설정한 후, 데이터를 삽입하고 유효성 검사 및 제약 조건을 확인했습니다.
+validators로 범위 제한을 설정하고, 이후에 Check Constraints로 이를 데이터베이스 레벨에서 적용해 보았습니다.
+결론
+Validators는 파이썬 레벨에서 유효성 검사와 커스텀 에러 메시지를 처리할 때 유용하며, Check Constraints는 데이터베이스에서 데이터 무결성을 보장할 때 사용됩니다. 두 가지 방법은 서로 보완적으로 사용될 수 있으며, 데이터베이스와 애플리케이션 수준에서 효율적인 유효성 검사를 할 수 있습니다.
+
+

@@ -135,3 +135,36 @@ IP와 192.168.0.9 사이의 IP를 IP Generic Field를 통해서 범위
 아래에서는 데이터베이스에는 정수로 저장되어 있기 때문에 이 값이 정수로 변환이 되어서
 그리고 이 값도 정수로 변환이 되어서 IPIntField에 대해서 조회 Query가
 동작했음을 확인하실 수 있습니다
+
+
+
+
+이 내용은 IPv4AddressIntegerField 클래스를 정의하고 이를 모델에서 사용하는 방법에 대해 설명하는 과정입니다. 주된 목표는 IP 주소를 문자열로 입력받고, 이를 데이터베이스에 4바이트 또는 8바이트 정수로 저장하는 필드를 정의하는 것입니다.
+
+주요 내용 정리:
+IPv4AddressIntegerField 클래스 정의:
+
+기반 클래스: models.CharField를 상속하여 문자열로 IP를 입력받습니다.
+max_length 기본값 설정: IP는 최대 15글자이므로, max_length의 기본값을 15로 설정합니다.
+getInternalType 메서드 재정의: 데이터베이스에 저장될 타입을 4바이트 Unsigned Integer로 지정합니다.
+dbType 메서드: 데이터베이스 종류에 따라 다른 정수 타입을 반환합니다. 예를 들어, PostgreSQL에서는 BIGINT (8바이트), Oracle에서는 NUMBER 타입을 사용합니다.
+toPython 메서드: 문자열 형태로 IP를 받아 정수로 변환하거나, 문자열 IP를 반환합니다. IP 값이 숫자로만 이루어져 있으면 정수로 변환하여 처리합니다. 예외가 발생하면 AddressValueError 또는 NetmaskValueError를 발생시킵니다.
+fromDbValue 메서드: 데이터베이스에서 정수 IP 값을 조회하고 이를 문자열로 변환하여 반환합니다.
+getPreferredValue 메서드: 입력된 IP 값을 데이터베이스에 저장할 수 있는 형태로 변환합니다. 이때 문자열 IP나 정수 IP 모두 받을 수 있도록 유연하게 처리합니다.
+에러 메시지 설정:
+
+defaultErrorMessages 사전을 통해 오류 메시지를 정의합니다. invalid 키와 invalidNullable 키를 사용하여 오류 메시지를 조건에 맞게 반환합니다.
+모델에서 IPv4AddressIntegerField 사용:
+
+새로운 모델 AccessLog에서 IPGeneric 필드를 기본 IP 필드로 사용하고, IPIntModelField를 IPv4AddressIntegerField로 정의하여 IP 주소를 정수형으로 처리합니다.
+마이그레이션 및 데이터베이스 처리:
+
+makemigrations와 migrate 명령어를 사용하여 데이터베이스에 필요한 테이블을 생성합니다.
+PostgreSQL에서는 IPGeneric 필드는 INET 타입으로, IPInt 필드는 BIGINT 타입으로 생성됩니다.
+데이터 저장 및 조회:
+
+bulk_create를 사용해 한 번에 여러 개의 AccessLog 인스턴스를 저장하고, IP 주소가 IPv4AddressIntegerField에 맞게 정수로 변환되어 저장되는지 확인합니다.
+데이터베이스에서 IP 주소가 정수로 저장되기 때문에, 조회할 때도 정수로 처리되며, IP 주소 범위 조회에서도 정확히 동작하는지 확인할 수 있습니다.
+결론:
+IPv4 주소를 정수형으로 변환하여 효율적으로 저장하고 조회할 수 있는 방법을 제시하며, 데이터베이스와의 호환성을 고려한 필드를 정의합니다.
+커스텀 모델 필드를 사용하여 IP 주소를 문자열이나 정수로 유연하게 처리하고, 데이터베이스에서 이를 효율적으로 저장하고 쿼리하는 방법을 구현합니다.

@@ -59,3 +59,37 @@ settings에 defaultFromEmail 값이 default로 웹마스터 골뱅이 로컬 호
 패스워드 리셉 뒤에 formValid 메서드에서 성공 메시지로 추가해 줍니다.
 이제 비밀번호 재설정 요청을 하시면 이렇게 요청 성공 메시지가 보여지고요.
 이메일을 확인해 보시면 이렇게 네이버 메일을 통해 비밀번호 재설정 메일도 잘 받았습니다.
+
+
+이 내용은 Django에서 비밀번호 재설정 요청을 구현하기 위한 과정에 대해 설명하고 있습니다. 이를 위해 Auth 앱의 PasswordResetView 클래스 기반 뷰와 PasswordResetForm 폼을 활용하며, 템플릿과 이메일 발송 설정, URL 처리 등을 다루고 있습니다.
+
+1. PasswordResetView 클래스
+PasswordResetView 클래스는 비밀번호 재설정을 위한 기본적인 기능을 제공합니다. 이 클래스는 PasswordResetForm 폼을 사용하고, 이메일 템플릿과 관련된 설정을 통해 사용자에게 비밀번호 재설정 이메일을 발송합니다.
+주요 속성:
+form_class: PasswordResetForm 클래스가 지정되어, 사용자 이메일을 입력받는 폼이 사용됩니다.
+template_name: password_reset_form.html 템플릿을 사용하여 이메일 입력 폼을 제공합니다.
+subject_template_name: 비밀번호 재설정 이메일의 제목을 설정할 템플릿 경로입니다.
+email_template_name: 비밀번호 재설정 이메일의 본문 템플릿 경로를 지정합니다.
+extra_email_context: 이메일 발송 시 추가적인 템플릿 컨텍스트를 설정할 수 있습니다.
+2. 이메일 발송
+비밀번호 재설정 요청 시, 이메일을 발송하는데, 텍스트 버전과 HTML 버전의 이메일을 모두 제공할 수 있습니다.
+send_mail 메서드를 통해 이메일을 발송하며, 이메일 제목과 본문 템플릿을 통해 이메일을 완성합니다.
+extra_email_context 속성 값이 있을 경우 이를 템플릿 컨텍스트에 추가합니다.
+3. 비밀번호 재설정 후 동작
+기본적으로 성공 URL에 설정된 주소로 이동하며, 암호 재설정 요청 완료 메시지를 표시합니다.
+메시지 프레임워크를 사용하여 비밀번호 재설정 요청 완료 메시지를 사용자에게 알릴 수 있습니다.
+4. URL 리버스 처리 문제
+PasswordResetView에서 암호 재설정 링크를 생성할 때 password_reset_confirm이라는 URL 패턴을 리버스할 때 URL 리버스 예외가 발생합니다. 이는 프로젝트에서 네임스페이스가 적용된 URL 때문입니다.
+해결 방법: 템플릿에서 URL 리버스를 사용할 때 accounts:password_reset_confirm와 같이 네임스페이스를 포함한 URL을 지정해야 합니다.
+이를 위해 password_reset_email.html 템플릿을 상속하여 URL 리버스 코드만 수정할 수 있습니다. 즉, reset_link 블록을 재정의하여 accounts: 네임스페이스를 추가합니다.
+5. SMTP 설정 문제
+SMTP Sender Refused 예외가 발생하는 경우, 이메일 발송 시 송신자 이메일 주소가 인증되지 않은 것으로 나타납니다.
+이 문제는 send_mail 메서드에서 from_email 인자값이 None으로 전달되었기 때문입니다. 이 값이 제대로 설정되지 않으면 DEFAULT_FROM_EMAIL 값이 사용되며, 기본값은 webmaster@localhost로 되어 있습니다.
+해결 방법: settings.py에서 DEFAULT_FROM_EMAIL 값을 네이버 이메일 주소로 설정하고, 이를 환경 변수로 관리하도록 .env 파일에 추가합니다.
+6. 비밀번호 재설정 완료
+비밀번호 재설정 요청 후, 성공 메시지가 페이지에 표시되고, 네이버 메일을 통해 비밀번호 재설정 이메일이 정상적으로 발송됩니다.
+핵심 정리:
+PasswordResetView 클래스를 활용하여 비밀번호 재설정 요청을 처리하고, 이메일을 발송하는 방법을 구현합니다.
+URL 리버스 예외 문제를 해결하기 위해 네임스페이스를 포함한 URL 패턴을 사용해야 합니다.
+이메일 송신자 주소와 관련된 SMTP 설정을 적절히 수정하여 이메일 발송 오류를 해결합니다.
+환경 변수를 사용하여 이메일 설정을 안전하게 관리하고, 최종적으로 비밀번호 재설정 이메일을 성공적으로 발송할 수 있습니다.

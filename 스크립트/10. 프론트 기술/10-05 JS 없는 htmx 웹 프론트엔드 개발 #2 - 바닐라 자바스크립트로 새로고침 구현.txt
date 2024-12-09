@@ -61,36 +61,69 @@ HTMX를 통해 직관적이고 간결한 코드로 동일한 기능을 구현해
 
 
 
-1. 테스트 페이지와 HTML 템플릿 설정
-목표: 테스트 페이지에서 새로고침 버튼을 통해 태그 목록을 동적으로 로드.
-설정:
-test.html 템플릿을 생성하고, HTML과 CSS를 추가.
-HTML에 새로고침 버튼과 태그 리스트 컨테이너 추가.
-CSS 설정:
-#tag-list-container 요소에 투명도 트랜지션 효과 추가 (300ms).
-초기 투명도는 0으로 설정, Show 클래스가 적용되면 투명도 1로 전환.
-2. JavaScript 설정
-목표: 새로고침 버튼 클릭 시 태그 목록을 동적으로 로드.
-설정:
-document.querySelector로 새로고침 버튼과 태그 리스트 컨테이너 요소 선택.
-새로고침 버튼에 클릭 이벤트 리스너를 추가하여 이벤트 발생 시 함수 호출.
-JavaScript 코드:
-async 함수로 정의하여 fetch API 요청 사용 가능.
-fetch API로 태그 목록 URL에 요청을 보내 HTML 응답 수신.
-3. 응답 HTML 컨텐츠 적용
-목표: HTML 응답에서 필요한 부분만 태그 리스트 컨테이너에 적용.
-설정:
-전체 응답에서 body 요소만 추출하여 컨테이너에 적용.
-Show 클래스를 추가하여 투명도를 1로 변경.
-확인: 새로고침 버튼 클릭 시 태그 목록이 투명도 애니메이션과 함께 표시됨.
-4. 디버깅 및 오류 수정
-목표: JavaScript 오류 발생 시 빠르게 해결.
-설정:
-브라우저 콘솔을 열어 오류 확인.
-HTML 변수명을 올바르게 수정.
-확인: 새로고침 버튼 클릭 후 스타일이 바뀌지 않고 태그 목록이 정상적으로 표시됨.
-5. HTMX로 간단하게 구현
-목표: HTMX를 사용해 동일한 동작을 간단한 코드로 구현.
-설정:
-새로고침 버튼에 hx-get 속성을 추가해 HTMX로 태그 목록 로딩.
-확인: HTMX로 더 간결하게 동일한 기능을 구현하며 코드 가독성과 유지보수성 향상.
+
+
+HTML과 JavaScript를 이용한 "새로 고침 버튼" 구현
+1. 기본 구현 개요
+목표: 새로 고침 버튼을 클릭하면, 지정된 주소에서 HTML 콘텐츠를 가져와서 특정 요소에 반영하는 기능을 구현.
+사용 기술: HTML, CSS, JavaScript (패치 API), 기본적인 트랜지션 효과.
+2. 구현 과정
+1. HTML 템플릿 구성:
+HTML에 태그 리스트 컨테이너와 새로 고침 버튼을 배치.
+CSS:
+#tag-list-container에 투명도 전환 효과를 설정 (300ms 동안 투명도 0에서 1로 전환).
+isInOut 타이밍 함수로 애니메이션을 제어.
+show 클래스는 opacity: 1로 설정해 콘텐츠를 표시.
+2. CSS 설정:
+css
+코드 복사
+#tag-list-container {
+    transition: opacity 300ms ease-in-out;
+    opacity: 0;
+}
+
+#tag-list-container.show {
+    opacity: 1;
+}
+**opacity: 0**으로 초기 설정하여 해당 요소가 숨겨져 있다가, show 클래스가 추가되면 **opacity: 1**로 변경되어 나타납니다.
+**transition**을 사용하여 300ms 동안 투명도가 변화하도록 설정.
+3. JavaScript 코드 작성:
+새로 고침 버튼에 클릭 이벤트 리스너를 추가하고, **fetch API**를 사용하여 서버에서 HTML 데이터를 가져옵니다.
+서버에서 받은 HTML 콘텐츠를 **#tag-list-container**에 반영하고, show 클래스를 추가하여 애니메이션 효과를 적용합니다.
+4. JavaScript 코드 예시:
+javascript
+코드 복사
+document.getElementById('refresh-btn').addEventListener('click', async function() {
+    try {
+        // 서버에서 HTML 콘텐츠 요청
+        const response = await fetch('/tags');
+        const htmlText = await response.text();
+
+        // DOM으로 응답 HTML을 처리 (body 부분만)
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlText;
+        const newContent = tempDiv.querySelector('body').innerHTML;
+
+        // 태그 리스트 컨테이너에 새로운 HTML 콘텐츠 반영
+        const container = document.getElementById('tag-list-container');
+        container.innerHTML = newContent;
+
+        // show 클래스 추가 (애니메이션)
+        container.classList.add('show');
+    } catch (error) {
+        console.error('Error fetching HTML:', error);
+    }
+});
+5. 디버깅:
+콘솔 확인: 만약 코드가 예상대로 동작하지 않으면, 브라우저의 콘솔에서 오류를 확인해야 합니다. 예를 들어, HTML 텍스트 변수명을 잘못 지정한 경우 오류가 발생할 수 있습니다.
+show 클래스 추가 확인: 트랜지션 효과가 정상적으로 적용되지 않는 경우 show 클래스를 추가해야 하며, CSS가 제대로 적용되지 않은 경우 이를 확인해야 합니다.
+3. 문제 해결 과정
+응답 HTML에 head 태그 포함: fetch로 받은 HTML에는 head 태그도 포함됩니다. 이때 head 부분은 필요 없으므로 body 부분만 추출하여 적용합니다.
+CSS 적용 문제: 기본적으로 #tag-list-container의 투명도가 0으로 설정되어 있어, 콘텐츠가 로드되었음에도 보이지 않던 문제를 해결하기 위해 show 클래스를 추가하여 투명도를 1로 변경합니다.
+4. HTMX로 동일한 기능 구현
+HTMX를 사용하면 직관적이고 간결한 코드로 동일한 기능을 구현할 수 있습니다.
+HTMX는 별도의 JavaScript 코드 없이 HTML 속성만으로 서버와 비동기 통신을 처리하고, 특정 요소만 업데이트할 수 있도록 도와줍니다.
+예를 들어, hx-get과 hx-target 속성을 사용하여 버튼 클릭 시 서버에서 콘텐츠를 받아와 #tag-list-container에 업데이트하는 방식으로 구현할 수 있습니다.
+결론
+기본적인 JavaScript로 HTML을 가져와서 페이지에 업데이트하는 것은 간단하지만, 여러 단계의 디버깅과 함께 다양한 오류에 직면할 수 있습니다.
+HTMX를 활용하면 이러한 기능을 더 간결하고 직관적인 방식으로 구현할 수 있어 유지보수와 확장성이 용이해집니다.

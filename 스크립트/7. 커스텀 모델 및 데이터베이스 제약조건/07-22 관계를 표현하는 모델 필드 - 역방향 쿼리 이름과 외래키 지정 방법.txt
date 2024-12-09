@@ -52,3 +52,50 @@ postField만 업데이트합니다.
 underbulkbyId 를 통해 조회하고, QuerySet의 Update 메서드를
 통해 외래키를 일괄 변경하는 방법입니다.
 이 역시 하나의 업데이트 쿼리로 수행되기에 효율적인 방법입니다.
+
+
+
+
+Django의 관계 필드와 관련 설정
+related_name 설정
+
+외래키 필드에서 related_name을 설정하면, 해당 외래키 관계의 역방향 쿼리 이름을 지정할 수 있습니다.
+기본적으로 역방향 쿼리 이름은 모델명 소문자에 _set을 붙인 형태로 자동 생성됩니다.
+related_name을 설정하면 해당 역방향 이름으로 관련 객체를 조회할 수 있습니다.
+예시: Post 모델의 user 필드에 related_name='posts'를 설정하면, User 모델 인스턴스에서 user.posts.all()로 관련 포스트를 조회할 수 있습니다.
+related_query_name 설정
+
+related_query_name은 related_name과 비슷하지만, 역방향 쿼리를 통해 필터링할 때 사용하는 이름을 설정합니다.
+기본값은 related_name과 동일하지만, 명시적으로 설정하면 쿼리에서 이 이름을 사용할 수 있습니다.
+related_name과 related_query_name의 차이
+
+related_name: 역방향 관계를 통해 객체를 조회할 때 사용할 이름을 설정.
+related_query_name: 역방향 관계로 필터링할 때 사용할 쿼리 이름을 설정.
+예를 들어, related_name='posts'와 related_query_name='blog_posts'를 설정하면,
+
+User.posts.all()으로 역방향 조회 가능,
+User.objects.filter(blog_posts__title='example')으로 필터링이 가능해집니다.
+추상화 모델에서의 related_name과 related_query_name
+
+추상화 모델에서 related_name과 related_query_name은 포맷 문자열을 사용할 수 있습니다. 예를 들어, related_name='%app_label%_%class_name%-set'과 같이 설정하여 상속받는 모델에 맞게 자동으로 이름을 생성할 수 있습니다.
+외래키 필드에서 related_name 설정이 없다면
+
+역방향 관계 이름은 기본적으로 모델명 소문자에 _set이 붙은 형태로 자동 생성됩니다.
+외래키 필드에 외래 모델을 저장하는 방법
+
+외래키 필드는 외래 모델 인스턴스를 저장하거나 외래키 값만 지정하여 저장할 수 있습니다.
+예시:
+모델 인스턴스 생성 시 외래 모델 인스턴스를 지정하고 .save() 호출.
+모델 매니저의 create() 메서드를 사용해 인스턴스 생성 및 저장.
+관계 매니저의 create() 메서드를 사용하여 지정된 모델에 속한 인스턴스를 생성.
+외래키 값 일괄 변경 방법
+
+여러 모델 인스턴스의 외래키 값을 변경하는 방법:
+각 모델 인스턴스를 순회하며 외래키 변경 후 save() 호출 (비효율적).
+update_fields를 지정해 필드만 업데이트 (다소 효율적).
+쿼리셋의 update() 메서드를 사용하여 일괄 업데이트 (효율적).
+bulk_update()를 사용하여 모델 인스턴스를 한 번에 업데이트 (효율적).
+결론
+**related_name**과 **related_query_name**은 관계 필드에서 역방향 쿼리와 필터링을 직관적으로 할 수 있게 도와주는 설정입니다.
+외래키를 사용할 때는 관계 설정을 명확히 하여 쿼리 작성과 코드 가독성을 향상시킬 수 있습니다.
+외래키 값을 일괄 변경할 때는 update()와 bulk_update()를 사용하여 성능을 최적화할 수 있습니다.
