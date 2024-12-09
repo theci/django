@@ -68,3 +68,99 @@ Forms라는 라이브러리로 좀 더 커스텀된 필드로 활용하실 수 �
 greeting.txt라고 저장을 했다면 renderToString이라는 함수를 쓰고
 사용할 템플릿 파일의 경로를 쓰고요 그리고 이 템플릿에서 참조할 값들을 사전으로 넘기면은
 그리팅 3는 문자열 타입이고 출력하면 똑같습니다.
+
+
+
+
+
+Django 폼 및 템플릿 기능 정리
+이번에는 Django의 폼(Form) 및 템플릿(Template) 기능에 대해 다룬 내용을 정리합니다.
+
+1. Django 폼 (Forms)
+폼의 개념
+입력 폼: 사용자가 데이터를 입력할 수 있도록 HTML 폼을 생성해야 합니다. 예를 들어, 제목과 내용을 입력받는 폼을 만든다고 가정합니다.
+유효성 검사: 입력된 값이 서버의 요구사항을 충족하는지 검증해야 합니다. 예를 들어, 제목은 최소 3글자 이상이어야 하고, 내용은 특정 형식이어야 합니다.
+Django 폼의 역할
+HTML 폼 자동 생성: Django의 폼 클래스는 HTML 폼을 자동으로 생성합니다.
+유효성 검사: is_valid() 메서드를 호출하면, 입력값에 대해 유효성 검사를 자동으로 수행하고, 검증 실패 시 에러 메시지도 자동으로 생성됩니다.
+데이터베이스 저장: 유효성 검사를 통과한 데이터는 .save() 메서드로 데이터베이스에 저장할 수 있습니다.
+모델 폼 (ModelForm)
+모델 폼은 Django 모델을 기반으로 자동으로 폼을 생성합니다.
+모델에 정의된 필드를 기반으로 HTML 폼이 생성되고, 해당 폼에서 받은 데이터를 모델에 맞춰 유효성 검사를 자동으로 진행합니다.
+.save() 메서드를 사용해 데이터베이스에 저장할 수 있습니다.
+일반 폼 (Form)
+일반 폼은 모델과 별개로 HTML 폼을 정의하고, 입력 값에 대한 유효성 검사를 필요로 할 때 사용합니다.
+.cleaned_data 속성을 통해 유효성 검사를 통과한 데이터를 반환하고, 이를 사용해 데이터베이스에 저장할 수 있습니다.
+폼 사용 예시
+python
+코드 복사
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content']
+        
+# 폼 인스턴스 생성
+form = PostForm(request.POST)
+
+# 유효성 검사
+if form.is_valid():
+    form.save()  # 데이터베이스에 저장
+else:
+    print(form.errors)  # 에러 메시지 출력
+스타일링
+기본 HTML 폼은 브라우저의 기본 스타일로 표시되므로, 디자인을 개선하기 위해서는 Bootstrap 5나 Django Crispy Forms와 같은 라이브러리를 사용할 수 있습니다.
+Django Crispy Forms는 폼 필드에 대해 커스텀 스타일을 쉽게 적용할 수 있게 도와주는 라이브러리입니다.
+2. Django 템플릿 (Templates)
+템플릿 엔진의 역할
+Django의 템플릿 엔진은 복잡한 문자열을 조합하고 출력하는 작업을 간소화할 수 있게 도와줍니다. 주로 HTML을 생성하는 데 사용되지만, 텍스트 기반 형식에서도 활용 가능합니다.
+예를 들어, 푸시 메시지나 이메일을 생성할 때도 템플릿을 사용할 수 있습니다.
+템플릿 문법
+Django 템플릿 문법은 다음과 같은 기능을 제공합니다:
+
+변수 출력: 템플릿 내에서 {{ variable_name }} 형태로 변수 값을 출력할 수 있습니다.
+조건문: {% if condition %}...{% endif %}를 사용하여 조건에 따른 출력을 할 수 있습니다.
+반복문: {% for item in list %}...{% endfor %}를 사용하여 리스트나 사전 등을 순회하면서 출력할 수 있습니다.
+템플릿 사용 예시
+python
+코드 복사
+from django.template import Context
+from django.template.loader import render_to_string
+
+context = {
+    'name': 'John Doe',
+    'plus': [{'name': 'Product 1', 'price': 100}, {'name': 'Product 2', 'price': 200}]
+}
+
+# 템플릿 정의
+template = "{% for item in plus %}{{ item.name }} costs {{ item.price }}{% endfor %}"
+
+# 템플릿 렌더링
+rendered = render_to_string(template, context)
+템플릿 파일 사용
+템플릿은 별도 파일에 저장하여 관리할 수 있습니다. render_to_string()을 사용하여 파이썬 코드에서 템플릿을 렌더링할 수 있습니다.
+템플릿에서 참조할 값은 사전 형식으로 넘겨줍니다.
+python
+코드 복사
+# 템플릿 파일(greeting.txt) 예시
+{{ name }}
+{% for item in plus %}
+  {{ item.name }}: {{ item.price }}
+{% endfor %}
+
+# 템플릿 렌더링
+rendered = render_to_string('greeting.txt', context)
+f-string vs 템플릿
+f-string을 사용한 문자열 조합도 가능합니다. 그러나 문자열이 복잡해지면 템플릿을 사용하는 것이 코드의 가독성과 관리 측면에서 유리합니다.
+예시:
+python
+코드 복사
+greeting = f"Hello, {name}! Your products are {', '.join([f'{item['name']} - {item['price']}' for item in plus])}"
+템플릿의 장점
+가독성: Django 템플릿 엔진은 복잡한 문자열 조합을 간결하게 해주고, 코드의 가독성을 높여줍니다.
+템플릿 파일 분리: HTML을 Python 코드에서 분리할 수 있어 코드 관리가 용이해집니다.
+요약
+Django 폼은 사용자의 입력값을 쉽게 처리하고 유효성 검사, HTML 폼 생성, 데이터베이스 저장까지 자동으로 도와주는 기능입니다. ModelForm을 사용하면 모델을 기반으로 폼을 생성하고, .save()로 데이터베이스에 저장할 수 있습니다. 일반 폼은 모델과 관계없이 사용자의 입력값을 처리할 때 유용합니다.
+
+Django 템플릿은 복잡한 문자열을 효율적으로 생성할 수 있도록 도와주는 기능으로, 변수 출력, 조건문, 반복문 등을 사용할 수 있습니다. 템플릿을 사용하면 코드가 간결하고 유지보수하기 쉬워집니다. 템플릿은 파일로 관리하여 사용하고, render_to_string을 사용해 렌더링합니다.
+
+Django의 폼과 템플릿 기능은 웹 애플리케이션을 빠르고 효율적으로 개발하는 데 중요한 역할을 합니다.
