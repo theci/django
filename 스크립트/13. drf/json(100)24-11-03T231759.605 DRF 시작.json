@@ -162,3 +162,43 @@ Underbar Framework.UADS를 인클로드 해줍니다.
 Any입니다. 이 설정들은 뒤에서 다루도록 하겠습니다.
 
 
+1. 클라이언트 사이드 렌더링 (CSR) 개념
+CSR 방식: 서버에서 HTML 파일만 제공하고, 클라이언트는 JavaScript를 통해 동적으로 데이터를 요청하여 UI를 그립니다.
+서버-클라이언트 간 데이터 처리: 서버는 JSON 포맷으로 데이터를 제공하고, 클라이언트는 이를 받아서 화면을 그립니다. 예를 들어, 노래 목록 데이터를 Fetch API로 요청해 받아옵니다.
+2. CORS (Cross-Origin Resource Sharing)
+CORS는 다른 도메인에서 리소스를 요청할 때, 웹 브라우저가 이를 제한하는 보안 정책입니다. Django에서 django-cors-headers를 사용하여 특정 도메인에 대한 요청을 허용할 수 있습니다.
+예를 들어, 웹 애플리케이션이 localhost에서 실행되고 있을 때만 특정 API 서버에 접근할 수 있도록 설정합니다.
+3. 정적 서버 설정 방법
+HTML 파일 서빙: HTML 파일을 로컬에서 웹 서버를 통해 서빙하는 방법입니다.
+Python의 http.server 모듈을 사용하여 간단한 HTTP 서버를 실행.
+Visual Studio Code에서 Live Server 확장을 사용해 자동 새로고침 기능 제공.
+PyCharm에서 웹 서버를 실행해 자동 새로고침 기능 제공.
+4. React.js, Vue.js 등 프론트엔드 라이브러리
+CSR 방식으로 데이터를 요청하는 프론트엔드 라이브러리 예시로 React.js와 Vue.js를 언급하며, 각각을 통해 같은 JSON API를 활용해 UI를 만들 수 있습니다.
+React와 같은 UI 라이브러리를 사용하면, 동적 UI를 쉽게 구성할 수 있고, 웹 API를 통해 데이터를 가져와 화면에 렌더링할 수 있습니다.
+5. JSON API와 서버 통신
+JSON API 요청: 클라이언트는 서버에서 데이터를 JSON 형식으로 받아와 화면을 그립니다. 이때 Fetch API나 Axios 같은 라이브러리를 사용합니다.
+세션 인증: 인증이 필요한 API 호출 시, 세션 쿠키를 통해 자동으로 인증이 처리됩니다.
+6. 앱 개발에서 JSON API 활용
+모바일 애플리케이션(Android, iOS)에서도 JSON API를 사용하여 서버와 통신하고, 앱에서 UI를 그릴 수 있습니다.
+
+Android: Java, Kotlin
+iOS: Objective-C, Swift
+Cross-platform: React Native, Flutter
+웹뷰 사용: 모바일 앱에서 웹 기술을 활용하는 방법으로, 웹뷰를 사용하여 앱 내에서 웹 애플리케이션을 실행할 수 있습니다. 이는 업데이트 용이성 및 개발 효율성을 높여줍니다.
+
+7. Django REST Framework (DRF) 소개
+DRF 설치: pip install djangorestframework 명령어로 설치 후, INSTALLED_APPS에 'rest_framework' 추가.
+Serializer: DRF에서 데이터 직렬화를 위해 Serializer 클래스를 사용합니다. 이 클래스는 복잡한 데이터(모델, 쿼리셋 등)를 JSON으로 변환할 수 있습니다. 직렬화 로직을 뷰에서 분리해 재사용 가능하도록 구현합니다.
+계산된 필드: DRF의 Serializer에서 계산된 필드(예: 제목 길이)를 쉽게 추가할 수 있습니다.
+8. Django REST Framework 설정
+권한 설정: DRF에서는 요청 권한을 설정할 수 있습니다. 예를 들어, 기본 권한은 AllowAny로 설정되어 있으며, 이를 변경하여 인증된 사용자만 접근할 수 있도록 설정할 수 있습니다.
+로그인 기능: Django 기본 로그인 기능을 DRF의 웹 페이지에서 활용할 수 있습니다. 로그인, 로그아웃 기능을 제공하며, 추가적인 템플릿을 통해 편리하게 로그인 UI를 처리할 수 있습니다.
+9. 설치 및 설정
+pip install djangorestframework로 DRF 설치.
+INSTALLED_APPS에 'rest_framework' 추가.
+DRF 설정 파일을 통해 API의 권한, 인증 등을 설정.
+결론
+**Django REST Framework (DRF)**를 사용하여 JSON API를 제공하고, 이를 다양한 클라이언트 애플리케이션(웹, 모바일)에서 활용하는 방법을 다뤘습니다.
+클라이언트 사이드 렌더링 방식으로 JSON API를 사용하면, 서버와 클라이언트의 역할이 명확히 분리되어 개발 효율성이 높아집니다.
+또한, DRF를 활용하면 데이터 직렬화, 계산된 필드 추가 등 여러 기능을 통해 유지 보수성을 높일 수 있습니다.
