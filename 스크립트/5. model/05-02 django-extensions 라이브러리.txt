@@ -26,25 +26,25 @@ Django는 Django 기본의 settings.py와 현재 프로젝트의 설정을 서�
 
 
 Django Extensions 라이브러리
-설치 방법:
 
+설치 방법:
 라이브러리 설치: Django Extensions 라이브러리를 설치하려면 requirements.txt 파일에 라이브러리 이름을 추가하고, 최신 버전인 3.2.3을 설치합니다.
 설정: 설치 후 settings.py 파일의 INSTALLED_APPS에 'django_extensions'를 추가하여 설정을 완료합니다.
+
 주요 명령어:
-
 show_urls:
-
 프로젝트에 정의된 모든 URL 패턴과 연결된 뷰 목록을 출력합니다.
 출력 형식은 테이블, JSON 등으로 지정할 수 있습니다.
 전체 URL 경로와 라우팅 구조를 한눈에 파악할 수 있어, 라우팅 문제 해결과 프로젝트 구조 이해에 유용합니다.
-shell_plus:
 
+shell_plus:
 Django 쉘을 확장한 명령어로, Print SQL 옵션을 제공하여 쿼리셋을 실행할 때 수행된 SQL 쿼리 내역을 출력합니다.
 직접 작성한 로우 SQL 코드도 포함하여, 실행된 SQL 및 그에 대한 수행 시간, 사용된 데이터베이스 이름 등을 확인할 수 있습니다.
 데이터베이스 작업에 대한 이해를 돕고 최적화 작업에 유용합니다.
-print_settings:
 
+print_settings:
 프로젝트에 적용된 최종 설정 내역을 출력합니다.
 Django의 기본 settings.py와 프로젝트 설정이 결합되어 적용되므로, 최종 적용된 설정을 확인하는 것이 중요합니다.
 배포 시 환경 변수가 제대로 설정되었는지 확인할 때 유용합니다.
+
 결론: Django Extensions는 프로젝트의 URL, 데이터베이스 쿼리, 설정 등을 확인하고 관리할 수 있는 유용한 명령어들을 제공하여 개발 및 디버깅을 더 효율적으로 만들어 줍니다.

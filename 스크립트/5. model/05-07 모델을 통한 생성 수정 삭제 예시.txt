@@ -121,8 +121,7 @@ concat 함수는 SQL 쿼리에서 concat 함수를 생성합니다.
 모델 정의:
 Title, Content, Status, Created At, Updated At 필드를 포함한 Post 모델을 정의합니다.
 Status 필드는 Choices 속성을 사용해 선택지를 제공하고, TextChoices 클래스를 통해 상수와 레이블을 설정합니다.
-python
-코드 복사
+
 from django.db import models
 
 class Post(models.Model):
@@ -139,97 +138,101 @@ class Post(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 마이그레이션 생성 및 적용:
 python manage.py makemigrations blog 명령어로 마이그레이션 파일을 생성하고,
 python manage.py migrate blog 명령어로 데이터베이스에 적용합니다.
-bash
-코드 복사
+
 python manage.py makemigrations blog
 python manage.py migrate blog
+
 SQL 쿼리:
 마이그레이션 후 데이터베이스 테이블이 생성되며, PostgreSQL과 같은 데이터베이스에서 CREATE TABLE SQL이 실행됩니다.
+
+
 2. 생성 예시
 모델 인스턴스 생성 후 저장:
 save() 메서드를 사용하여 새로운 인스턴스를 생성하고 저장합니다. 이때, INSERT SQL 쿼리가 실행됩니다.
-python
-코드 복사
+
 post = Post(title='New Post', content='This is a new post.', status=Post.Status.PUBLISHED)
 post.save()  # SQL: INSERT INTO blog_post (title, content, status, created_at, updated_at) VALUES (...)
+
 모델 매니저 create() 함수 사용:
 create() 메서드를 사용하면 인스턴스가 생성되자마자 바로 저장됩니다.
-python
-코드 복사
+
 post = Post.objects.create(title='New Post', content='This is a new post.', status=Post.Status.PUBLISHED)
+
 다수의 인스턴스 생성:
 여러 인스턴스를 각각 save() 메서드로 저장하면, 각 인스턴스에 대해 별도의 INSERT 쿼리가 실행됩니다.
-python
-코드 복사
+
 posts = [Post(title='Post 1', content='Content 1'), Post(title='Post 2', content='Content 2')]
 for post in posts:
     post.save()  # 여러 번 INSERT 쿼리 실행
+
 일괄 저장 (Bulk Create):
 bulk_create()를 사용하면 여러 인스턴스를 한 번에 데이터베이스에 저장할 수 있습니다. 네트워크 오버헤드를 줄이고 성능을 향상시킬 수 있습니다.
-python
-코드 복사
+
 posts = [Post(title='Post 1', content='Content 1'), Post(title='Post 2', content='Content 2')]
 Post.objects.bulk_create(posts)  # 한 번에 INSERT 쿼리 실행
+
 직접 SQL 쿼리 실행:
 Django에서 데이터베이스 커넥션을 통해 직접 SQL 쿼리를 실행할 수 있습니다. 그러나 모델의 기능을 사용하지 않으므로 유지보수에 어려움이 있을 수 있습니다.
-python
-코드 복사
+
 from django.db import connection
 
 with connection.cursor() as cursor:
     cursor.execute("INSERT INTO blog_post (title, content) VALUES (%s, %s)", ['New Post', 'Content'])
+
+
 3. 수정 예시
 개별 인스턴스 수정:
 save() 메서드를 호출하여 필드 값을 변경하고 저장합니다. 이때 UPDATE SQL 쿼리가 실행됩니다.
-python
-코드 복사
+
 post = Post.objects.get(id=1)
 post.title = 'Updated Post'
 post.save()  # SQL: UPDATE blog_post SET title='Updated Post', ... WHERE id=1
+
 다수의 인스턴스 수정 (개별 저장):
 여러 인스턴스를 순회하며 각 인스턴스의 필드를 변경한 후 저장합니다. 각 save() 호출 시마다 UPDATE 쿼리가 발생합니다.
-python
-코드 복사
+
 posts = Post.objects.all()
 for post in posts:
     post.status = Post.Status.PUBLISHED
     post.save()  # 개별 UPDATE 쿼리 실행
+
 일괄 수정 (Bulk Update):
 bulk_update()를 사용하면 여러 인스턴스를 한 번에 업데이트할 수 있습니다. 이때 UPDATE 쿼리가 한 번만 실행됩니다.
-python
-코드 복사
+
 posts = Post.objects.all()
 for post in posts:
     post.status = Post.Status.PUBLISHED
 Post.objects.bulk_update(posts, ['status'])  # 한 번에 UPDATE 쿼리 실행
+
 데이터베이스 레벨에서 일괄 수정 (SQL 직접 실행):
 F() 객체와 update() 메서드를 사용하여 데이터베이스에서 직접 업데이트 작업을 수행할 수 있습니다.
-python
-코드 복사
+
 from django.db.models import F
 Post.objects.filter(status=Post.Status.DRAFT).update(status=F('status'))
+
+
 4. 삭제 예시
 개별 인스턴스 삭제:
 delete() 메서드를 사용하여 개별 인스턴스를 삭제할 수 있습니다. DELETE SQL 쿼리가 실행됩니다.
-python
-코드 복사
+
 post = Post.objects.get(id=1)
 post.delete()  # SQL: DELETE FROM blog_post WHERE id=1
 다수의 인스턴스 삭제 (개별 삭제):
 여러 인스턴스를 순회하며 삭제합니다. 이때 각 삭제마다 DELETE 쿼리가 실행됩니다.
-python
-코드 복사
+
 posts = Post.objects.all()
 for post in posts:
     post.delete()  # 개별 DELETE 쿼리 실행
+
 조건에 맞는 인스턴스 일괄 삭제:
 조건에 맞는 여러 인스턴스를 한 번에 삭제하려면 delete() 메서드를 사용합니다. 이때 DELETE SQL 쿼리가 한 번만 실행됩니다.
-python
-코드 복사
+
 Post.objects.filter(status=Post.Status.DRAFT).delete()  # 한 번에 DELETE 쿼리 실행
+
 정리
 생성: save()와 create() 메서드를 사용하여 모델 인스턴스를 생성하고 저장합니다. 대량 생성 시 bulk_create()를 사용하여 성능을 최적화할 수 있습니다.
 수정: 개별 인스턴스 수정 시 save()를 호출하여 업데이트하고, 대량 수정 시 bulk_update()를 사용하면 효율적으로 처리할 수 있습니다.

@@ -113,13 +113,13 @@ first.object.published라고 하시면 이렇게 조회 조건으로 발행이 �
 포스트 모델에서 Status 필드를 사용하여 포스팅의 상태를 "초안"과 "발행"으로 구분합니다.
 여러 뷰 함수에서 같은 조회 조건(예: 발행 상태의 포스팅 조회)이 반복적으로 사용되고 있는데, 이는 유지보수와 코드 일관성에 문제가 될 수 있습니다.
 이를 해결하기 위해 커스텀 모델 매니저를 사용하여 공통된 쿼리셋 로직을 한 곳에 모아두고 재사용할 수 있습니다.
+
 2. 커스텀 모델 매니저 구현 방법
 방법 1: 매니저 클래스를 상속받아 get_queryset 메서드를 오버라이딩
 PostManager 클래스를 생성하여, 기본 get_queryset 메서드를 오버라이딩하여 Status가 "발행"인 포스팅만 조회할 수 있도록 필터를 추가합니다.
 이 매니저를 Post 모델에 published라는 이름으로 등록합니다. 이렇게 하면 Post.published.all()을 호출할 때 발행 상태인 포스팅만 조회됩니다.
 create 메서드를 오버라이딩하여, 새 포스팅 생성 시 기본적으로 Status 필드가 "발행" 상태로 설정되도록 합니다.
-python
-코드 복사
+
 class PublishedPostManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(status='P')
@@ -130,12 +130,12 @@ class Post(models.Model):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
 
     published = PublishedPostManager()  # 커스텀 매니저 등록
+
 방법 2: 쿼리셋 클래스를 상속받아 메서드 구현
 PostQuerySet 클래스를 생성하여, 여러 조건을 체이닝할 수 있는 쿼리셋 메서드를 정의합니다.
 Post 모델에 objects를 PostQuerySet으로 등록하고, published와 draft 메서드를 추가하여 발행 상태나 초안 상태의 포스팅을 쉽게 조회할 수 있도록 합니다.
 create 메서드에서 Status가 지정되지 않으면 기본적으로 "발행" 상태로 설정합니다.
-python
-코드 복사
+
 class PostQuerySet(models.QuerySet):
     def published(self):
         return self.filter(status='P')
@@ -152,11 +152,14 @@ class Post(models.Model):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
 
     objects = PostQuerySet.as_manager()  # 커스텀 쿼리셋 등록
+
 3. 장고 쉘에서의 확인
 Post.objects.all()을 사용하면 모든 포스팅을 조회할 수 있으며, Post.objects.published()를 사용하면 발행 상태의 포스팅만 조회됩니다.
 메서드 체이닝을 활용하여 Post.objects.published().filter(title__icontains='맛집')와 같이 조건을 간결하게 추가할 수 있습니다.
+
 4. 장고 셀에서의 동작 예시
 first.published.create(title='제목', content='내용')을 호출하면, Status가 "발행" 상태로 자동 설정됩니다.
 first.objects.create(title='제목', content='내용')은 Status가 기본값인 "초안" 상태로 생성됩니다.
+
 결론
 커스텀 모델 매니저를 사용하면 반복되는 쿼리셋 로직을 재사용할 수 있고, 메서드 체이닝을 통해 조회 조건을 간결하게 작성할 수 있습니다. 이는 코드의 중복을 줄이고, 가독성을 높이며, 유지보수를 쉽게 합니다.
